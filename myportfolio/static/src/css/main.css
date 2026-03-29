@@ -4,15 +4,47 @@
 
 @layer base {
   body {
-    @apply bg-zinc-950 text-zinc-100 font-body antialiased;
+    @apply bg-primary font-hagia;
   }
 }
 
+/* static/css/input.css */
 @layer components {
-  .btn-primary {
-    @apply inline-flex items-center gap-2 px-6 py-3 bg-accent text-white font-semibold rounded-lg hover:opacity-90 transition;
-  }
-  .section {
-    @apply max-w-6xl mx-auto px-6 py-20;
-  }
+    .project-card {
+        @apply bg-white/80 backdrop-blur-sm rounded-[2rem] shadow-2xl border border-gray-100;
+    }
+    .tech-pill {
+        @apply bg-gray-100/50 rounded-2xl p-4 flex items-center justify-center transition-transform hover:scale-105;
+    }
+}
+
+/* Regular / Normal (400) */
+@font-face {
+    font-family: 'HagiaPro';
+    src: url('/static/fonts/HagiaPro-Regular.otf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
+
+/* Medium (500) */
+@font-face {
+    font-family: 'HagiaPro';
+    src: url('/static/fonts/HagiaPro-Medium.otf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+}
+
+/* ExtraBold (800) */
+@font-face {
+    font-family: 'HagiaPro';
+    src: url('/static/fonts/HagiaPro-ExtraBold.otf') format('truetype');
+    font-weight: 800;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Geisha';
+    src: url('/static/fonts/Geisha.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
 }

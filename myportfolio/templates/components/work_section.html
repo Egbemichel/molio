@@ -1,0 +1,78 @@
+{% load static %}
+
+<section class="relative min-h-screen w-full flex items-center justify-center p-8 md:p-16 overflow-hidden bg-white">
+    
+    <img src="{% static 'images/grid-background.png' %}" 
+         alt="grid background" 
+         class="absolute inset-0 w-full h-full object-cover opacity-30 pointer-events-none z-0">
+
+    <div class="max-w-[100rem] w-full relative z-10 px-[60px]">
+        
+        <header class="mb-12">
+            <h2 class="font-hagia font-medium text-dark text-4xl tracking-tight">
+                Work Experiences
+            </h2>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+            
+            <div class="md:col-span-3 flex flex-col space-y-8 border-l-4 border-app-accent/20 pl-6">
+                <a href="#" class="font-hagia text-4xl text-app-accent font-medium transition-colors">Personal projects</a>
+                <a href="#" class="font-hagia text-4xl text-app-dark opacity-60 hover:opacity-100 transition-opacity">Freelance/client work</a>
+                <a href="#" class="font-hagia text-4xl text-app-dark opacity-60 hover:opacity-100 transition-opacity">Concept & prototypes</a>
+                <a href="#" class="font-hagia text-4xl text-app-dark opacity-60 hover:opacity-100 transition-opacity">Experimental builds</a>
+            </div>
+
+            <div class="md:col-span-7 project-card p-8 md:p-12 flex flex-col md:flex-row gap-8 relative">
+                
+                <div class="w-full md:w-1/3 flex-shrink-0">
+                    <img src="{% static 'images/runam-mockup.png' %}" alt="RunAm Mobile" class="w-full h-auto drop-shadow-2xl">
+                </div>
+
+                <div class="flex-grow">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex flex-col">
+                           <img src="{% static 'images/runam-logo.png' %}" alt="RunAm" class="h-12 w-auto object-contain mb-2">
+                           <p class="font-hagia font-medium text-sm text-app-dark opacity-70">Fullstack Developer — RunAm</p>
+                           <p class="font-hagia text-xs text-app-dark opacity-50 uppercase">Nov 2025 — present</p>
+                        </div>
+                    </div>
+
+                    <p class="font-hagia text-lg text-dark leading-snug mb-6">
+                        Built a real-time errand platform that orchestrates task pricing, location-based matching, and secure transaction flows end-to-end.
+                    </p>
+
+                    <ul class="space-y-3">
+                        <li class="flex items-start gap-3">
+                            <span class="text-green-600 text-xl">✓</span>
+                            <p class="font-hagia text-sm text-dark opacity-80">Engineered a fullstack system (Flutter + Django + GraphQL) supporting multi-step errand creation.</p>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="text-green-600 text-xl">✓</span>
+                            <p class="font-hagia text-sm text-dark opacity-80">Implemented a task-based pricing engine combining multiple inputs (task value, distance, service fee).</p>
+                        </li>
+                    </ul>
+
+                    <a href="#" class="absolute bottom-8 right-8 font-hagia text-sm text-app-dark underline hover:opacity-100">GitHub Link ↗</a>
+                </div>
+            </div>
+
+            <div class="md:col-span-2 flex flex-col gap-4">
+                <div class="tech-pill">
+                    <img src="{% static 'images/flutter-logo.png' %}" class="h-10 w-auto" alt="Flutter">
+                </div>
+                <div class="tech-pill">
+                    <img src="{% static 'images/django-logo.png' %}" class="h-10 w-auto" alt="Django">
+                </div>
+                <div class="tech-pill">
+                    <img src="{% static 'images/graphql-logo.png' %}" class="h-10 w-auto" alt="GraphQL">
+                </div>
+
+                <button class="mt-4 bg-app-dark text-white rounded-3xl py-12 flex items-center justify-center hover:bg-app-accent transition-colors">
+                    <span class="text-4xl">❯</span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+</section>

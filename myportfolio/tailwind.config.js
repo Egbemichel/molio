@@ -6,12 +6,17 @@ module.exports = {
   ],
   theme: {
     extend: {
-      fontFamily: {
-        display: ['"Cabinet Grotesk"', 'sans-serif'],
-        body: ['"DM Sans"', 'sans-serif'],
-      },
       colors: {
-        accent: '#FF4D00',
+        dark: '#3F3F3F',
+        primary: '#E8E8E8',
+        accent: '#8B1E1E',
+      },
+      fontFamily: {
+        hagia: ['HagiaPro', 'sans-serif'],
+        geisha: ['Geisha', 'serif'],
+      },
+      spacing: {
+        'figma-margin': '60px',
       },
     },
   },
