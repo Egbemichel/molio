@@ -1,0 +1,41 @@
+{% load static %}
+<section class="bg-white flex items-center justify-center p-8 md:p-24 overflow-hidden">
+    <img src="{% static 'images/icon.png' %}" 
+         alt="my favorite smiling emoji" 
+         class="absolute left-[465px] top-[1070px] -translate-x-1/2 -translate-y-1/2 z-0
+                h-[41px] w-[41px] md:h-[71px] md:w-[71px]
+                object-contain object-center">
+    <div class="max-w-[90rem] w-full relative">
+        
+        <div class="mb-2">
+            <p class="font-hagia font-regular text-dark text-[35px] md:text-5xl tracking-tight">
+                My name is <span class="text-accent">Michel</span> and I am a Freelance
+            </p>
+        </div>
+
+        <div class="relative">
+            <h2 class="font-hagia font-extrabold text-dark text-[175px] md:text-[18rem] leading-[0.8] uppercase ">
+                Fullstack
+            </h2>
+
+            <span class="absolute -bottom-72 right-0 md:right-10 lg:-right-[3px] font-geisha text-accent text-[10vw] md:text-[18rem] lowercase  pointer-events-none">
+                developer.
+            </span>
+        </div>
+
+        <div class="mt-12 md:mt-4 grid grid-cols-1 md:grid-cols-12">
+            <div class="md:col-start-1 md:col-end-6">
+                <h3 class="font-hagia text-dark text-2xl md:text-3xl mb-4">
+                    About <span class="text-accent">Me</span>
+                </h3>
+                <p class="font-hagia text-dark text-4xl md:text-3xl leading-relaxed ">
+                    I build things that feel simple but aren't, diving from 
+                    frontend to fullstack, breaking and bending tools for the 
+                    thrill of understanding them, so you get robust, clever, 
+                    boundary-pushing solutions that actually work and 
+                    maybe a little crazy along the way.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
