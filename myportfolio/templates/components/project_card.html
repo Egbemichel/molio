@@ -1,0 +1,24 @@
+<article class="group bg-zinc-900 rounded-xl overflow-hidden border border-zinc-800 hover:border-accent transition-colors"
+         data-tags="{{ project.tags.all|join:',' }}">
+  {% if project.thumbnail %}
+    <img src="{{ project.thumbnail.url }}" alt="{{ project.title }}" class="w-full h-48 object-cover">
+  {% endif %}
+  <div class="p-6">
+    <h3 class="font-display font-bold text-lg mb-2">{{ project.title }}</h3>
+    <p class="text-zinc-400 text-sm mb-4 line-clamp-3">{{ project.description }}</p>
+    <div class="flex gap-2 flex-wrap mb-4">
+      {% for tag in project.tags.all %}
+        <span class="text-xs px-2 py-1 bg-zinc-800 rounded-full text-zinc-300">{{ tag.name }}</span>
+      {% endfor %}
+    </div>
+    <div class="flex gap-3">
+      {% if project.live_url %}
+        <a href="{{ project.live_url }}" target="_blank" class="btn-primary text-xs px-4 py-2">Live ↗</a>
+      {% endif %}
+      {% if project.repo_url %}
+        <a href="{{ project.repo_url }}" target="_blank"
+           class="text-xs px-4 py-2 border border-zinc-700 rounded-lg hover:border-accent transition text-zinc-300">Code</a>
+      {% endif %}
+    </div>
+  </div>
+</article>

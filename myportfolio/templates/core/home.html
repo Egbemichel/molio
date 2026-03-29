@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<!-- Hero -->
+<section class="section pt-36">
+  <p class="text-accent font-semibold mb-3">Hi, I'm</p>
+  <h1 class="font-display font-bold text-5xl md:text-7xl leading-tight mb-6">
+    Your Name<span class="text-accent">.</span>
+  </h1>
+  <p class="text-zinc-400 text-xl max-w-xl mb-8">
+    I build fast, beautiful web experiences. Focused on backend elegance and frontend craft.
+  </p>
+  <div class="flex gap-4">
+    <a href="#projects" class="btn-primary">View Projects</a>
+    <a href="/contact/" class="px-6 py-3 border border-zinc-700 rounded-lg hover:border-accent transition text-zinc-300">
+      Get in touch
+    </a>
+  </div>
+</section>
+
+<!-- Projects -->
+<section id="projects" class="section">
+  <h2 class="font-display font-bold text-3xl mb-10">Selected Work</h2>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for project in projects %}
+      {% include "components/project_card.html" %}
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
