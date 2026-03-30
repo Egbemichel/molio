@@ -1,78 +1,111 @@
 {% load static %}
 
-<section class="relative min-h-screen w-full flex items-center justify-center p-8 md:p-16 overflow-hidden bg-white">
-    
-    <img src="{% static 'images/grid-background.png' %}" 
-         alt="grid background" 
-         class="absolute inset-0 w-full h-full object-cover opacity-30 pointer-events-none z-0">
+<section x-data="{ 
+    activeCategory: 0, 
+    projectIndex: 0,
+    categories: [
+        {% for cat in categories %}
+        {% if cat.projects.exists %} {# Only include categories that have projects #}
+        {
+            name: '{{ cat.name|escapejs }}',
+            projects: [
+                {% for p in cat.projects.all %}
+                {
+                    title: '{{ p.title|escapejs }}',
+                    role: '{{ p.role|escapejs }}',
+                    date: '{{ p.date_range|escapejs }}',
+                    desc: '{{ p.description|escapejs }}',
+                    points: {{ p.points|safe|default:'[]' }},
+                    mockup: '{% if p.mockup %}{{ p.mockup.url }}{% endif %}',
+                    logo: '{% if p.logo %}{{ p.logo.url }}{% endif %}',
+                    github: '{{ p.github_link|default:"#" }}',
+                    tech: [
+                        {% for t in p.technologies.all|slice:':3' %}
+                        { name: '{{ t.name|escapejs }}', icon: '{% if t.image %}{{ t.image.url }}{% endif %}' }{% if not forloop.last %},{% endif %}
+                        {% endfor %}
+                    ]
+                }{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ]
+        }{% if not forloop.last %},{% endif %}
+        {% endif %}
+        {% endfor %}
+    ]
+}" 
+" 
+style="display: none;" 
+:style="{ display: 'flex' }"
+class="relative min-h-screen w-full flex items-center justify-center p-8 md:p-16 bg-white">
+
+    <img src="{% static 'images/grid-background.png' %}" class="absolute inset-0 w-full h-full object-cover opacity-20 pointer-events-none">
 
     <div class="max-w-[100rem] w-full relative z-10 px-[60px]">
-        
-        <header class="mb-12">
-            <h2 class="font-hagia font-medium text-dark text-4xl">
-                Work Experiences
-            </h2>
-        </header>
+        <h2 class="font-hagia font medium text-5xl mb-12">Work Experiences</h2>
 
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+        <div class="grid grid-cols-12 gap-8">
             
-            <div class="md:col-span-3 flex flex-col space-y-8 border-l-4 border-app-accent/20 pl-6">
-                <a href="#" class="font-hagia text-4xl text-app-accent font-medium transition-colors">Personal projects</a>
-                <a href="#" class="font-hagia text-4xl text-app-dark opacity-60 hover:opacity-100 transition-opacity">Freelance/client work</a>
-                <a href="#" class="font-hagia text-4xl text-app-dark opacity-60 hover:opacity-100 transition-opacity">Concept & prototypes</a>
-                <a href="#" class="font-hagia text-4xl text-app-dark opacity-60 hover:opacity-100 transition-opacity">Experimental builds</a>
+            <div class="col-span-3 flex flex-col space-y-6 border-l-4 border-accent/10 pl-6">
+                <template x-for="(cat, index) in categories" :key="index">
+                    <button 
+                        @click="activeCategory = index; projectIndex = 0"
+                        :class="activeCategory === index ? 'text-accent opacity-100' : 'text-dark opacity-40'"
+                        class="font-hagia font-medium text-4xl text-left transition-all hover:opacity-100"
+                        x-text="cat.name">
+                    </button>
+                </template>
             </div>
 
-            <div class="md:col-span-7 project-card p-8 md:p-12 flex flex-col md:flex-row gap-8 relative">
+            <div class="col-span-7 bg-primary backdrop-blur-md rounded-[2.5rem] p-12 shadow-2xl border-white flex gap-10 min-h-[500px]">
                 
-                <div class="w-full md:w-1/3 flex-shrink-0">
-                    <img src="{% static 'images/runam-mockup.png' %}" alt="RunAm Mobile" class="w-full h-auto drop-shadow-2xl">
+                <div class="w-1/3 flex items-center justify-center">
+                    <img :src="categories[activeCategory].projects[projectIndex].mockup" class="w-full h-auto drop-shadow-3xl">
                 </div>
 
-                <div class="flex-grow">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="flex flex-col">
-                           <img src="{% static 'images/runam-logo.png' %}" alt="RunAm" class="h-12 w-auto object-contain mb-2">
-                           <p class="font-hagia font-medium text-sm text-app-dark opacity-70">Fullstack Developer — RunAm</p>
-                           <p class="font-hagia text-xs text-app-dark opacity-50 uppercase">Nov 2025 — present</p>
-                        </div>
-                    </div>
-
-                    <p class="font-hagia text-lg text-dark leading-snug mb-6">
-                        Built a real-time errand platform that orchestrates task pricing, location-based matching, and secure transaction flows end-to-end.
-                    </p>
-
-                    <ul class="space-y-3">
-                        <li class="flex items-start gap-3">
-                            <span class="text-green-600 text-xl">✓</span>
-                            <p class="font-hagia text-sm text-dark opacity-80">Engineered a fullstack system (Flutter + Django + GraphQL) supporting multi-step errand creation.</p>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <span class="text-green-600 text-xl">✓</span>
-                            <p class="font-hagia text-sm text-dark opacity-80">Implemented a task-based pricing engine combining multiple inputs (task value, distance, service fee).</p>
-                        </li>
+                <div class="w-2/3 flex flex-col">
+                    <img :src="categories[activeCategory].projects[projectIndex].logo" class="h-12 w-fit mb-2">
+                    <p class="font-hagia font-medium text-dark" x-text="categories[activeCategory].projects[projectIndex].role"></p>
+                    <p class="font-hagia text-xs text-dark uppercase mb-6" x-text="categories[activeCategory].projects[projectIndex].date"></p>
+                    
+                    <p class="font-hagia text-xl mb-6" x-text="categories[activeCategory].projects[projectIndex].desc"></p>
+                    
+                    <ul class="space-y-3 flex-grow">
+                        <template x-for="point in categories[activeCategory].projects[projectIndex].points">
+                            <li class="flex gap-3 text-sm font-hagia text-dark">
+                                <span class="text-green-600">✓</span> <span x-text="point"></span>
+                            </li>
+                        </template>
                     </ul>
 
-                    <a href="#" class="absolute bottom-8 right-8 font-hagia text-sm text-app-dark underline hover:opacity-100">GitHub Link ↗</a>
+                    <a :href="categories[activeCategory].projects[projectIndex].github" class="self-end text-lg underline opacity-50 hover:opacity-100">GitHub Link ↗</a>
                 </div>
             </div>
 
-            <div class="md:col-span-2 flex flex-col gap-4">
-                <div class="tech-pill">
-                    <img src="{% static 'images/flutter-logo.png' %}" class="h-10 w-auto" alt="Flutter">
-                </div>
-                <div class="tech-pill">
-                    <img src="{% static 'images/django-logo.png' %}" class="h-10 w-auto" alt="Django">
-                </div>
-                <div class="tech-pill">
-                    <img src="{% static 'images/graphql-logo.png' %}" class="h-10 w-auto" alt="GraphQL">
+            <div class="col-span-2 flex flex-col gap-4">
+                <div class="flex flex-col gap-4">
+                    <template x-for="t in categories[activeCategory].projects[projectIndex].tech">
+                        <div class="bg-gray-100/50 rounded-2xl p-4 flex items-center justify-center aspect-square transition-transform hover:scale-105 border border-white/50">
+                            <img :src="t.icon" :alt="t.name" class="w-12 h-12 object-contain">
+                        </div>
+                    </template>
                 </div>
 
-                <button class="mt-4 bg-app-dark text-white rounded-3xl py-12 flex items-center justify-center hover:bg-app-accent transition-colors">
-                    <span class="text-4xl">❯</span>
-                </button>
+                <div class="flex flex-col h-full gap-4">
+                    <button 
+                        @click="projectIndex = (projectIndex > 0) ? projectIndex - 1 : categories[activeCategory].projects.length - 1"
+                        class="bg-dark text-white rounded-3xl p-8 hover:bg-accent transition-colors flex items-center justify-center">
+                        <span class="text-3xl rotate-[-90deg]">❯</span>
+                    </button>
+
+                    <button 
+                        @click="projectIndex = (projectIndex < categories[activeCategory].projects.length - 1) ? projectIndex + 1 : 0"
+                        class="bg-dark text-white rounded-3xl p-8 hover:bg-accent transition-colors flex items-center justify-center flex-grow">
+                        <span class="text-3xl rotate-90">❯</span>
+                    </button>
+                </div>
             </div>
 
         </div>
     </div>
 </section>
+
+<script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>

@@ -86,8 +86,6 @@ INSTALLED_APPS += [
     'colorfield',
     'apps.core',
     'apps.projects',
-    'apps.blog',
-    'apps.contact',
 ]
 
 TEMPLATES[0]['DIRS'] = [BASE_DIR / 'templates']
@@ -462,7 +460,7 @@ from apps.core.views import home
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', home, name='home'),
-    path('contact/', include('apps.contact.urls')),
+    path('projects/', include('apps.projects.urls')),
 ]
 
 if settings.DEBUG:
