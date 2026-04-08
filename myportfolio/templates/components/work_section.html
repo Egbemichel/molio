@@ -31,20 +31,19 @@
         {% endif %}
         {% endfor %}
     ]
-}" 
-" 
-style="display: none;" 
+}"
+style="display: none;"
 :style="{ display: 'flex' }"
 class="relative min-h-screen w-full flex items-center justify-center p-8 md:p-16 bg-white">
 
     <img src="{% static 'images/grid-background.png' %}" class="absolute inset-0 w-full h-full object-cover opacity-20 pointer-events-none">
 
     <div class="max-w-[100rem] w-full relative z-10 px-[60px]">
-        <h2 class="font-hagia font medium text-5xl mb-12">Work Experiences</h2>
+        <h2 class="font-hagia font medium text-5xl mb-12" x-show="categories && categories.length > 0">Work Experiences</h2> 
 
-        <div class="grid grid-cols-12 gap-8">
-            
-            <div class="col-span-3 flex flex-col space-y-6 border-l-4 border-accent/10 pl-6">
+        <template x-if="categories && categories.length > 0 && categories[activeCategory] && categories[activeCategory].projects && categories[activeCategory].projects.length > 0">
+            <div class="grid grid-cols-12 gap-8 w-full">
+                <div class="col-span-3 flex flex-col space-y-6 border-l-4 border-accent/10 pl-6">
                 <template x-for="(cat, index) in categories" :key="index">
                     <button 
                         @click="activeCategory = index; projectIndex = 0"
@@ -62,11 +61,11 @@ class="relative min-h-screen w-full flex items-center justify-center p-8 md:p-16
                 </div>
 
                 <div class="w-2/3 flex flex-col">
-                    <img :src="categories[activeCategory].projects[projectIndex].logo" class="h-12 w-fit mb-2">
-                    <p class="font-hagia font-medium text-dark" x-text="categories[activeCategory].projects[projectIndex].role"></p>
-                    <p class="font-hagia text-xs text-dark uppercase mb-6" x-text="categories[activeCategory].projects[projectIndex].date"></p>
+                    <img :src="categories[activeCategory].projects[projectIndex].logo" class="h-12 w-fit mb-2 self-end">
+                    <p class="font-hagia font-medium text-dark text-right" x-text="categories[activeCategory].projects[projectIndex].role"></p>
+                    <p class="font-hagia text-xs text-dark uppercase mb-6 text-right" x-text="categories[activeCategory].projects[projectIndex].date"></p>
                     
-                    <p class="font-hagia text-xl mb-6" x-text="categories[activeCategory].projects[projectIndex].desc"></p>
+                    <p class="font-hagia text-xl mb-6 text-right" x-text="categories[activeCategory].projects[projectIndex].desc"></p>
                     
                     <ul class="space-y-3 flex-grow">
                         <template x-for="point in categories[activeCategory].projects[projectIndex].points">
@@ -105,6 +104,7 @@ class="relative min-h-screen w-full flex items-center justify-center p-8 md:p-16
             </div>
 
         </div>
+        </template>
     </div>
 </section>
 
