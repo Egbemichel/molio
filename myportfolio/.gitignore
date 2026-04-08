@@ -8,3 +8,4 @@ media/
 static/dist/
 node_modules/
 staticfiles/
+Makefile
