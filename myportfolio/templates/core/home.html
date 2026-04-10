@@ -14,20 +14,20 @@
         <dl class="space-y-6 max-w-2xl">
             
             <div class="flex items-baseline gap-12 border-b border-dark/5 pb-4">
-                <dt class="font-hagia font-medium text-xl w-36 text-dark opacity-70">Name:</dt>
-                <dd class="font-hagia text-xl text-accent">Egbe Michel</dd>
+                <dt class="font-hagia font-medium text-4xl w-36 text-dark opacity-70">Name:</dt>
+                <dd class="font-hagia text-4xl text-accent">Egbe Michel</dd>
             </div>
 
             <div class="flex items-baseline gap-12 border-b border-dark/5 pb-4">
-                <dt class="font-hagia font-medium text-xl w-36 text-dark opacity-70">Date of Birth:</dt>
-                <dd class="font-hagia text-xl text-accent">
-                    20/08/2005 <span class="text-dark opacity-40 ml-2">(21 years old)</span>
+                <dt class="font-hagia font-medium text-4xl w-36 text-dark opacity-70">Date of Birth:</dt>
+                <dd class="font-hagia text-4xl text-accent">
+                    20/08/2005 <span class="text-dark opacity-40 ml-2">({{ age }} years old)</span>
                 </dd>
             </div>
 
             <div class="flex items-baseline gap-12 border-b border-dark/5 pb-4">
-                <dt class="font-hagia font-medium text-xl w-36 text-dark opacity-70">Email:</dt>
-                <dd class="font-hagia text-xl text-accent">
+                <dt class="font-hagia font-medium text-4xl w-36 text-dark opacity-70">Email:</dt>
+                <dd class="font-hagia text-4xl text-accent">
                     <a href="mailto:egbemichel39@gmail.com" class="hover:underline transition-all">
                         egbemichel39@gmail.com
                     </a>
@@ -57,22 +57,22 @@
         
         <div class="relative pl-8 border-l-2 border-[#A05A5A]/20">
             
-            <h3 class="font-hagia font-medium text-4xl text-[#A05A5A] mb-3 tracking-tight">
+            <h3 class="font-hagia font-medium text-5xl text-[#A05A5A] mb-3 tracking-tight">
                 Bsc. Software Engineering
             </h3>
 
             <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 mb-4">
-                <span class="font-hagia text-2xl text-dark font-medium">ICT University, Yaounde, Cameroon</span>
+                <span class="font-hagia text-4xl text-dark font-medium">ICT University, Yaounde, Cameroon</span>
             </div>
 
             <div class="flex items-center gap-4 text-dark opacity-60">
-                <span class="font-hagia text-xl">Faculty of ICT</span>
-                <span class="h-5 w-px bg-dark opacity-30"></span> <span class="font-hagia text-xl">
-                    2023 — 2027 <span class="text-xs uppercase tracking-widest ml-1">(Expected graduation)</span>
+                <span class="font-hagia text-4xl">Faculty of ICT</span>
+                <span class="h-5 w-px bg-dark opacity-30"></span> <span class="font-hagia text-4xl">
+                    2023 - 2027 <span class="text-xl uppercase tracking-widest ml-1">(Expected graduation)</span>
                 </span>
             </div>
 
-            <div class="absolute -left-[9px] top-3 w-4 h-4 rounded-full bg-[#A05A5A] border-4 border-[#FAF9F6]"></div>
+            <div class="absolute -left-[9px] top-3 w-4 h-4 rounded-full bg-accent border-4 border-[#FAF9F6]"></div>
         </div>
 
     </div>
@@ -105,16 +105,16 @@
     // Helper function to split skills into two rows
     get firstRow() { return this.skills.slice(0, Math.ceil(this.skills.length / 2)) },
     get secondRow() { return this.skills.slice(Math.ceil(this.skills.length / 2)) }
-}" class="bg-white py-20 overflow-hidden marquee-container">
+}" class="bg-white py-40 overflow-hidden marquee-container">
 
-    <div class="flex mb-8">
+    <div class="flex mb-12">
         <div class="flex animate-marquee whitespace-nowrap">
             <template x-for="i in 2">
                 <div class="flex">
                     <template x-for="skill in firstRow">
-                        <div class="flex items-center bg-white border border-[#A05A5A]/30 rounded-2xl px-6 py-4 mx-4 shadow-sm min-w-[250px]">
-                            <img :src="skill.icon" :alt="skill.name" class="w-12 h-12 object-contain mr-4">
-                            <span class="font-hagia font-medium text-2xl text-dark" x-text="skill.name"></span>
+                        <div class="flex items-center bg-white border border-[#A05A5A]/30 rounded-3xl px-10 py-8 mx-6 shadow-sm min-w-[320px]">
+                            <img :src="skill.icon" :alt="skill.name" class="w-20 h-20 object-contain mr-6">
+                            <span class="font-hagia font-medium text-3xl text-dark" x-text="skill.name"></span>
                         </div>
                     </template>
                 </div>
@@ -127,9 +127,9 @@
             <template x-for="i in 2">
                 <div class="flex">
                     <template x-for="skill in secondRow">
-                        <div class="flex items-center bg-white border border-[#A05A5A]/30 rounded-2xl px-6 py-4 mx-4 shadow-sm min-w-[250px]">
-                            <img :src="skill.icon" :alt="skill.name" class="w-12 h-12 object-contain mr-4">
-                            <span class="font-hagia font-medium text-2xl text-dark" x-text="skill.name"></span>
+                        <div class="flex items-center bg-white border border-[#A05A5A]/30 rounded-3xl px-10 py-8 mx-6 shadow-sm min-w-[320px]">
+                            <img :src="skill.icon" :alt="skill.name" class="w-20 h-20 object-contain mr-6">
+                            <span class="font-hagia font-medium text-3xl text-dark" x-text="skill.name"></span>
                         </div>
                     </template>
                 </div>
@@ -142,57 +142,57 @@
         
         <div class="mb-20">
             <h2 class="font-hagia font-medium text-6xl mb-4 tracking-tight">Services</h2>
-            <p class="font-hagia text-2xl text-dark opacity-50 max-w-xl leading-relaxed">
+            <p class="font-hagia text-4xl text-dark opacity-50 max-w-xl leading-relaxed">
                 Turning complex problems into elegant digital solutions through design and code.
             </p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-16">
             
-            <div class="group border-t border-dark/10 pt-8 transition-all hover:border-[#A05A5A]">
-                <span class="font-hagia text-sm uppercase tracking-[0.2em] text-[#A05A5A] mb-6 block">01</span>
+            <div class="group border-t border-dark/10 pt-8 transition-all hover:border-accent">
+                <span class="font-hagia text-2xl uppercase tracking-[0.2em] text-accent mb-6 block">01</span>
                 <h3 class="font-hagia font-medium text-3xl mb-4 group-hover:translate-x-2 transition-transform duration-300">Mobile App Design</h3>
-                <p class="font-hagia text-lg text-dark opacity-60 leading-relaxed">
+                <p class="font-hagia text-2xl text-dark opacity-60 leading-relaxed">
                     Crafting intuitive, high-performance mobile interfaces with a focus on Flutter and seamless user journeys.
                 </p>
             </div>
 
-            <div class="group border-t border-dark/10 pt-8 transition-all hover:border-[#A05A5A]">
-                <span class="font-hagia text-sm uppercase tracking-[0.2em] text-[#A05A5A] mb-6 block">02</span>
+            <div class="group border-t border-dark/10 pt-8 transition-all hover:border-accent">
+                <span class="font-hagia text-2xl uppercase tracking-[0.2em] text-accent mb-6 block">02</span>
                 <h3 class="font-hagia font-medium text-3xl mb-4 group-hover:translate-x-2 transition-transform duration-300">Brand Identity</h3>
-                <p class="font-hagia text-lg text-dark opacity-60 leading-relaxed">
+                <p class="font-hagia text-2xl text-dark opacity-60 leading-relaxed">
                     Defining the visual soul of your business through logos, typography, and cohesive brand systems.
                 </p>
             </div>
 
-            <div class="group border-t border-dark/10 pt-8 transition-all hover:border-[#A05A5A]">
-                <span class="font-hagia text-sm uppercase tracking-[0.2em] text-[#A05A5A] mb-6 block">03</span>
+            <div class="group border-t border-dark/10 pt-8 transition-all hover:border-accent">
+                <span class="font-hagia text-2xl uppercase tracking-[0.2em] text-accent mb-6 block">03</span>
                 <h3 class="font-hagia font-medium text-3xl mb-4 group-hover:translate-x-2 transition-transform duration-300">Web Development</h3>
-                <p class="font-hagia text-lg text-dark opacity-60 leading-relaxed">
+                <p class="font-hagia text-2xl text-dark opacity-60 leading-relaxed">
                     Building responsive, spacious, and fast web applications using Django and modern frontend frameworks.
                 </p>
             </div>
 
-            <div class="group border-t border-dark/10 pt-8 transition-all hover:border-[#A05A5A]">
-                <span class="font-hagia text-sm uppercase tracking-[0.2em] text-[#A05A5A] mb-6 block">04</span>
+            <div class="group border-t border-dark/10 pt-8 transition-all hover:border-accent">
+                <span class="font-hagia text-2xl uppercase tracking-[0.2em] text-accent mb-6 block">04</span>
                 <h3 class="font-hagia font-medium text-3xl mb-4 group-hover:translate-x-2 transition-transform duration-300">UI/UX Design</h3>
-                <p class="font-hagia text-lg text-dark opacity-60 leading-relaxed">
+                <p class="font-hagia text-2xl text-dark opacity-60 leading-relaxed">
                     User-centric prototyping in Figma to ensure every click and swipe feels natural and intentional.
                 </p>
             </div>
 
-            <div class="group border-t border-dark/10 pt-8 transition-all hover:border-[#A05A5A]">
-                <span class="font-hagia text-sm uppercase tracking-[0.2em] text-[#A05A5A] mb-6 block">05</span>
+            <div class="group border-t border-dark/10 pt-8 transition-all hover:border-accent">
+                <span class="font-hagia text-2xl uppercase tracking-[0.2em] text-accent mb-6 block">05</span>
                 <h3 class="font-hagia font-medium text-3xl mb-4 group-hover:translate-x-2 transition-transform duration-300">3D Modelling</h3>
-                <p class="font-hagia text-lg text-dark opacity-60 leading-relaxed">
+                <p class="font-hagia text-2xl text-dark opacity-60 leading-relaxed">
                     Bringing products to life in 3D space using Blender for high-fidelity mockups and visual assets.
                 </p>
             </div>
 
-            <div class="group border-t border-dark/10 pt-8 transition-all hover:border-[#A05A5A]">
-                <span class="font-hagia text-sm uppercase tracking-[0.2em] text-[#A05A5A] mb-6 block">06</span>
+            <div class="group border-t border-dark/10 pt-8 transition-all hover:border-accent">
+                <span class="font-hagia text-2xl uppercase tracking-[0.2em] text-accent mb-6 block">06</span>
                 <h3 class="font-hagia font-medium text-3xl mb-4 group-hover:translate-x-2 transition-transform duration-300">Motion Graphics</h3>
-                <p class="font-hagia text-lg text-dark opacity-60 leading-relaxed">
+                <p class="font-hagia text-2xl text-dark opacity-60 leading-relaxed">
                     Adding life to brands with Adobe After Effects animations, from logo reveals to complex transitions.
                 </p>
             </div>
@@ -277,14 +277,14 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-20">
             
             <div class="flex flex-col justify-center">
-                <h2 class="font-hagia font-medium text-6xl mb-6 tracking-tight">Let's build <br> something <span class="text-[#A05A5A]">great.</span></h2>
-                <p class="font-hagia text-2xl text-dark opacity-60 max-w-md leading-relaxed">
+                <h2 class="font-hagia font-medium text-6xl mb-6 tracking-tight">Let's build <br> something <span class="text-accent">great.</span></h2>
+                <p class="font-hagia text-4xl text-dark opacity-60 max-w-md leading-relaxed">
                     Have a project in mind or just want to say hi? Feel free to reach out. I'm always open to discussing new ideas.
                 </p>
                 
                 <div class="mt-12 space-y-4">
-                    <p class="font-hagia text-xl font-medium">egbemichel39@gmail.com</p>
-                    <p class="font-hagia text-xl opacity-60">Yaounde, Cameroon</p>
+                    <p class="font-hagia text-2xl font-medium">egbemichel39@gmail.com</p>
+                    <p class="font-hagia text-2xl opacity-60">Yaounde, Cameroon</p>
                 </div>
             </div>
 
@@ -300,23 +300,23 @@
                 <form @submit.prevent="sendEmail" class="space-y-8">
                     
                     <div class="group">
-                        <label class="block font-hagia text-sm uppercase tracking-widest opacity-40 mb-2 transition-opacity group-focus-within:opacity-100">Your Name</label>
+                        <label class="block font-hagia text-xl uppercase tracking-widest opacity-40 mb-2 transition-opacity group-focus-within:opacity-100">Your Name</label>
                         <input type="text" x-model="name" required
-                            class="w-full bg-transparent border-b-2 border-dark/10 py-4 font-hagia text-2xl outline-none focus:border-[#A05A5A] transition-colors placeholder:opacity-20"
+                            class="w-full bg-transparent border-b-2 border-dark/10 py-4 font-hagia text-2xl outline-none focus:border-accent transition-colors placeholder:opacity-50"
                             placeholder="Egbe Michel">
                     </div>
 
                     <div class="group">
-                        <label class="block font-hagia text-sm uppercase tracking-widest opacity-40 mb-2 transition-opacity group-focus-within:opacity-100">Subject</label>
+                        <label class="block font-hagia text-xl uppercase tracking-widest opacity-40 mb-2 transition-opacity group-focus-within:opacity-100">Subject</label>
                         <input type="text" x-model="subject" required
-                            class="w-full bg-transparent border-b-2 border-dark/10 py-4 font-hagia text-2xl outline-none focus:border-[#A05A5A] transition-colors placeholder:opacity-20"
+                            class="w-full bg-transparent border-b-2 border-dark/10 py-4 font-hagia text-2xl outline-none focus:border-accent transition-colors placeholder:opacity-50"
                             placeholder="Project Inquiry">
                     </div>
 
                     <div class="group">
-                        <label class="block font-hagia text-sm uppercase tracking-widest opacity-40 mb-2 transition-opacity group-focus-within:opacity-100">Message</label>
+                        <label class="block font-hagia text-xl uppercase tracking-widest opacity-40 mb-2 transition-opacity group-focus-within:opacity-100">Message</label>
                         <textarea x-model="message" required rows="4"
-                            class="w-full bg-transparent border-b-2 border-dark/10 py-4 font-hagia text-2xl outline-none focus:border-[#A05A5A] transition-colors resize-none placeholder:opacity-20"
+                            class="w-full bg-transparent border-b-2 border-dark/10 py-4 font-hagia text-2xl outline-none focus:border-accent transition-colors resize-none placeholder:opacity-50"
                             placeholder="Tell me about your idea..."></textarea>
                     </div>
 
@@ -326,7 +326,7 @@
                         <svg class="w-6 h-6 transition-transform group-hover:translate-x-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
                         </svg>
-                        <div class="absolute inset-0 bg-[#A05A5A] translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                        <div class="absolute inset-0 bg-accent translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
                     </button>
 
                 </form>

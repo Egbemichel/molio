@@ -62,20 +62,20 @@ class="relative min-h-screen w-full flex items-center justify-center p-8 md:p-16
 
                 <div class="w-2/3 flex flex-col">
                     <img :src="categories[activeCategory].projects[projectIndex].logo" class="h-12 w-fit mb-2 self-end">
-                    <p class="font-hagia font-medium text-dark text-right" x-text="categories[activeCategory].projects[projectIndex].role"></p>
-                    <p class="font-hagia text-xs text-dark uppercase mb-6 text-right" x-text="categories[activeCategory].projects[projectIndex].date"></p>
+                    <p class="font-hagia font-medium text-2xl text-dark text-right" x-text="categories[activeCategory].projects[projectIndex].role"></p>
+                    <p class="font-hagia text-2xl text-dark uppercase mb-6 text-right" x-text="categories[activeCategory].projects[projectIndex].date"></p>
                     
-                    <p class="font-hagia text-xl mb-6 text-right" x-text="categories[activeCategory].projects[projectIndex].desc"></p>
+                    <p class="font-hagia text-4xl mb-6 text-right" x-text="categories[activeCategory].projects[projectIndex].desc"></p>
                     
                     <ul class="space-y-3 flex-grow">
                         <template x-for="point in categories[activeCategory].projects[projectIndex].points">
                             <li class="flex gap-3 text-sm font-hagia text-dark">
-                                <span class="text-green-600">✓</span> <span x-text="point"></span>
+                                <span class="text-green-600 text-2xl">✓</span> <span class="text-3xl" x-text="point"></span>
                             </li>
                         </template>
                     </ul>
 
-                    <a :href="categories[activeCategory].projects[projectIndex].github" class="self-end text-lg underline opacity-50 hover:opacity-100">GitHub Link ↗</a>
+                    <a :href="categories[activeCategory].projects[projectIndex].github" class="self-end text-2xl underline opacity-50 hover:opacity-100">GitHub Link ↗</a>
                 </div>
             </div>
 
