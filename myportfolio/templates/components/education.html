@@ -1,0 +1,40 @@
+{% comment %}
+Education timeline component
+@param: education_list - List of education entries with all past and current education
+{% endcomment %}
+
+<section class="w-full bg-white pb-24 md:pb-32 px-8 md:px-16">
+    <div class="max-w-[100rem] mx-auto w-full px-[60px]">
+        <div class="relative pl-8 border-l-4 border-accent/20">
+            {% for edu in education_list %}
+                <div class="mb-16 relative {% if not edu.is_current %}opacity-50{% endif %}" 
+                     data-edu-card 
+                     data-images='{{ edu.gallery_images|safe|default:"[]" }}'>
+                    <div data-edu-content>
+                        <h3 class="font-hagia font-medium text-5xl {% if edu.is_current %}text-accent{% else %}text-dark{% endif %} mb-3 tracking-tight">
+                            {{ edu.degree }}
+                        </h3>
+
+                        <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 mb-4">
+                            <span class="font-hagia text-4xl {% if edu.is_current %}text-dark{% else %}text-dark/60{% endif %} font-medium">{{ edu.school }}, {{ edu.location }}</span>
+                        </div>
+
+                        <div class="flex items-center gap-4 {% if edu.is_current %}text-dark opacity-60{% else %}text-dark/40{% endif %}">
+                            <span class="font-hagia text-4xl">{{ edu.faculty }}</span>
+                            <span class="h-5 w-px bg-dark {% if edu.is_current %}opacity-30{% else %}opacity-20{% endif %}"></span>
+                            <span class="font-hagia text-4xl">
+                                {{ edu.dates }}
+                                {% if edu.is_current %}
+                                    <span class="text-xl uppercase tracking-widest ml-1 text-accent">(Currently Pursuing)</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="absolute -left-[22px] top-3 w-4 h-4 rounded-full {% if edu.is_current %}bg-accent border-4 border-white{% else %}bg-dark/20 border-4 border-white{% endif %}"></div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+

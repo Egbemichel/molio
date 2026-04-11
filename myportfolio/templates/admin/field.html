@@ -1,0 +1,93 @@
+{% load static %}
+
+{% if field.is_hidden %}
+    {{ field }}
+{% else %}
+    <div class="field-group">
+        {% if field.label %}
+            <label for="{{ field.id_for_label }}" class="block text-sm font-semibold text-dark mb-2">
+                {{ field.label }}
+                {% if field.field.required %}<span class="text-primary">*</span>{% endif %}
+            </label>
+        {% endif %}
+
+        <div class="field-input">
+            {% if field.is_readonly %}
+                <div class="p-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 text-sm">
+                    {{ field.contents|safe }}
+                </div>
+            {% elif field.field.widget.input_type == "checkbox" %}
+                <div class="flex items-center">
+                    {{ field }}
+                    {% if field.label %}<label for="{{ field.id_for_label }}" class="ml-2 text-sm text-gray-700 cursor-pointer">{{ field.label }}</label>{% endif %}
+                </div>
+            {% elif field|add_class:"widgetNotFound"|stringformat:"s" != "widgetNotFound" %}
+                {{ field }}
+            {% else %}
+                {{ field }}
+            {% endif %}
+        </div>
+
+        {% if field.errors %}
+            <div class="mt-2 space-y-1">
+                {% for error in field.errors %}
+                    <p class="text-sm text-red-600 flex items-center">
+                        <span class="mr-2">⚠️</span>{{ error }}
+                    </p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if field.help_text %}
+            <p class="mt-2 text-xs text-gray-600">{{ field.help_text|safe }}</p>
+        {% endif %}
+    </div>
+{% endif %}
+
+<style>
+    .field-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .field-input {
+        position: relative;
+    }
+
+    /* Override Django admin default styles */
+    :where(.field-input) input[type="text"],
+    :where(.field-input) input[type="email"],
+    :where(.field-input) input[type="url"],
+    :where(.field-input) input[type="password"],
+    :where(.field-input) input[type="date"],
+    :where(.field-input) input[type="datetime"],
+    :where(.field-input) input[type="datetime-local"],
+    :where(.field-input) input[type="month"],
+    :where(.field-input) input[type="time"],
+    :where(.field-input) input[type="number"],
+    :where(.field-input) textarea,
+    :where(.field-input) select {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #E5E7EB;
+        border-radius: 6px;
+        font-family: 'HagiaPro', system-ui, -apple-system, sans-serif;
+        font-size: 14px;
+        color: #3F3F3F;
+        background: white;
+        box-sizing: border-box;
+    }
+
+    :where(.field-input) input:focus,
+    :where(.field-input) textarea:focus,
+    :where(.field-input) select:focus {
+        outline: none;
+        border-color: #8B1E1E;
+        box-shadow: 0 0 0 3px rgba(139, 30, 30, 0.1);
+        background: white;
+    }
+
+    :where(.field-input) textarea {
+        resize: vertical;
+        min-height: 120px;
+    }
+</style>

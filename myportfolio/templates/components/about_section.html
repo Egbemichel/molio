@@ -1,15 +1,16 @@
 {% load static %}
-<section class="bg-white flex items-center justify-center p-8 md:p-24 overflow-hidden">
-    <img src="{% static 'images/icon.png' %}" 
-         alt="my favorite smiling emoji" 
-         class="absolute left-[465px] top-[1070px] -translate-x-1/2 -translate-y-1/2 z-0
-                h-[41px] w-[41px] md:h-[71px] md:w-[71px]
-                object-contain object-center">
+<section class="bg-white flex items-center justify-center p-8 md:p-24 overflow-visible">
     <div class="max-w-[90rem] w-full relative">
         
-        <div class="mb-2">
+        <div class="mb-2 relative inline-block">
             <p class="font-hagia font-regular text-dark text-[35px] md:text-5xl tracking-tight">
-                My name is <span class="text-accent">Michel</span> and I am a Freelance
+                My name is <span class="text-accent relative inline-block">
+                    Michel
+                    <img src="{% static 'images/icon.png' %}" 
+                         alt="my favorite smiling emoji" 
+                         class="absolute -top-16 -right-14 md:-right-12 h-[41px] w-[41px] md:h-[71px] md:w-[71px]
+                                object-contain object-center pointer-events-none">
+                </span> and I am a Freelance
             </p>
         </div>
 

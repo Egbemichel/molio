@@ -1,0 +1,75 @@
+{% load static %}
+{% comment %}
+Personal information display section
+@param: info_items - List of dicts with 'label' and 'value' keys
+{% endcomment %}
+
+<section id="personal" class="relative w-full bg-white text-dark py-24 md:py-32 px-8 md:px-16 overflow-hidden">
+    <div class="max-w-[100rem] mx-auto w-full relative z-10 px-[60px]">
+        <h2 class="font-hagia font-medium text-5xl mb-16 tracking-tight">Personal Information</h2>
+
+        <dl class="space-y-6 max-w-2xl">
+            {% for item in info_items %}
+                <div class="flex items-baseline gap-12 border-b border-dark/5 pb-4">
+                    <dt class="font-hagia font-medium text-4xl w-36 text-dark opacity-70">{{ item.label }}:</dt>
+                    <dd class="font-hagia text-4xl text-accent flex items-center gap-4">
+                        {% if item.is_link %}
+                            <a href="mailto:{{ item.value }}" class="hover:underline transition-all">
+                                {{ item.display_value|default:item.value }}
+                            </a>
+                        {% else %}
+                            <span>{{ item.display_value|default:item.value }}</span>
+                            {% if "Language" in item.label %}
+                                <!-- Audio buttons for languages -->
+                                <button 
+                                    data-audio-player 
+                                    data-audio-src="{% static 'audio/hello_en.mp3' %}"
+                                    class="audio-icon-btn"
+                                    title="Listen to English"
+                                    aria-label="Listen to English greeting">
+                                    🔊
+                                </button>
+                                <span class="text-dark/30">|</span>
+                                <button 
+                                    data-audio-player 
+                                    data-audio-src="{% static 'audio/hello_fr.mp3' %}"
+                                    class="audio-icon-btn"
+                                    title="Listen to French"
+                                    aria-label="Listen to French greeting">
+                                    🔊
+                                </button>
+                            {% endif %}
+                        {% endif %}
+                    </dd>
+                </div>
+            {% endfor %}
+        </dl>
+    </div>
+
+    <style>
+        .audio-icon-btn {
+            background: none;
+            border: none;
+            font-size: 1.75rem;
+            cursor: pointer;
+            padding: 0.25rem;
+            opacity: 0.6;
+            transition: opacity 300ms, transform 200ms;
+            will-change: transform;
+        }
+
+        .audio-icon-btn:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .audio-icon-btn:active {
+            transform: scale(0.95);
+        }
+
+        .audio-icon-btn:focus-visible {
+            outline: 2px solid #8B1E1E;
+            outline-offset: 2px;
+        }
+    </style>
+</section>
