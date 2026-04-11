@@ -1,0 +1,189 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Portfolio Admin{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#8B1E1E',
+                        'dark': '#3F3F3F',
+                        'light': '#F8FAFB',
+                    },
+                    fontFamily: {
+                        'display': ['HagiaPro', 'system-ui', '-apple-system', 'sans-serif'],
+                        'body': ['HagiaPro', 'system-ui', '-apple-system', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <!-- Custom Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <style>
+        @font-face {
+            font-family: 'HagiaPro';
+            src: url('{% static "fonts/HagiaPro.woff2" %}') format('woff2');
+            font-display: swap;
+        }
+        
+        * {
+            font-family: 'HagiaPro', system-ui, -apple-system, sans-serif;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        .slide-in-left {
+            animation: slideInLeft 0.5s ease-out forwards;
+        }
+
+        /* Smooth transitions */
+        .transition-smooth {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Header shadow */
+        .header-shadow {
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Card hover */
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Button ripple effect */
+        .btn-primary {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            transform: translate(-50%, -50%);
+            animation: ripple 0.6s ease-out;
+        }
+
+        @keyframes ripple {
+            to {
+                width: 300px;
+                height: 300px;
+                opacity: 0;
+            }
+        }
+    </style>
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-white text-dark">
+    <div class="flex h-screen bg-gray-50">
+        <!-- Sidebar -->
+        <div class="w-64 bg-white border-r border-gray-200 hidden md:flex flex-col header-shadow">
+            <!-- Logo -->
+            <div class="p-6 border-b border-gray-200">
+                <h1 class="text-2xl font-semibold text-dark">
+                    <span class="text-primary">Portfolio</span>
+                </h1>
+                <p class="text-xs text-gray-500 mt-1 uppercase tracking-widest">Admin</p>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+                <a href="/admin/" class="flex items-center px-4 py-3 rounded-lg text-sm font-medium text-dark hover:bg-gray-100 transition-smooth">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-3m0 0l7-4 7 4M5 9v10a1 1 0 001 1h12a1 1 0 001-1V9m-9 11l4-4m0 0l4 4"></path>
+                    </svg>
+                    Dashboard
+                </a>
+
+                <div class="pt-4">
+                    <p class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-widest">Content</p>
+                    <a href="/admin/projects/project/" class="flex items-center px-4 py-2 rounded-lg text-sm text-dark hover:bg-gray-100 transition-smooth">
+                        <span class="w-5"></span>
+                        <span class="ml-3">Projects</span>
+                    </a>
+                    <a href="/admin/core/skill/" class="flex items-center px-4 py-2 rounded-lg text-sm text-dark hover:bg-gray-100 transition-smooth">
+                        <span class="w-5"></span>
+                        <span class="ml-3">Skills</span>
+                    </a>
+                    <a href="/admin/core/education/" class="flex items-center px-4 py-2 rounded-lg text-sm text-dark hover:bg-gray-100 transition-smooth">
+                        <span class="w-5"></span>
+                        <span class="ml-3">Education</span>
+                    </a>
+                    <a href="/admin/core/service/" class="flex items-center px-4 py-2 rounded-lg text-sm text-dark hover:bg-gray-100 transition-smooth">
+                        <span class="w-5"></span>
+                        <span class="ml-3">Services</span>
+                    </a>
+                </div>
+            </nav>
+
+            <!-- Footer -->
+            <div class="p-4 border-t border-gray-200 text-xs text-gray-500 text-center">
+                <p>&copy; 2026 Michel</p>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 overflow-hidden flex flex-col">
+            <!-- Top Bar -->
+            <header class="bg-white border-b border-gray-200 px-8 py-4 header-shadow">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xl font-semibold text-dark">
+                        {% block page_title %}Dashboard{% endblock %}
+                    </h2>
+                    <div class="flex items-center space-x-4">
+                        <button class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-smooth">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                            </svg>
+                        </button>
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-pink-600 flex items-center justify-center text-white font-semibold text-sm">
+                            M
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <main class="flex-1 overflow-y-auto p-8">
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

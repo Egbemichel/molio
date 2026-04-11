@@ -1,0 +1,67 @@
+{% comment %}
+Contact section with form and email
+@param: email - Email address to display and send to
+@param: location - Location string  
+{% endcomment %}
+
+<section id="contact" class="w-full bg-white py-24 md:py-32 px-8 md:px-16">
+    <div class="max-w-[100rem] mx-auto w-full px-[60px]">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-20">
+            <div class="flex flex-col justify-center">
+                <h2 class="font-hagia font-medium text-6xl mb-6 tracking-tight">
+                    Let's build <br> something <span class="text-accent">great.</span>
+                </h2>
+                <p class="font-hagia text-4xl text-dark opacity-60 max-w-md leading-relaxed">
+                    Have a project in mind or just want to say hi? Feel free to reach out. I'm always open to discussing new ideas.
+                </p>
+
+                <div class="mt-12 space-y-4">
+                    <p class="font-hagia text-2xl font-medium">{{ email }}</p>
+                    <p class="font-hagia text-2xl opacity-60">{{ location }}</p>
+                </div>
+            </div>
+
+            <div x-data="{ 
+                name: '', 
+                subject: '', 
+                message: '',
+                sendEmail() {
+                    const mailtoLink = `mailto:{{ email }}?subject=${encodeURIComponent(this.subject)}&body=${encodeURIComponent('From: ' + this.name + '\n\n' + this.message)}`;
+                    window.location.href = mailtoLink;
+                }
+            }">
+                <form @submit.prevent="sendEmail" class="space-y-8">
+                    <div class="group">
+                        <label class="block font-hagia text-xl uppercase tracking-widest opacity-40 mb-2 transition-opacity group-focus-within:opacity-100">Your Name</label>
+                        <input type="text" x-model="name" required
+                            class="w-full bg-transparent border-b-2 border-dark/10 py-4 font-hagia text-2xl outline-none focus:border-accent transition-colors placeholder:opacity-50"
+                            placeholder="Egbe Michel">
+                    </div>
+
+                    <div class="group">
+                        <label class="block font-hagia text-xl uppercase tracking-widest opacity-40 mb-2 transition-opacity group-focus-within:opacity-100">Subject</label>
+                        <input type="text" x-model="subject" required
+                            class="w-full bg-transparent border-b-2 border-dark/10 py-4 font-hagia text-2xl outline-none focus:border-accent transition-colors placeholder:opacity-50"
+                            placeholder="Project Inquiry">
+                    </div>
+
+                    <div class="group">
+                        <label class="block font-hagia text-xl uppercase tracking-widest opacity-40 mb-2 transition-opacity group-focus-within:opacity-100">Message</label>
+                        <textarea x-model="message" required rows="4"
+                            class="w-full bg-transparent border-b-2 border-dark/10 py-4 font-hagia text-2xl outline-none focus:border-accent transition-colors resize-none placeholder:opacity-50"
+                            placeholder="Tell me about your idea..."></textarea>
+                    </div>
+
+                    <button type="submit" 
+                        class="group relative flex items-center gap-4 bg-dark text-white px-10 py-5 rounded-full font-hagia text-xl overflow-hidden transition-all hover:pr-14 active:scale-95">
+                        <span class="relative z-10">Send Message</span>
+                        <svg class="w-6 h-6 transition-transform group-hover:translate-x-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                        </svg>
+                        <div class="absolute inset-0 bg-accent translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>

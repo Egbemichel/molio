@@ -1,0 +1,181 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+{% load admin_urls %}
+
+{% block page_title %}{{ opts.verbose_name_plural|title }}{% endblock %}
+
+{% block content %}
+<div class="space-y-6 fade-in">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+        <div>
+            <h1 class="text-3xl font-bold text-dark mb-2">{{ opts.verbose_name_plural|title }}</h1>
+            <p class="text-gray-600">Manage all {{ opts.verbose_name_plural }}</p>
+        </div>
+        <a href="{{ opts.app_label }}/{{ opts.model_name }}/add/" class="mt-4 md:mt-0 px-6 py-3 bg-primary hover:bg-red-800 text-white font-semibold rounded-lg transition-smooth inline-flex items-center justify-center">
+            <span class="mr-2">+</span>Add {{ opts.verbose_name }}
+        </a>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="bg-white rounded-xl border border-gray-200 p-6">
+        <!-- Search Form -->
+        {% search_form cl %}
+
+        <!-- Filters -->
+        {% if cl.has_filters %}
+            <div class="mt-6 pt-6 border-t border-gray-200">
+                <h3 class="font-semibold text-dark mb-4">Filters</h3>
+                <div class="space-y-3">
+                    {% for filter_choice in cl.filter_specs %}
+                        <div>
+                            <h4 class="font-medium text-sm text-gray-700 mb-2">{{ filter_choice.title }}</h4>
+                            <ul class="space-y-2 ml-2">
+                                {% for choice in filter_choice.choices %}
+                                    <li>
+                                        <a href="{{ choice.query_string }}" class="text-sm text-gray-600 hover:text-primary transition-smooth">
+                                            {% if choice.selected %}<span class="text-primary font-semibold">●</span>{% else %}<span class="text-gray-400">○</span>{% endif %}
+                                            {{ choice.display }}
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Results Table -->
+    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        {% if cl.result_list %}
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+                        <tr>
+                            {% for header in cl.result_headers %}
+                                <th class="px-6 py-4 text-left text-sm font-semibold text-dark uppercase tracking-wide">
+                                    {% if header.sortable %}
+                                        <a href="{{ header.url_primary }}" class="hover:text-primary transition-smooth">
+                                            {{ header.text }}
+                                            {% if header.ascending %}<span>↓</span>{% elif header.descending %}<span>↑</span>{% endif %}
+                                        </a>
+                                    {% else %}
+                                        {{ header.text }}
+                                    {% endif %}
+                                </th>
+                            {% endfor %}
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-dark uppercase tracking-wide">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        {% for result in cl.result_list %}
+                            <tr class="hover:bg-gray-50 transition-smooth">
+                                <td colspan="{{ cl.result_headers|length|add:1 }}" class="px-6 py-4">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex-1 space-y-1">
+                                            {% for item in result %}
+                                                <div class="text-sm text-dark">{{ item|safe }}</div>
+                                            {% endfor %}
+                                        </div>
+                                        <div class="flex gap-2">
+                                            <a href="{{ result|admin_urlname:opts,'change' }}" class="p-2 text-primary hover:bg-primary hover:text-white rounded transition-smooth">
+                                                ✎
+                                            </a>
+                                            <a href="{{ result|admin_urlname:opts,'delete' }}" class="p-2 text-red-600 hover:bg-red-600 hover:text-white rounded transition-smooth">
+                                                🗑
+                                            </a>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if cl.result_count %}
+                <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
+                    <p class="text-sm text-gray-600">
+                        Showing <span class="font-semibold">{{ cl.result_list|length }}</span> of <span class="font-semibold">{{ cl.result_count }}</span> results
+                    </p>
+                    {% if cl.has_other_pages %}
+                        <div class="flex gap-2">
+                            {% if cl.has_previous %}
+                                <a href="{{ cl.get_previous_page_number_url }}" class="px-3 py-2 border border-gray-300 rounded hover:bg-gray-100 transition-smooth text-sm">← Previous</a>
+                            {% endif %}
+                            {% if cl.has_next %}
+                                <a href="{{ cl.get_next_page_number_url }}" class="px-3 py-2 border border-gray-300 rounded hover:bg-gray-100 transition-smooth text-sm">Next →</a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% else %}
+            <!-- Empty State -->
+            <div class="p-12 text-center">
+                <div class="mb-4 text-4xl">📭</div>
+                <h3 class="text-lg font-semibold text-dark mb-2">No {{ opts.verbose_name_plural }} yet</h3>
+                <p class="text-gray-600 mb-6">Create your first {{ opts.verbose_name }} to get started</p>
+                <a href="{{ opts.app_label }}/{{ opts.model_name }}/add/" class="px-6 py-3 bg-primary hover:bg-red-800 text-white font-semibold rounded-lg transition-smooth inline-flex items-center justify-center">
+                    <span class="mr-2">+</span>Create {{ opts.verbose_name }}
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .fade-in {
+        animation: fadeIn 0.4s ease-out forwards;
+        opacity: 0;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Search form */
+    #searchbar {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #E5E7EB;
+        border-radius: 6px;
+        font-family: 'HagiaPro', system-ui, -apple-system, sans-serif;
+        font-size: 14px;
+        color: #3F3F3F;
+    }
+
+    #searchbar:focus {
+        outline: none;
+        border-color: #8B1E1E;
+        box-shadow: 0 0 0 3px rgba(139, 30, 30, 0.1);
+    }
+
+    /* Table styling */
+    table {
+        table-layout: auto;
+    }
+
+    td {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #E5E7EB;
+    }
+
+    th {
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+    }
+</style>
+{% endblock %}

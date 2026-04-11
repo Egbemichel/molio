@@ -1,0 +1,54 @@
+{% load static %}
+{% comment %}
+Creative gallery section with image grid
+@param: gallery_items - List of gallery items with 'src', 'alt', 'col_span', 'row_span'
+@param: social_links - Social media links context (passed from view)
+{% endcomment %}
+
+<section id="gallery" class="w-full bg-white py-24 md:py-32 px-8 md:px-16 overflow-hidden">
+    <div class="max-w-[100rem] mx-auto w-full relative z-10 px-[60px]">
+        <div class="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-6 mb-16">
+            {% for item in gallery_items %}
+                {% if item.col_span == 2 and item.row_span == 1 %}
+                    <div class="col-span-1 md:col-span-2 md:row-span-1 rounded-3xl overflow-hidden shadow-sm">
+                        <img src="/media/{{ item.src }}" 
+                             alt="{{ item.alt }}" 
+                             class="w-full h-full object-cover transition-transform duration-500 hover:scale-105">
+                    </div>
+                {% elif item.col_span == 2 and item.row_span == 2 %}
+                    <div class="col-span-1 md:col-span-2 md:row-span-2 rounded-3xl overflow-hidden shadow-sm">
+                        <img src="/media/{{ item.src }}" 
+                             alt="{{ item.alt }}" 
+                             class="w-full h-full object-contain transition-transform duration-500 hover:scale-[1.03]">
+                    </div>
+                {% else %}
+                    <div class="col-span-1 md:col-span-1 md:row-span-1 rounded-3xl overflow-hidden shadow-sm">
+                        <img src="/media/{{ item.src }}" 
+                             alt="{{ item.alt }}" 
+                             class="w-full h-full object-cover transition-transform duration-500 hover:scale-105">
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <footer class="text-center py-10">
+            <h4 class="font-hagia font-medium text-4xl text-dark opacity-80 mb-8 tracking-tight">
+                Get to know different versions of me
+            </h4>
+
+            <div class="flex items-center justify-center gap-6">
+                {% for social in social_links %}
+                    <a href="{{ social.url }}" target="_blank" 
+                       class="w-16 h-16 flex items-center justify-center rounded-lg transition-all
+                              {% if social.name == 'GitHub' %}
+                                  bg-primary
+                              {% else %}
+                                  bg-primary
+                              {% endif %}">
+                        {{ social.icon|safe }}
+                    </a>
+                {% endfor %}
+            </div>
+        </footer>
+    </div>
+</section>

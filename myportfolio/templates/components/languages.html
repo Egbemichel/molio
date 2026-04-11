@@ -1,0 +1,56 @@
+{% load static %}
+
+<section class="w-full bg-white px-8 md:px-16 py-24 md:py-32 border-t border-dark/5">
+    <div class="max-w-[100rem] mx-auto w-full px-[60px]">
+        <!-- Section Title -->
+        <div class="mb-16">
+            <h2 class="font-hagia font-medium text-7xl text-dark tracking-tight mb-4">Languages</h2>
+            <p class="font-hagia text-3xl text-dark/60 max-w-2xl leading-relaxed">
+                Fluent communication across borders and cultures.
+            </p>
+        </div>
+
+        <!-- Language Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+            <!-- English -->
+            <div class="flex flex-col space-y-6 p-8 bg-white rounded-2xl border border-dark/5 hover:border-accent/20 transition-all duration-300">
+                <div>
+                    <h3 class="font-hagia font-medium text-5xl text-dark mb-2 tracking-tight">English</h3>
+                    <p class="font-hagia text-2xl text-dark/60">Native / Fluent</p>
+                </div>
+                
+                <!-- Audio Player -->
+                <button 
+                    data-audio-player 
+                    data-audio-src="{% static 'audio/hello_en.mp3' %}"
+                    class="self-start"
+                    aria-label="Listen to English greeting">
+                </button>
+
+                <p class="font-hagia text-xl text-dark/50 leading-relaxed">
+                    Primary language for development, communication, and creative work. Extensive experience writing technical documentation and clear, professional correspondence.
+                </p>
+            </div>
+
+            <!-- French -->
+            <div class="flex flex-col space-y-6 p-8 bg-white rounded-2xl border border-dark/5 hover:border-accent/20 transition-all duration-300">
+                <div>
+                    <h3 class="font-hagia font-medium text-5xl text-dark mb-2 tracking-tight">Français</h3>
+                    <p class="font-hagia text-2xl text-dark/60">Fluent / Conversational</p>
+                </div>
+                
+                <!-- Audio Player -->
+                <button 
+                    data-audio-player 
+                    data-audio-src="{% static 'audio/hello_fr.mp3' %}"
+                    class="self-start"
+                    aria-label="Listen to French greeting">
+                </button>
+
+                <p class="font-hagia text-xl text-dark/50 leading-relaxed">
+                    Strong conversational ability with professional communication skills. Comfortable in technical and business contexts spanning European and African French dialects.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>

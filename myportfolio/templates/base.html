@@ -13,7 +13,16 @@
 </head>
 <body class="bg-primary antialiased" >
   <main>{% block content %}{% endblock %}</main>
-  <script type="module" src="{% static 'src/js/main.js' %}"></script>
+  <!-- Alpine.js for interactive components - MUST load before other scripts -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+  
+  <!-- Three.js library for 3D globe visualization -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  
+  <!-- GitHub Globe component -->
+  <script defer src="{% static 'js/globe/GithubGlobe.js' %}"></script>
+  
+  <script defer type="module" src="{% static 'src/js/main.js' %}"></script>
   {% block extra_js %}{% endblock %}
 </body>
 </html>

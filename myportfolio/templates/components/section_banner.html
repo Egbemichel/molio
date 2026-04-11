@@ -1,0 +1,33 @@
+{% comment %}
+Reusable section banner component with watermark effect
+@param: section_id - HTML id for the section
+@param: text - Main text to display
+{% endcomment %}
+
+<section id="{{ section_id }}" class="w-full bg-white py-16 md:py-24 px-8 md:px-16 overflow-visible">
+    <div class="max-w-[700rem] mx-auto w-full relative z-10 flex items-center justify-center">
+        <div class="relative w-full max-w-5xl">
+            <div class="flex items-center justify-center px-4 md:px-8 py-8 md:py-16 bg-white">
+                <div class="relative inline-flex items-center justify-center">
+                    <!-- Watermark text with fade -->
+                    <span class="font-geisha text-[400px] text-dark/30" style="
+                        position: absolute;
+                        white-space: nowrap;
+                        letter-spacing: 2px;
+                        user-select: none;
+                        line-height: 1;
+                        -webkit-mask-image: linear-gradient(to bottom, black 30%, transparent 85%);
+                        mask-image: linear-gradient(to bottom, black 60%, transparent 69%);
+                    ">{{ text }}</span>
+
+                    <!-- Bold uppercase text in front -->
+                    <span class="font-hagia text-[150px] text-dark" style="
+                        letter-spacing: 2px;
+                        text-transform: uppercase;
+                        line-height: 1;
+                    ">{{ text }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
