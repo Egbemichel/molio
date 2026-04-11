@@ -1,0 +1,91 @@
+{% load static %}
+
+<section id="globe" class="relative w-full bg-[#030712] min-h-screen px-8 md:px-16 py-24 md:py-32">
+    <div class="max-w-[100rem] mx-auto w-full relative">
+        <div class="mb-16 px-[60px]">
+            <h2 class="font-hagia font-medium text-7xl text-white tracking-tight mb-4">
+                Where am I?
+            </h2>
+            <p class="text-white/40 text-lg">Yaoundé, Cameroon</p>
+        </div>
+
+        <div id="globe-container" class="relative w-full h-[700px] rounded-3xl overflow-hidden"></div>
+    </div>
+</section>
+
+<script src="https://unpkg.com/three@0.150.0/build/three.min.js"></script>
+<script src="https://unpkg.com/globe.gl@2.30.0/dist/globe.gl.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const container = document.getElementById('globe-container');
+
+    const myLat = 3.8667;
+    const myLng = 11.5167;
+
+    const globe = Globe()(container)
+        .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-day.jpg')
+        .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png')
+        .backgroundImageUrl('https://unpkg.com/three-globe/example/img/night-sky.png')
+        .showAtmosphere(true)
+        .atmosphereColor('#4a90d9')
+        .atmosphereAltitude(0.18)
+
+        .ringsData([{ lat: myLat, lng: myLng }])
+        .ringColor(() => '#ff4444')
+        .ringMaxRadius(4)
+        .ringPropagationSpeed(1.5)
+        .ringRepeatPeriod(800)
+
+        .pointsData([{ lat: myLat, lng: myLng, size: 0.5, color: '#ff4444' }])
+        .pointAltitude('size')
+        .pointColor('color')
+        .pointRadius(0.4)
+
+        .labelsData([{ lat: myLat, lng: myLng, text: 'Yaounde, CM', size: 1.2 }])
+        .labelColor(() => 'rgba(255,255,255,0.9)')
+        .labelDotRadius(0.4)
+        .labelSize('size')
+        .labelDotOrientation(() => 'bottom');
+
+    // Point camera at Cameroon and lock it there
+    globe.pointOfView({ lat: myLat, lng: myLng, altitude: 2.0 }, 1000);
+
+    // Disable rotation and interaction
+    const controls = globe.controls();
+    controls.autoRotate = false;
+    controls.enableZoom = false;
+    controls.enableRotate = false;
+    controls.enablePan = false;
+
+    // Sunlight — directional light from the right (dayside)
+    const scene = globe.scene();
+
+    // Remove default lights to take full control
+    scene.children
+        .filter(obj => obj.isLight)
+        .forEach(light => scene.remove(light));
+
+    // Ambient — soft fill so dark side isn't pitch black
+    const ambient = new THREE.AmbientLight(0x111122, 1.2);
+    scene.add(ambient);
+
+    // Sun — strong directional light simulating sunlight from space
+    const sun = new THREE.DirectionalLight(0xfff5e0, 3.5);
+    // Position sun to illuminate the Africa/Cameroon side
+    // Cameroon is ~11° E longitude, so we light from that general direction
+    sun.position.set(3, 0.5, 2);
+    sun.position.normalize();
+    scene.add(sun);
+
+    // Soft rim light from opposite side to keep it from looking flat
+    const rim = new THREE.DirectionalLight(0x1a2a4a, 0.4);
+    rim.position.set(-3, -0.5, -2);
+    scene.add(rim);
+
+    window.addEventListener('resize', () => {
+        globe.width(container.clientWidth);
+        globe.height(container.clientHeight);
+    });
+});
+</script>

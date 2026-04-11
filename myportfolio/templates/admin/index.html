@@ -1,0 +1,169 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Welcome Header -->
+    <div class="fade-in">
+        <h1 class="text-3xl font-bold text-dark mb-2">Welcome Back</h1>
+        <p class="text-gray-600">Manage your portfolio content and settings</p>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 fade-in" style="animation-delay: 0.1s;">
+        <!-- Projects Card -->
+        <div class="bg-white rounded-xl border border-gray-200 p-6 card-hover" style="animation-delay: 0.1s;">
+            <div class="flex items-start justify-between mb-4">
+                <div>
+                    <p class="text-gray-600 text-sm font-medium">Projects</p>
+                    <p class="text-3xl font-bold text-dark mt-2">{{ projects_count|default:0 }}</p>
+                </div>
+                <div class="p-3 bg-blue-100 rounded-lg">
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                    </svg>
+                </div>
+            </div>
+            <a href="/admin/projects/project/" class="text-primary text-sm font-semibold hover:opacity-70 transition-smooth">
+                Manage →
+            </a>
+        </div>
+
+        <!-- Skills Card -->
+        <div class="bg-white rounded-xl border border-gray-200 p-6 card-hover" style="animation-delay: 0.15s;">
+            <div class="flex items-start justify-between mb-4">
+                <div>
+                    <p class="text-gray-600 text-sm font-medium">Skills</p>
+                    <p class="text-3xl font-bold text-dark mt-2">{{ skills_count|default:0 }}</p>
+                </div>
+                <div class="p-3 bg-green-100 rounded-lg">
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                </div>
+            </div>
+            <a href="/admin/core/skill/" class="text-primary text-sm font-semibold hover:opacity-70 transition-smooth">
+                Manage →
+            </a>
+        </div>
+
+        <!-- Education Card -->
+        <div class="bg-white rounded-xl border border-gray-200 p-6 card-hover" style="animation-delay: 0.2s;">
+            <div class="flex items-start justify-between mb-4">
+                <div>
+                    <p class="text-gray-600 text-sm font-medium">Education</p>
+                    <p class="text-3xl font-bold text-dark mt-2">{{ education_count|default:0 }}</p>
+                </div>
+                <div class="p-3 bg-purple-100 rounded-lg">
+                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C6.5 6.253 1 10.998 1 16.5S6.5 26.5 12 26.5s11-4.747 11-10.5S17.5 6.253 12 6.253z"></path>
+                    </svg>
+                </div>
+            </div>
+            <a href="/admin/core/education/" class="text-primary text-sm font-semibold hover:opacity-70 transition-smooth">
+                Manage →
+            </a>
+        </div>
+
+        <!-- Services Card -->
+        <div class="bg-white rounded-xl border border-gray-200 p-6 card-hover" style="animation-delay: 0.25s;">
+            <div class="flex items-start justify-between mb-4">
+                <div>
+                    <p class="text-gray-600 text-sm font-medium">Services</p>
+                    <p class="text-3xl font-bold text-dark mt-2">{{ services_count|default:0 }}</p>
+                </div>
+                <div class="p-3 bg-orange-100 rounded-lg">
+                    <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m6 2a2 2 0 1 1 0 4m0-4a2 2 0 1 0 0 4m-6 2a2 2 0 1 1 0 4m0-4a2 2 0 1 0 0 4m-6-2a2 2 0 1 1 0 4m0-4a2 2 0 1 0 0 4"></path>
+                    </svg>
+                </div>
+            </div>
+            <a href="/admin/core/service/" class="text-primary text-sm font-semibold hover:opacity-70 transition-smooth">
+                Manage →
+            </a>
+        </div>
+    </div>
+
+    <!-- Recent Activity Section -->
+    <div class="bg-white rounded-xl border border-gray-200 p-6 fade-in" style="animation-delay: 0.3s;">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-lg font-bold text-dark">Quick Actions</h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <a href="/admin/projects/project/add/" class="flex items-center p-4 border border-gray-200 rounded-lg hover:border-primary hover:bg-gray-50 transition-smooth group">
+                <div class="p-2 bg-blue-100 rounded-lg group-hover:bg-primary group-hover:text-white transition-smooth">
+                    <svg class="w-5 h-5 text-blue-600 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="font-semibold text-dark text-sm">New Project</p>
+                    <p class="text-gray-600 text-xs">Add a new project</p>
+                </div>
+            </a>
+
+            <a href="/admin/core/skill/add/" class="flex items-center p-4 border border-gray-200 rounded-lg hover:border-primary hover:bg-gray-50 transition-smooth group">
+                <div class="p-2 bg-green-100 rounded-lg group-hover:bg-primary group-hover:text-white transition-smooth">
+                    <svg class="w-5 h-5 text-green-600 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="font-semibold text-dark text-sm">New Skill</p>
+                    <p class="text-gray-600 text-xs">Add a new skill</p>
+                </div>
+            </a>
+
+            <a href="/admin/core/service/add/" class="flex items-center p-4 border border-gray-200 rounded-lg hover:border-primary hover:bg-gray-50 transition-smooth group">
+                <div class="p-2 bg-orange-100 rounded-lg group-hover:bg-primary group-hover:text-white transition-smooth">
+                    <svg class="w-5 h-5 text-orange-600 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="font-semibold text-dark text-sm">New Service</p>
+                    <p class="text-gray-600 text-xs">Add a new service</p>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Info Box -->
+    <div class="bg-gradient-to-r from-primary to-red-700 rounded-xl p-6 text-white fade-in" style="animation-delay: 0.4s;">
+        <h3 class="font-bold text-lg mb-2">Portfolio Content</h3>
+        <p class="text-red-100 text-sm">All changes made here will be reflected on your live portfolio. Make sure to review before publishing!</p>
+        <a href="/" class="inline-block mt-4 px-4 py-2 bg-white text-primary font-semibold rounded-lg hover:bg-gray-100 transition-smooth text-sm">
+            View Portfolio →
+        </a>
+    </div>
+</div>
+
+<style>
+    .fade-in {
+        animation: fadeIn 0.4s ease-out forwards;
+        opacity: 0;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .card-hover {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .card-hover:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    }
+</style>
+{% endblock %}

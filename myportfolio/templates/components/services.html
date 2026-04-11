@@ -1,0 +1,269 @@
+{% load static %}
+{% comment %}
+Services carousel section - scrolls through services naturally based on scroll position
+@param: services - List of service objects with 'number', 'title', and 'description'
+{% endcomment %}
+
+<section id="services" 
+         class="relative w-full bg-white px-8 md:px-16 border-t border-dark/5"
+         x-data="servicesScrollCarousel()"
+         @scroll.window="handleScroll()"
+         :style="{ 
+            minHeight: sectionHeight + 'px'
+         }">
+
+    <!-- Sticky carousel container -->
+    <div class="sticky top-0 w-full h-screen flex flex-col items-center justify-center overflow-hidden bg-white z-10">
+
+        <!-- Header -->
+        <div class="absolute top-0 left-0 right-0 pt-16 px-8 z-20">
+            <div class="max-w-[100rem] mx-auto w-full px-[60px]">
+                <h2 class="font-hagia font-medium text-7xl text-dark tracking-tight">
+                    Services
+                </h2>
+                <p class="font-hagia text-3xl text-dark/60 mt-4 max-w-2xl leading-relaxed">
+                   I take your half-baked idea, ask way too many questions, design, write code, It does stuff. People seem to like it.
+                </p>
+            </div>
+        </div>
+
+        <!-- Main carousel content -->
+        <div class="w-full h-full flex items-center justify-center">
+            <div class="max-w-[100rem] w-full px-8 md:px-16 relative">
+                <!-- Service items -->
+                <template x-for="(service, index) in servicesArray" :key="index">
+                    <div class="absolute inset-0 flex flex-col items-center justify-center"
+                         :style="{ 
+                            opacity: currentIndex === index ? 1 : 0,
+                            transform: currentIndex < index ? 'translateX(80px)' : (currentIndex > index ? 'translateX(-80px)' : 'translateX(0)'),
+                            transition: 'all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                            pointerEvents: currentIndex === index ? 'auto' : 'none'
+                         }">
+                        
+                        <!-- Background SVG illustration -->
+                        <div class="absolute inset-0 pointer-events-none overflow-visible flex items-center justify-end pr-20">
+                            <!-- Service 1: Design -->
+                            <img x-show="index === 0" 
+                                 src="{% static 'svg/service-01-design.png' %}" 
+                                 alt="Design service illustration"
+                                 class="w-96 h-96"
+                                 :style="{
+                                    transition: 'opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                                    transitionDelay: currentIndex === index ? '0.3s' : '0s'
+                                 }"/>
+                            
+                            <!-- Service 2: Development -->
+                            <img x-show="index === 1" 
+                                 src="{% static 'svg/service-02-development.png' %}" 
+                                 alt="Development service illustration"
+                                 class="w-96 h-96"
+                                 :style="{ 
+                                    
+                                    transition: 'opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                                    transitionDelay: currentIndex === index ? '0.3s' : '0s'
+                                 }"/>
+                            
+                            <!-- Service 3: Strategy -->
+                            <img x-show="index === 2" 
+                                 src="{% static 'svg/service-03-strategy.png' %}" 
+                                 alt="Strategy service illustration"
+                                 class="w-96 h-96"
+                                 :style="{ 
+                                
+                                    transition: 'opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                                    transitionDelay: currentIndex === index ? '0.3s' : '0s'
+                                 }"/>
+                            
+                            <!-- Service 4: Consulting -->
+                            <img x-show="index === 3" 
+                                 src="{% static 'svg/service-04-consulting.png' %}" 
+                                 alt="Consulting service illustration"
+                                 class="w-96 h-96"
+                                 :style="{ 
+                                    
+                                    transition: 'opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                                    transitionDelay: currentIndex === index ? '0.3s' : '0s'
+                                 }"/>
+                            
+                            <!-- Service 5: Implementation -->
+                            <img x-show="index === 4" 
+                                 src="{% static 'svg/service-05-implementation.png' %}" 
+                                 alt="Implementation service illustration"
+                                 class="w-96 h-96"
+                                 :style="{ 
+                                    
+                                    transition: 'opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                                    transitionDelay: currentIndex === index ? '0.3s' : '0s'
+                                 }"/>
+                            
+                            <!-- Service 6: Support -->
+                            <img x-show="index === 5" 
+                                 src="{% static 'svg/service-06-support.png' %}" 
+                                 alt="Support service illustration"
+                                 class="w-96 h-96"
+                                 :style="{ 
+                                
+                                    transition: 'opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                                    transitionDelay: currentIndex === index ? '0.3s' : '0s'
+                                 }"/>
+                        </div>
+
+                        <!-- Content -->
+                        <div class="max-w-4xl w-full px-8 relative z-10">
+                            <div class="mb-12">
+                                <span class="font-hagia text-6xl uppercase tracking-[0.2em] text-accent block"
+                                      :style="{ 
+                                        opacity: currentIndex === index ? 1 : 0,
+                                        transform: currentIndex === index ? 'scale(1)' : 'scale(0.95)',
+                                        transition: 'all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                                        transitionDelay: currentIndex === index ? '0.1s' : '0s'
+                                      }">
+                                    <span x-text="String(service.number).padStart(2, '0')"></span>
+                                </span>
+                            </div>
+
+                            <h2 class="font-hagia font-medium text-7xl md:text-8xl mb-8 tracking-tight leading-tight text-dark"
+                                :style="{ 
+                                    opacity: currentIndex === index ? 1 : 0,
+                                    transform: currentIndex === index ? 'translateY(0)' : 'translateY(20px)',
+                                    transition: 'all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                                    transitionDelay: currentIndex === index ? '0.15s' : '0s'
+                                }"
+                                x-text="service.title"></h2>
+
+                            <p class="font-hagia text-4xl leading-relaxed max-w-3xl text-dark"
+                               :style="{ 
+                                    opacity: currentIndex === index ? 1 : 0,
+                                    transform: currentIndex === index ? 'translateY(0)' : 'translateY(20px)',
+                                    transition: 'all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                                    transitionDelay: currentIndex === index ? '0.2s' : '0s'
+                                }"
+                               x-text="service.description"></p>
+
+                            <!-- Progress indicator -->
+                            <div class="mt-12 flex items-center gap-3">
+                                <template x-for="(_, idx) in servicesArray" :key="idx">
+                                    <div class="h-1 rounded-full transition-all duration-700"
+                                         :class="currentIndex === idx ? 'w-16 bg-accent' : 'w-2 bg-dark/20'"></div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    /* Smooth scroll behavior */
+    :root {
+        scroll-behavior: smooth;
+    }
+
+    /* Custom scrollbar styling */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: rgba(63, 63, 63, 0.3);
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(63, 63, 63, 0.5);
+    }
+</style>
+
+<script>
+    function servicesScrollCarousel() {
+        return {
+            servicesArray: {{ services_json|safe }},
+            currentIndex: 0,
+            sectionTop: 0,
+            sectionHeight: 0,
+            observer: null,
+
+            init() {
+                // Calculate section dimensions
+                this.calculateSectionDimensions();
+                
+                // Observe section position
+                this.setupIntersectionObserver();
+                
+                // Update on window resize
+                window.addEventListener('resize', () => this.calculateSectionDimensions());
+            },
+
+            calculateSectionDimensions() {
+                const section = this.$el;
+                this.sectionTop = section.offsetTop;
+                // Section height = one viewport height per service
+                const viewportHeight = window.innerHeight;
+                this.sectionHeight = viewportHeight * this.servicesArray.length;
+            },
+
+            setupIntersectionObserver() {
+                const section = this.$el;
+                this.observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            this.calculateSectionDimensions();
+                        }
+                    });
+                }, { threshold: 0 });
+                this.observer.observe(section);
+            },
+
+            handleScroll() {
+                const scrollY = window.scrollY;
+                const section = this.$el;
+                
+                // Only update if section is in range
+                if (scrollY >= this.sectionTop - window.innerHeight && 
+                    scrollY <= this.sectionTop + this.sectionHeight) {
+                    
+                    // Calculate progress through services section
+                    const progressInSection = Math.max(0, scrollY - this.sectionTop);
+                    const viewportHeight = window.innerHeight;
+                    const serviceProgress = progressInSection / viewportHeight;
+                    
+                    // Calculate which service to show
+                    const newIndex = Math.floor(serviceProgress);
+                    const clampedIndex = Math.min(newIndex, this.servicesArray.length - 1);
+                    
+                    // If index changed and it's odd (has confetti), restart animation
+                    if (clampedIndex !== this.currentIndex) {
+                        this.currentIndex = clampedIndex;
+                        if (clampedIndex % 2 === 1) {
+                            this.$nextTick(() => this.restartConfettiAnimation(clampedIndex));
+                        }
+                    } else {
+                        this.currentIndex = clampedIndex;
+                    }
+                }
+            },
+
+            restartConfettiAnimation(index) {
+                // Get the confetti SVG for this index
+                setTimeout(() => {
+                    const confettiSvg = document.getElementById(`confetti-${index}`);
+                    if (confettiSvg) {
+                        const g = confettiSvg.querySelector('g');
+                        if (g) {
+                            // Remove and re-add the group to trigger animation restart
+                            const clone = g.cloneNode(true);
+                            g.parentNode.replaceChild(clone, g);
+                        }
+                    }
+                }, 50);
+            }
+        }
+    }
+</script>
+

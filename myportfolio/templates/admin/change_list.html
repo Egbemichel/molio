@@ -1,0 +1,217 @@
+{% extends "admin/change_list.html" %}
+{% load static %}
+
+{% block content_title %}
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold text-dark mb-2">{{ opts.verbose_name_plural|title }}</h1>
+        <p class="text-gray-600">Manage all {{ opts.verbose_name_plural }}</p>
+    </div>
+{% endblock %}
+
+{% block search %}
+    {% if has_search %}
+        <div class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+            <form id="changelist-search" method="get">
+                <div class="flex gap-2">
+                    <input 
+                        type="text" 
+                        name="q" 
+                        value="{{ cl.query }}"
+                        placeholder="Search {{ opts.verbose_name_plural }}..."
+                        class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-dark text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-20"
+                    />
+                    <button 
+                        type="submit"
+                        class="px-6 py-2 bg-primary hover:bg-red-800 text-white font-semibold rounded-lg transition-smooth"
+                    >
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block date_hierarchy %}{% endblock %}
+
+{% block filters %}
+    {% if cl.has_filters %}
+        <div class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+            <h2 class="font-semibold text-dark mb-4 text-sm uppercase tracking-widest">Filters</h2>
+            <div class="space-y-4">
+                {% for filter_choice in cl.filter_specs %}
+                    <div>
+                        <h3 class="text-sm font-medium text-dark mb-2">{{ filter_choice.title }}</h3>
+                        <ul class="space-y-2">
+                            {% for choice in filter_choice.choices %}
+                                <li>
+                                    <a href="{{ choice.query_string }}" class="text-sm flex items-center gap-2 text-gray-600 hover:text-primary transition-smooth {% if choice.selected %}text-primary font-medium{% endif %}">
+                                        {% if choice.selected %}
+                                            <span class="w-2 h-2 rounded-full bg-primary"></span>
+                                        {% else %}
+                                            <span class="w-2 h-2 rounded-full bg-gray-300"></span>
+                                        {% endif %}
+                                        {{ choice.display }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block result_list %}
+    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            {{ block.super }}
+        </div>
+    </div>
+{% endblock %}
+
+{% block pagination %}
+    <div class="p-6 border-t border-gray-200 bg-gray-50">
+        {{ block.super }}
+    </div>
+{% endblock %}
+
+<style>
+    /* Style Django admin table */
+    #result_list {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+    }
+
+    #result_list thead {
+        background: linear-gradient(to right, #f9fafb, #f3f4f6);
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    #result_list thead th {
+        padding: 16px;
+        text-align: left;
+        font-weight: 700;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #3f3f3f;
+    }
+
+    #result_list thead th a {
+        color: #3f3f3f;
+        text-decoration: none;
+    }
+
+    #result_list thead th a:hover {
+        color: #8b1e1e;
+    }
+
+    #result_list tbody tr {
+        border-bottom: 1px solid #e5e7eb;
+        transition: background-color 0.2s;
+    }
+
+    #result_list tbody tr:hover {
+        background-color: #f9fafb;
+    }
+
+    #result_list td {
+        padding: 16px;
+        color: #3f3f3f;
+        font-size: 14px;
+    }
+
+    #result_list a {
+        color: #8b1e1e;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    #result_list a:hover {
+        text-decoration: underline;
+    }
+
+    /* Checkboxes */
+    #result_list input[type="checkbox"] {
+        cursor: pointer;
+    }
+
+    /* Submit row */
+    .submit-row {
+        padding: 16px;
+        background: white;
+        border-top: 1px solid #e5e7eb;
+        display: flex;
+        gap: 8px;
+    }
+
+    .submit-row input[type="submit"],
+    .submit-row input[type="button"] {
+        padding: 10px 24px;
+        background: #8b1e1e;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-family: 'HagiaPro', system-ui, -apple-system, sans-serif;
+    }
+
+    .submit-row input[type="submit"]:hover {
+        background: #6b1418;
+    }
+
+    /* Pagination */
+    .paginator {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .step-links {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .step-links a,
+    .step-links span {
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: all 0.3s;
+    }
+
+    .step-links a {
+        border: 1px solid #e5e7eb;
+        color: #3f3f3f;
+        text-decoration: none;
+    }
+
+    .step-links a:hover {
+        border-color: #8b1e1e;
+        background: #fff5f5;
+        color: #8b1e1e;
+    }
+
+    .step-links .this-page {
+        background: #8b1e1e;
+        color: white;
+        border-color: #8b1e1e;
+        padding: 6px 12px;
+    }
+
+    /* Empty resultset */
+    .results p {
+        color: #666;
+        font-size: 14px;
+    }
+</style>

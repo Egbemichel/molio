@@ -1,0 +1,116 @@
+{% load static %}
+
+<section class="w-full bg-white px-8 md:px-16 py-24 md:py-32">
+    <div class="max-w-[100rem] mx-auto w-full px-[60px]">
+        <div class="max-w-2xl mx-auto">
+            <!-- Section Title -->
+            <div class="mb-16 text-center">
+                <h2 class="font-hagia font-medium text-7xl text-dark tracking-tight mb-4">Your Feedback</h2>
+                <p class="font-hagia text-3xl text-dark/60 leading-relaxed">
+                    I'd love to hear what you think. Share your thoughts.
+                </p>
+            </div>
+
+            <!-- Feedback Form -->
+            <form data-feedback-form class="space-y-8">
+                <!-- Smiley Face SVG -->
+                <div class="flex justify-center mb-12">
+                    <svg 
+                        data-smiley-face 
+                        viewBox="0 0 100 100" 
+                        width="120" 
+                        height="120"
+                        style="transition: all 400ms; will-change: transform;">
+                        <!-- Face circle -->
+                        <circle cx="50" cy="50" r="45" fill="none" stroke="#8B1E1E" stroke-width="2"/>
+                        
+                        <!-- Left eye -->
+                        <g data-eye style="transform-origin: 35px 40px; transition: all 400ms;">
+                            <circle cx="35" cy="40" r="4" fill="#3F3F3F"/>
+                        </g>
+                        
+                        <!-- Right eye -->
+                        <g data-eye style="transform-origin: 65px 40px; transition: all 400ms;">
+                            <circle cx="65" cy="40" r="4" fill="#3F3F3F"/>
+                        </g>
+                        
+                        <!-- Left eyebrow -->
+                        <line 
+                            x1="25" y1="28" 
+                            x2="45" y2="25"
+                            stroke="#3F3F3F" 
+                            stroke-width="2" 
+                            stroke-linecap="round"
+                            data-eyebrow
+                            style="transform-origin: 35px 26px; transition: all 400ms;"/>
+                        
+                        <!-- Right eyebrow -->
+                        <line 
+                            x1="55" y1="25" 
+                            x2="75" y2="28"
+                            stroke="#3F3F3F" 
+                            stroke-width="2" 
+                            stroke-linecap="round"
+                            data-eyebrow
+                            style="transform-origin: 65px 26px; transition: all 400ms;"/>
+                        
+                        <!-- Mouth -->
+                        <path 
+                            data-mouth
+                            d="M 30 45 Q 50 45 70 45"
+                            stroke="#8B1E1E"
+                            stroke-width="2"
+                            fill="none"
+                            stroke-linecap="round"
+                            style="transition: all 400ms;"/>
+                    </svg>
+                </div>
+
+                <!-- Star Rating -->
+                <div data-star-rating class="flex justify-center gap-6">
+                    {% for i in "12345" %}
+                        <label class="cursor-pointer group">
+                            <input 
+                                type="radio" 
+                                name="rating" 
+                                value="{{ forloop.counter }}" 
+                                hidden>
+                            <span 
+                                class="star text-6xl transition-all duration-300 group-hover:scale-125 group-hover:drop-shadow-lg"
+                                style="color: rgba(63, 63, 63, 0.3); will-change: transform; display: inline-block;">
+                                ★
+                            </span>
+                        </label>
+                    {% endfor %}
+                </div>
+
+                <!-- Textarea with Counter -->
+                <div class="space-y-3">
+                    <textarea
+                        data-feedback-textarea
+                        name="message"
+                        placeholder="Share your feedback..."
+                        maxlength="500"
+                        rows="4"
+                        required
+                        class="w-full bg-primary border-2 border-dark/10 rounded-2xl p-6 font-hagia text-xl text-dark placeholder-dark/30 transition-all duration-300"
+                        style="min-height: 120px;"></textarea>
+                    <div class="flex justify-end">
+                        <p data-character-counter class="font-hagia text-sm opacity-50">0/500</p>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="pt-4">
+                    <button
+                        data-feedback-submit
+                        type="submit"
+                        class="w-full bg-dark text-white font-hagia font-medium text-xl py-4 px-6 rounded-2xl hover:bg-accent transition-all duration-300 active:scale-95"
+                        style="will-change: transform;">
+                        Send Feedback
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
