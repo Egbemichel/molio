@@ -3,166 +3,162 @@
  * Star rating with cascade animation
  * Auto-expanding textarea with character counter
  * Smooth submit with spinner-to-checkmark animation
- * 
+ *
  * Form submits via fetch() to /api/feedback/
  */
+
+import { showButtonLoader, showButtonSuccess, showButtonError } from './page_loader.js'
 
 export function initFeedbackForm() {
   const form = document.querySelector('[data-feedback-form]')
   if (!form) return
 
-  const smiley = form.querySelector('[data-smiley-face]')
-  const ratingDiv = form.querySelector('[data-star-rating]')
-  const ratingInputs = form.querySelectorAll('[data-star-rating] input')
-  const textarea = form.querySelector('[data-feedback-textarea]')
-  const submitBtn = form.querySelector('[data-feedback-submit]')
+  // Match the HTML's data attributes exactly
+  const smiley          = form.querySelector('[data-smiley-face]')
+  const ratingDiv       = form.querySelector('[data-star-rating]')
+  const ratingInputs    = form.querySelectorAll('[data-star-rating] input')
+  const stars           = form.querySelectorAll('.rating-star')
+  const textarea        = form.querySelector('[data-feedback-textarea]')
+  const submitBtn       = form.querySelector('[data-feedback-submit]')
   const characterCounter = form.querySelector('[data-character-counter]')
 
   let currentRating = 0
   const maxChars = 500
 
   console.log('🎯 Initializing feedback form...')
-  console.log('Found', ratingInputs.length, 'rating inputs')
 
-  // Smiley face setup
-  if (smiley) {
-    updateSmileyState(smiley, 0)
-  }
+  if (textarea) textarea.value = ''
+  updateSmileyState(smiley, 0)
 
-  // Textarea cleanup - remove any default text on load
-  if (textarea) {
-    textarea.value = ''
-  }
+  // ── Star rating ──────────────────────────────────────────────
+  stars.forEach((star, idx) => {
+    const val = idx + 1
 
-  // Star rating setup with click delegation
-  if (ratingDiv) {
-    ratingDiv.addEventListener('click', (e) => {
-      if (e.target.tagName === 'INPUT' && e.target.type === 'radio') {
-        const input = e.target
-        const rating = parseInt(input.value)
-        currentRating = rating
-        console.log('⭐ Rating selected:', rating)
-        
-        updateSmileyState(smiley, rating)
-        populateStars(ratingInputs, rating)
+    star.addEventListener('mouseenter', () => {
+      stars.forEach((s, i) => {
+        s.classList.remove('is-filled', 'is-hovered')
+        if (i < val) {
+          s.classList.add('is-hovered')
+        } else if (i < currentRating) {
+          s.classList.add('is-filled')
+        }
+        setTimeout(() => {
+          s.style.transform = i < val ? 'scale(1.2)' : 'scale(1)'
+        }, i * 18)
+      })
+      updateSmileyState(smiley, val)
+    })
+
+    star.addEventListener('mouseleave', () => {
+      stars.forEach((s, i) => {
+        s.classList.remove('is-hovered')
+        s.style.transform = 'scale(1)'
+        if (i < currentRating) {
+          s.classList.add('is-filled')
+        } else {
+          s.classList.remove('is-filled')
+        }
+      })
+      // Only reset face if nothing has been clicked — otherwise freeze it
+      if (currentRating === 0) updateSmileyState(smiley, 0)
+    })
+
+    star.addEventListener('click', () => {
+      currentRating = val
+
+      const label = star.closest('label')
+      if (label) {
+        const radio = label.querySelector('input[type="radio"]')
+        if (radio) radio.checked = true
       }
-    })
-  }
 
-  // Direct input change listeners as backup
-  ratingInputs.forEach((input, index) => {
-    const rating = index + 1
-
-    input.addEventListener('change', () => {
-      currentRating = rating
-      console.log('📌 Change event fired for rating:', rating)
-      updateSmileyState(smiley, rating)
-      populateStars(ratingInputs, rating)
-    })
-
-    // Hover preview of stars
-    input.addEventListener('mouseenter', () => {
-      cascadeStars(ratingInputs, rating, true)
-    })
-
-    input.addEventListener('mouseleave', () => {
-      cascadeStars(ratingInputs, currentRating, false)
+      stars.forEach((s, i) => {
+        s.classList.remove('is-hovered')
+        if (i < val) {
+          s.classList.add('is-filled')
+          if (window.gsap) {
+            gsap.fromTo(s,
+              { scale: 0.75 },
+              { scale: 1, duration: 0.4, delay: i * 0.045, ease: 'back.out(2.5)' }
+            )
+          }
+        } else {
+          s.classList.remove('is-filled')
+          s.style.transform = 'scale(1)'
+        }
+      })
+      // Face stays exactly as it was during hover — no updateSmileyState here
     })
   })
 
-  // Textarea auto-expand and smiley interaction
+  // ── Textarea ─────────────────────────────────────────────────
   if (textarea) {
     textarea.addEventListener('input', () => {
-      // Auto-expand
+      const len = textarea.value.length
+      const remaining = maxChars - len
+
+      if (characterCounter) {
+        characterCounter.textContent = `${len}/${maxChars}`
+        characterCounter.style.color   = remaining < 20 ? '#8B1E1E' : ''
+        characterCounter.style.opacity = remaining < 20 ? '1' : '0.5'
+      }
+
       textarea.style.height = 'auto'
       textarea.style.height = textarea.scrollHeight + 'px'
-
-      // Update character counter
-      const remaining = maxChars - textarea.value.length
-      if (characterCounter) {
-        characterCounter.textContent = `${textarea.value.length}/${maxChars}`
-
-        if (remaining < 20) {
-          characterCounter.style.color = '#8B1E1E'
-        } else {
-          characterCounter.style.color = 'rgba(63, 63, 63, 0.5)'
-        }
-      }
-
-      // Update smiley based on typing - move from neutral/sad to happy
-      if (textarea.value.length > 0 && currentRating <= 3) {
-        // If typing and rating is low, bump smiley toward happy
-        updateSmileyState(smiley, 4)
-      } else if (textarea.value.length === 0 && currentRating === 0) {
-        // If nothing typed and no rating, show neutral
-        updateSmileyState(smiley, currentRating)
-      }
     })
   }
 
-  // Form submit
+  // ── Submit ────────────────────────────────────────────────────
   if (submitBtn) {
     submitBtn.addEventListener('click', async (e) => {
       e.preventDefault()
-
-      const message = textarea?.value || ''
 
       if (!currentRating) {
         alert('Please select a rating')
         return
       }
 
-      if (!message.trim()) {
+      const message = textarea?.value?.trim() || ''
+      if (!message) {
         alert('Please provide feedback')
         return
       }
 
-      // Disable button and show spinner
-      submitBtn.disabled = true
-      const originalText = submitBtn.innerHTML
-      showSubmitSpinner(submitBtn)
+      const resetBtn = showButtonLoader(submitBtn)
 
       try {
-        // Submit form
         const response = await fetch('/api/feedback/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'X-CSRFToken': getCookie('csrftoken'),
           },
-          body: JSON.stringify({
-            rating: currentRating,
-            message: message,
-          }),
+          body: JSON.stringify({ rating: currentRating, message }),
         })
 
-        if (!response.ok) {
-          throw new Error('Failed to submit feedback')
-        }
+        if (!response.ok) throw new Error('Failed to submit feedback')
 
-        // Show success
-        showSubmitSuccess(submitBtn, smiley)
+        showButtonSuccess(submitBtn, 2500)
+        updateSmileyState(smiley, 1) // 1★ = biggest smile — celebrate on success
 
-        // Reset form
         setTimeout(() => {
           form.reset()
           currentRating = 0
-          if (textarea) {
-            textarea.style.height = 'auto'
-          }
+          if (textarea) textarea.style.height = 'auto'
           if (characterCounter) {
             characterCounter.textContent = '0/500'
+            characterCounter.style.color   = ''
+            characterCounter.style.opacity = '0.5'
           }
-          populateStars(ratingInputs, 0)
+          stars.forEach(s => s.classList.remove('is-filled', 'is-hovered'))
           updateSmileyState(smiley, 0)
-          submitBtn.disabled = false
-          submitBtn.innerHTML = originalText
-        }, 2000)
+          resetBtn()
+        }, 1500)
+
       } catch (error) {
         console.error('Feedback submission error:', error)
-        alert('Failed to submit feedback. Please try again.')
-        submitBtn.disabled = false
-        submitBtn.innerHTML = originalText
+        showButtonError(submitBtn, 'Feedback failed. Try again', 2500)
+        resetBtn()
       }
     })
   }
@@ -173,172 +169,52 @@ export function initFeedbackForm() {
 function updateSmileyState(smiley, rating) {
   if (!smiley) return
 
-  const mouth = smiley.querySelector('[data-mouth]')
-  const eyes = smiley.querySelectorAll('[data-eye]')
-  const eyebrows = smiley.querySelectorAll('[data-eyebrow]')
+  const mouth     = smiley.querySelector('[data-mouth]')
+  const browL     = smiley.querySelector('[data-eyebrow="left"]')
+  const browR     = smiley.querySelector('[data-eyebrow="right"]')
+  const pupils    = smiley.querySelectorAll('[data-pupil]')
+  const starEyeL  = smiley.querySelector('[data-star-eye="left"]')
+  const starEyeR  = smiley.querySelector('[data-star-eye="right"]')
+  const eyeWhites = smiley.querySelectorAll('.eye-white-l, .eye-white-r')
 
+  // SVG Y axis goes DOWN.
+  // mouthCy < 60 → curve bows UP   → SMILE
+  // mouthCy > 60 → curve bows DOWN → FROWN
+  // mouthCy = 60 → straight line   → NEUTRAL
   const states = {
-    0: {
-      mouth: 'M 30 45 Q 50 45 70 45', // Neutral line
-      eyeScale: 1,
-      eyebrowRotate: 0,
-    },
-    1: {
-      mouth: 'M 30 50 Q 50 35 70 50', // Very sad frown
-      eyeScale: 0.7,
-      eyebrowRotate: -15,
-    },
-    2: {
-      mouth: 'M 30 48 Q 50 43 70 48', // Sad
-      eyeScale: 0.85,
-      eyebrowRotate: -10,
-    },
-    3: {
-      mouth: 'M 30 45 Q 50 45 70 45', // Neutral
-      eyeScale: 1,
-      eyebrowRotate: 0,
-    },
-    4: {
-      mouth: 'M 30 40 Q 50 55 70 40', // Happy smile
-      eyeScale: 1.1,
-      eyebrowRotate: 10,
-    },
-    5: {
-      mouth: 'M 30 38 Q 50 58 70 38', // Very happy big smile
-      eyeScale: 1.2,
-      eyebrowRotate: 15,
-    },
+    0: { mouthCy: 60, browLY: 30, browRY: 30, pupilDy: 0    }, // neutral flat
+    1: { mouthCy: 42, browLY: 24, browRY: 24, pupilDy: -1.5 }, // 1★ = biggest smile
+    2: { mouthCy: 50, browLY: 27, browRY: 27, pupilDy: -1   }, // 2★ = happy smile
+    3: { mouthCy: 60, browLY: 30, browRY: 30, pupilDy: 0    }, // 3★ = neutral
+    4: { mouthCy: 67, browLY: 33, browRY: 33, pupilDy: 1    }, // 4★ = sad
+    5: { mouthCy: 72, browLY: 36, browRY: 36, pupilDy: 1.5  }, // 5★ = biggest frown
   }
 
-  const state = states[rating] || states[0]
+  const s = states[rating] ?? states[0]
 
-  if (mouth) {
-    mouth.setAttribute(
-      'd',
-      state.mouth
+  if (mouth) mouth.setAttribute('d', `M 32 60 Q 50 ${s.mouthCy} 68 60`)
+  if (browL)  browL.setAttribute('d', `M 28 ${s.browLY + 3} Q 34 ${s.browLY} 40 ${s.browLY + 3}`)
+  if (browR)  browR.setAttribute('d', `M 60 ${s.browRY} Q 66 ${s.browRY - 3} 72 ${s.browRY}`)
+  pupils.forEach(p => p.setAttribute('cy', 43 + s.pupilDy))
+
+  // Star eyes trigger at rating 1 (biggest smile)
+  const isStarred = rating === 1
+  eyeWhites.forEach(e => e.style.opacity = isStarred ? '0' : '1')
+  pupils.forEach(p    => p.style.opacity  = isStarred ? '0' : '1')
+  if (starEyeL) starEyeL.style.opacity = isStarred ? '1' : '0'
+  if (starEyeR) starEyeR.style.opacity = isStarred ? '1' : '0'
+
+  if (isStarred && window.gsap) {
+    gsap.fromTo(smiley,
+      { scale: 1 },
+      { scale: 1.1, yoyo: true, repeat: 1, duration: 0.18, ease: 'power2.out' }
     )
-    mouth.style.transition = 'all 400ms cubic-bezier(0.34, 1.56, 0.64, 1)'
-  }
-
-  eyes.forEach((eye) => {
-    eye.style.transform = `scale(${state.eyeScale})`
-    eye.style.transition = 'all 400ms cubic-bezier(0.34, 1.56, 0.64, 1)'
-  })
-
-  eyebrows.forEach((brow) => {
-    brow.style.transform = `rotate(${state.eyebrowRotate}deg)`
-    brow.style.transition = 'all 400ms cubic-bezier(0.34, 1.56, 0.64, 1)'
-  })
-
-  // At 5 stars, eyes become stars
-  if (rating === 5) {
-    eyes.forEach((eye) => {
-      eye.innerHTML = '★'
-      eye.style.fontSize = '1.5rem'
-      eye.style.color = '#8B1E1E'
-      eye.style.animation = 'smileyBounce 600ms cubic-bezier(0.34, 1.56, 0.64, 1)'
-    })
-  } else {
-    eyes.forEach((eye) => {
-      eye.innerHTML = '<circle cx="50%" cy="50%" r="4" fill="currentColor"/>'
-      eye.style.animation = 'none'
-    })
-  }
-}
-
-function cascadeStars(inputs, upToRating, isHovering) {
-  inputs.forEach((input, index) => {
-    const starNum = index + 1
-    const label = input.closest('label')
-    const star = label ? label.querySelector('.star') : null
-
-    if (!star) {
-      console.warn(`⚠️ Star ${starNum} not found`)
-      return
-    }
-
-    if (starNum <= upToRating) {
-      star.style.transform = 'scale(1.15)'
-      star.style.color = '#8B1E1E'
-    } else {
-      star.style.transform = 'scale(1)'
-      star.style.color = 'rgba(63, 63, 63, 0.3)'
-    }
-
-    // Stagger animation on hover
-    if (isHovering && starNum <= upToRating) {
-      const delay = (index * 20) // 20ms stagger
-      star.style.transitionDelay = `${delay}ms`
-    } else {
-      star.style.transitionDelay = '0ms'
-    }
-  })
-}
-
-function populateStars(inputs, rating) {
-  console.log('🎨 Populating stars up to rating:', rating)
-  
-  inputs.forEach((input, index) => {
-    const starNum = index + 1
-    const label = input.closest('label')
-    const star = label ? label.querySelector('.star') : null
-
-    if (!star) {
-      console.warn(`⚠️ Could not find star ${starNum}`)
-      return
-    }
-
-    if (starNum <= rating) {
-      star.style.color = '#8B1E1E'
-      star.style.transform = 'scale(1.1)'
-      console.log(`✅ Star ${starNum} colored`)
-    } else {
-      star.style.color = 'rgba(63, 63, 63, 0.3)'
-      star.style.transform = 'scale(1)'
-      console.log(`⭕ Star ${starNum} reset`)
-    }
-  })
-}
-
-function showSubmitSpinner(button) {
-  button.innerHTML = `
-    <span class="inline-block" style="
-      width: 20px;
-      height: 20px;
-      border: 3px solid rgba(139, 30, 30, 0.3);
-      border-top-color: #8B1E1E;
-      border-radius: 50%;
-      animation: feedbackSpinner 1s linear infinite;
-    "></span>
-  `
-}
-
-function showSubmitSuccess(button, smiley) {
-  button.innerHTML = `
-    <span style="font-size: 1.5rem;">✓</span>
-  `
-  button.style.backgroundColor = '#8B1E1E'
-  button.style.color = 'white'
-
-  // Smiley bounce on success
-  if (smiley) {
-    smiley.style.animation = 'smileyBounce 600ms cubic-bezier(0.34, 1.56, 0.64, 1)'
   }
 }
 
 function getCookie(name) {
-  let cookieValue = null
-  if (document.cookie && document.cookie !== '') {
-    const cookies = document.cookie.split(';')
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim()
-      if (cookie.substring(0, name.length + 1) === name + '=') {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1))
-        break
-      }
-    }
-  }
-  return cookieValue
+  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'))
+  return match ? decodeURIComponent(match[2]) : ''
 }
 
 function injectFeedbackStyles() {
@@ -347,55 +223,36 @@ function injectFeedbackStyles() {
   const style = document.createElement('style')
   style.id = 'feedback-form-keyframes'
   style.textContent = `
-    @keyframes feedbackSpinner {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    @keyframes smileyBounce {
-      0%, 100% {
-        transform: translateY(0);
-      }
-      50% {
-        transform: translateY(-4px);
-      }
-    }
-
     [data-feedback-textarea] {
       resize: none;
-      field-sizing: content;
     }
 
     [data-feedback-textarea]:focus {
-      border-color: #8B1E1E;
+      border-color: #8B1E1E !important;
       box-shadow: 0 0 0 3px rgba(139, 30, 30, 0.2);
       outline: none;
     }
 
     [data-character-counter] {
-      transition: color 300ms;
+      transition: color 300ms ease, opacity 300ms ease;
+    }
+
+    svg[data-smiley-face] path,
+    svg[data-smiley-face] circle,
+    svg[data-smiley-face] text {
+      transition: all 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    svg[data-smiley-face] {
+      transition: transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     @media (prefers-reduced-motion: reduce) {
-      @keyframes feedbackSpinner {
-        to {
-          transform: rotate(0);
-        }
-      }
-
-      @keyframes smileyBounce {
-        to {
-          transform: translateY(0);
-        }
-      }
-
-      [data-smiley-face] * {
+      svg[data-smiley-face] *,
+      svg[data-smiley-face],
+      .rating-star {
         transition: none !important;
-      }
-
-      .star {
-        transition: none !important;
+        animation: none !important;
       }
     }
   `
