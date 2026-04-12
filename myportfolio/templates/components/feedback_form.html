@@ -3,7 +3,7 @@
 <section class="w-full bg-white px-8 md:px-16 py-24 md:py-32">
     <div class="max-w-[100rem] mx-auto w-full px-[60px]">
         <div class="max-w-2xl mx-auto">
-            <!-- Section Title -->
+
             <div class="mb-16 text-center">
                 <h2 class="font-hagia font-medium text-7xl text-dark tracking-tight mb-4">Your Feedback</h2>
                 <p class="font-hagia text-3xl text-dark/60 leading-relaxed">
@@ -11,80 +11,80 @@
                 </p>
             </div>
 
-            <!-- Feedback Form -->
             <form data-feedback-form class="space-y-8">
-                <!-- Smiley Face SVG -->
+
+                <!-- Smiley Face -->
                 <div class="flex justify-center mb-12">
-                    <svg 
-                        data-smiley-face 
-                        viewBox="0 0 100 100" 
-                        width="120" 
-                        height="120"
-                        style="transition: all 400ms; will-change: transform;">
-                        <!-- Face circle -->
-                        <circle cx="50" cy="50" r="45" fill="none" stroke="#8B1E1E" stroke-width="2"/>
-                        
-                        <!-- Left eye -->
-                        <g data-eye style="transform-origin: 35px 40px; transition: all 400ms;">
-                            <circle cx="35" cy="40" r="4" fill="#3F3F3F"/>
-                        </g>
-                        
-                        <!-- Right eye -->
-                        <g data-eye style="transform-origin: 65px 40px; transition: all 400ms;">
-                            <circle cx="65" cy="40" r="4" fill="#3F3F3F"/>
-                        </g>
-                        
-                        <!-- Left eyebrow -->
-                        <line 
-                            x1="25" y1="28" 
-                            x2="45" y2="25"
-                            stroke="#3F3F3F" 
-                            stroke-width="2" 
-                            stroke-linecap="round"
-                            data-eyebrow
-                            style="transform-origin: 35px 26px; transition: all 400ms;"/>
-                        
-                        <!-- Right eyebrow -->
-                        <line 
-                            x1="55" y1="25" 
-                            x2="75" y2="28"
-                            stroke="#3F3F3F" 
-                            stroke-width="2" 
-                            stroke-linecap="round"
-                            data-eyebrow
-                            style="transform-origin: 65px 26px; transition: all 400ms;"/>
-                        
-                        <!-- Mouth -->
-                        <path 
+                    <svg
+                        data-smiley-face
+                        viewBox="0 0 100 100"
+                        width="110"
+                        height="110"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        style="transition: transform 300ms cubic-bezier(0.34,1.56,0.64,1);">
+
+                        <circle cx="50" cy="50" r="44" stroke="#8B1E1E" stroke-width="1.8"/>
+
+                        <!-- Eyebrows -->
+                        <path data-eyebrow="left"  d="M 28 33 Q 34 30 40 33" stroke="#3F3F3F" stroke-width="1.8" stroke-linecap="round" fill="none" style="transition: d 350ms ease;"/>
+                        <path data-eyebrow="right" d="M 60 33 Q 66 30 72 33" stroke="#3F3F3F" stroke-width="1.8" stroke-linecap="round" fill="none" style="transition: d 350ms ease;"/>
+
+                        <!-- Eyes (white + pupil) -->
+                        <circle cx="34" cy="43" r="5" fill="white" stroke="#3F3F3F" stroke-width="1.4" class="eye-white-l"/>
+                        <circle cx="66" cy="43" r="5" fill="white" stroke="#3F3F3F" stroke-width="1.4" class="eye-white-r"/>
+                        <circle data-pupil="left"  cx="34" cy="43" r="2.2" fill="#3F3F3F" style="transition: cy 350ms ease;"/>
+                        <circle data-pupil="right" cx="66" cy="43" r="2.2" fill="#3F3F3F" style="transition: cy 350ms ease;"/>
+
+                        <!--
+                            MOUTH — SVG coordinate system: Y goes DOWN the screen.
+                            "M 32 60 Q 50 {CY} 68 60"
+                            Control point CY < 60  → curve bows UPWARD  → SMILE ✓
+                            Control point CY > 60  → curve bows DOWNWARD → FROWN ✓
+                            Control point CY = 60  → straight line → NEUTRAL ✓
+                        -->
+                        <path
                             data-mouth
-                            d="M 30 45 Q 50 45 70 45"
+                            d="M 32 60 Q 50 60 68 60"
                             stroke="#8B1E1E"
-                            stroke-width="2"
-                            fill="none"
+                            stroke-width="2.2"
                             stroke-linecap="round"
-                            style="transition: all 400ms;"/>
+                            fill="none"
+                            style="transition: d 400ms cubic-bezier(0.34,1.56,0.64,1);"/>
+
+                        <!-- Star eyes — shown only at rating 5 -->
+                        <text data-star-eye="left"  x="34" y="47" text-anchor="middle" font-size="10" fill="#8B1E1E" style="opacity:0; transition: opacity 300ms ease;">★</text>
+                        <text data-star-eye="right" x="66" y="47" text-anchor="middle" font-size="10" fill="#8B1E1E" style="opacity:0; transition: opacity 300ms ease;">★</text>
                     </svg>
                 </div>
 
-                <!-- Star Rating -->
-                <div data-star-rating class="flex justify-center gap-6">
+                <!-- Stars -->
+                <div data-star-rating class="flex justify-center gap-5">
                     {% for i in "12345" %}
-                        <label class="cursor-pointer group">
-                            <input 
-                                type="radio" 
-                                name="rating" 
-                                value="{{ forloop.counter }}" 
-                                hidden>
-                            <span 
-                                class="star text-6xl transition-all duration-300 group-hover:scale-125 group-hover:drop-shadow-lg"
-                                style="color: rgba(63, 63, 63, 0.3); will-change: transform; display: inline-block;">
-                                ★
-                            </span>
-                        </label>
+                    <label class="cursor-pointer" style="line-height:1;">
+                        <input type="radio" name="rating" value="{{ forloop.counter }}" hidden>
+                        <svg
+                            class="rating-star"
+                            data-value="{{ forloop.counter }}"
+                            width="40" height="40"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                            style="cursor:pointer; display:block; transition: transform 300ms cubic-bezier(0.34,1.56,0.64,1);">
+                            <path
+                                class="star-path"
+                                d="M11.2691 4.41115C11.5006 3.89177 11.6164 3.63208 11.7776 3.55211C11.9176 3.48263 12.082 3.48263 12.222 3.55211C12.3832 3.63208 12.499 3.89177 12.7305 4.41115L14.5745 8.54808C14.643 8.70162 14.6772 8.77839 14.7302 8.83718C14.777 8.8892 14.8343 8.93081 14.8982 8.95929C14.9705 8.99149 15.0541 9.00031 15.2213 9.01795L19.7376 9.49336C20.3034 9.55304 20.5862 9.58288 20.7138 9.70632C20.8247 9.81385 20.8748 9.96773 20.8481 10.1186C20.8173 10.2919 20.5749 10.5219 20.09 10.9818L16.7348 14.0981C16.6094 14.2155 16.5467 14.2742 16.5094 14.3448C16.4762 14.4073 16.4598 14.4766 16.4615 14.5466C16.4634 14.6257 16.4937 14.7076 16.5544 14.8715L17.5517 17.6714C17.7521 18.2275 17.8523 18.5055 17.7975 18.6674C17.7499 18.8084 17.6394 18.9186 17.4985 18.9661C17.3366 19.0209 17.0586 18.9207 16.5026 18.7203L12.8285 17.3653C12.6716 17.3075 12.5932 17.2786 12.5124 17.2657C12.4406 17.2543 12.3672 17.2543 12.2954 17.2657C12.2146 17.2786 12.1362 17.3075 11.9793 17.3653L8.30516 18.7203C7.74916 18.9207 7.47116 19.0209 7.30926 18.9661C7.16836 18.9186 7.05786 18.8084 7.01026 18.6674C6.95546 18.5055 7.05566 18.2275 7.25606 17.6714L8.25336 14.8715C8.31406 14.7076 8.34436 14.6257 8.34626 14.5466C8.34796 14.4766 8.33156 14.4073 8.29836 14.3448C8.26106 14.2742 8.19836 14.2155 8.07296 14.0981L4.71776 10.9818C4.23286 10.5219 3.99046 10.2919 3.95966 10.1186C3.93296 9.96773 3.98306 9.81385 4.09396 9.70632C4.22156 9.58288 4.50436 9.55304 5.07006 9.49336L9.58636 9.01795C9.75356 9.00031 9.83716 8.99149 9.90946 8.95929C9.97336 8.93081 10.0307 8.8892 10.0775 8.83718C10.1305 8.77839 10.1647 8.70162 10.2332 8.54808L11.2691 4.41115Z"
+                                stroke="#8B1E1E"
+                                stroke-width="1.5"
+                                stroke-linejoin="round"
+                                fill="none"
+                                style="transition: fill 200ms ease, stroke 200ms ease;"/>
+                        </svg>
+                    </label>
                     {% endfor %}
                 </div>
 
-                <!-- Textarea with Counter -->
+                <!-- Textarea -->
                 <div class="space-y-3">
                     <textarea
                         data-feedback-textarea
@@ -94,23 +94,255 @@
                         rows="4"
                         required
                         class="w-full bg-primary border-2 border-dark/10 rounded-2xl p-6 font-hagia text-xl text-dark placeholder-dark/30 transition-all duration-300"
-                        style="min-height: 120px;"></textarea>
+                        style="min-height: 120px; resize: none;"></textarea>
                     <div class="flex justify-end">
-                        <p data-character-counter class="font-hagia text-sm opacity-50">0/500</p>
+                        <p data-character-counter class="font-hagia text-sm" style="opacity:0.5; transition: color 300ms ease;">0/500</p>
                     </div>
                 </div>
 
-                <!-- Submit Button -->
-                <div class="pt-4">
+                <!-- Submit -->
+                <div class="pt-4 flex justify-left">
                     <button
                         data-feedback-submit
                         type="submit"
-                        class="w-full bg-dark text-white font-hagia font-medium text-xl py-4 px-6 rounded-2xl hover:bg-accent transition-all duration-300 active:scale-95"
-                        style="will-change: transform;">
-                        Send Feedback
+                        class="group relative flex items-center gap-4 bg-dark text-white px-10 py-5 rounded-full font-hagia text-xl overflow-hidden transition-all hover:pr-14 active:scale-95">
+                        <span class="relative z-10">Send Feedback</span>
+                        <svg class="w-6 h-6 relative z-10 transition-transform group-hover:translate-x-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                        </svg>
+                        <div class="absolute inset-0 bg-accent translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
                     </button>
                 </div>
             </form>
         </div>
     </div>
 </section>
+
+<style>
+    .rating-star.is-filled .star-path,
+    .rating-star.is-hovered .star-path {
+        fill: #8B1E1E;
+        stroke: #8B1E1E;
+    }
+    .rating-star.is-hovered .star-path {
+        fill: rgba(139,30,30,0.35);
+    }
+    [data-feedback-textarea]:focus {
+        border-color: #8B1E1E !important;
+        box-shadow: 0 0 0 3px rgba(139,30,30,0.15);
+        outline: none;
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .rating-star, svg[data-smiley-face] path, svg[data-smiley-face] circle {
+            transition: none !important;
+        }
+    }
+</style>
+
+<script>
+(function () {
+    const form      = document.querySelector('[data-feedback-form]')
+    if (!form) return
+
+    const smiley    = form.querySelector('[data-smiley-face]')
+    const mouth     = smiley.querySelector('[data-mouth]')
+    const pupils    = smiley.querySelectorAll('[data-pupil]')
+    const browL     = smiley.querySelector('[data-eyebrow="left"]')
+    const browR     = smiley.querySelector('[data-eyebrow="right"]')
+    const starEyeL  = smiley.querySelector('[data-star-eye="left"]')
+    const starEyeR  = smiley.querySelector('[data-star-eye="right"]')
+    const eyeWhites = smiley.querySelectorAll('.eye-white-l, .eye-white-r')
+
+    const stars     = form.querySelectorAll('.rating-star')
+    const textarea  = form.querySelector('[data-feedback-textarea]')
+    const counter   = form.querySelector('[data-character-counter]')
+    const submitBtn = form.querySelector('[data-feedback-submit]')
+
+    let currentRating = 0
+
+    // ── Smiley states ──────────────────────────────────────────
+    // SVG Y axis goes DOWN. Control point CY relative to anchor Y=60:
+    //   CY < 60  →  curve bows UP   →  SMILE
+    //   CY > 60  →  curve bows DOWN →  FROWN
+    //   CY = 60  →  straight line   →  NEUTRAL
+    const states = {
+        0: { mouthCy: 60, browLY: 30, browRY: 30, pupilDy: 0    }, // neutral flat
+        1: { mouthCy: 42, browLY: 24, browRY: 24, pupilDy: -1.5 }, // 1★ = biggest smile
+        2: { mouthCy: 50, browLY: 27, browRY: 27, pupilDy: -1   }, // 2★ = happy smile
+        3: { mouthCy: 60, browLY: 30, browRY: 30, pupilDy: 0    }, // neutral
+        4: { mouthCy: 67, browLY: 33, browRY: 33, pupilDy: 1    }, // 4★ = sad
+        5: { mouthCy: 72, browLY: 36, browRY: 36, pupilDy: 1.5  }, // 5★ = biggest frown
+    }
+
+    function updateSmiley(rating) {
+        const s = states[rating] ?? states[0]
+
+        // Mouth curve
+        mouth.setAttribute('d', `M 32 60 Q 50 ${s.mouthCy} 68 60`)
+
+        // Eyebrows — raise on happy, furrow on sad
+        browL.setAttribute('d', `M 28 ${s.browLY + 3} Q 34 ${s.browLY} 40 ${s.browLY + 3}`)
+        browR.setAttribute('d', `M 60 ${s.browRY} Q 66 ${s.browRY - 3} 72 ${s.browRY}`)
+
+        // Pupils
+        pupils.forEach(p => p.setAttribute('cy', 43 + s.pupilDy))
+
+        // Star eyes at rating 5
+        const isStarred = rating === 1
+        eyeWhites.forEach(e => e.style.opacity = isStarred ? '0' : '1')
+        pupils.forEach(p    => p.style.opacity  = isStarred ? '0' : '1')
+        starEyeL.style.opacity = isStarred ? '1' : '0'
+        starEyeR.style.opacity = isStarred ? '1' : '0'
+
+        if (isStarred && window.gsap) {
+            gsap.fromTo(smiley,
+                { scale: 1 },
+                { scale: 1.1, yoyo: true, repeat: 1, duration: 0.18, ease: 'power2.out' }
+            )
+        }
+    }
+
+    // ── Stars ─────────────────────────────────────────────────
+    // Key fix: on mouseleave, restore to currentRating state (not empty).
+    // On click, set currentRating so subsequent mouseleave locks correctly.
+    stars.forEach((star, idx) => {
+        const val = idx + 1
+
+        star.addEventListener('mouseenter', () => {
+            // Show hover state up to hovered star, preserve filled beyond
+            stars.forEach((s, i) => {
+                s.classList.remove('is-filled', 'is-hovered')
+                if (i < val) {
+                    s.classList.add('is-hovered')
+                } else if (i < currentRating) {
+                    s.classList.add('is-filled')
+                }
+                // stagger scale
+                setTimeout(() => {
+                    s.style.transform = i < val ? 'scale(1.2)' : 'scale(1)'
+                }, i * 18)
+            })
+            updateSmiley(val)
+        })
+
+        star.addEventListener('mouseleave', () => {
+            stars.forEach((s, i) => {
+                s.classList.remove('is-hovered')
+                s.style.transform = 'scale(1)'
+                if (i < currentRating) {
+                    s.classList.add('is-filled')
+                } else {
+                    s.classList.remove('is-filled')
+                }
+            })
+            // Only reset face if nothing clicked yet — otherwise freeze it
+            if (currentRating === 0) updateSmiley(0)
+        })
+
+        star.addEventListener('click', () => {
+            currentRating = val
+
+            const label = star.closest('label')
+            if (label) {
+                const radio = label.querySelector('input[type="radio"]')
+                if (radio) radio.checked = true
+            }
+
+            // Lock filled state — no hover class, just is-filled
+            stars.forEach((s, i) => {
+                s.classList.remove('is-hovered')
+                if (i < val) {
+                    s.classList.add('is-filled')
+                    // GSAP pop — maintains the spring feel on the clicked stars
+                    if (window.gsap) {
+                        gsap.fromTo(s,
+                            { scale: 0.75 },
+                            { scale: 1, duration: 0.4, delay: i * 0.045, ease: 'back.out(2.5)' }
+                        )
+                    }
+                } else {
+                    s.classList.remove('is-filled')
+                    s.style.transform = 'scale(1)'
+                }
+            })
+            // Face stays exactly as it was during hover — no updateSmiley here
+        })
+    })
+
+    // ── Character counter ──────────────────────────────────────
+    textarea.addEventListener('input', () => {
+        const len = textarea.value.length
+        const max = parseInt(textarea.getAttribute('maxlength')) || 500
+        const remaining = max - len
+
+        counter.textContent = `${len}/${max}`
+        counter.style.color   = remaining < 20 ? '#8B1E1E' : ''
+        counter.style.opacity = remaining < 20 ? '1' : '0.5'
+
+        // Auto-expand
+        textarea.style.height = 'auto'
+        textarea.style.height = textarea.scrollHeight + 'px'
+    })
+
+    // ── Submit ─────────────────────────────────────────────────
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault()
+
+        if (!currentRating) { alert('Please select a rating'); return }
+        const message = textarea.value.trim()
+        if (!message)  { alert('Please share your feedback'); return }
+
+        let reset = () => {}
+        if (window.__portfolioLoaders) {
+            reset = window.__portfolioLoaders.showButtonLoader(submitBtn)
+        } else {
+            submitBtn.disabled = true
+        }
+
+        try {
+            const res = await fetch('/api/feedback/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: JSON.stringify({ rating: currentRating, message }),
+            })
+            if (!res.ok) throw new Error('Server error')
+
+            if (window.__portfolioLoaders) {
+                window.__portfolioLoaders.showButtonSuccess(submitBtn)
+            }
+            updateSmiley(5)
+
+            setTimeout(() => {
+                form.reset()
+                textarea.style.height = ''
+                counter.textContent   = '0/500'
+                counter.style.color   = ''
+                counter.style.opacity = '0.5'
+                currentRating = 0
+                stars.forEach(s => s.classList.remove('is-filled', 'is-hovered'))
+                updateSmiley(0)
+                if (!window.__portfolioLoaders) submitBtn.disabled = false
+            }, 2200)
+
+        } catch (err) {
+            console.error(err)
+            reset()
+            if (window.__portfolioLoaders) {
+                window.__portfolioLoaders.showButtonError(submitBtn, 'Try again')
+            } else {
+                submitBtn.disabled = false
+            }
+        }
+    })
+
+    function getCookie(name) {
+        const m = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'))
+        return m ? decodeURIComponent(m[2]) : ''
+    }
+
+    updateSmiley(0)
+})()
+</script>
