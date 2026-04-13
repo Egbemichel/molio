@@ -17,17 +17,17 @@ export function initKeyboardShortcuts() {
   const easterEggs = {
     f: {
       label:  'Film',
-      title:  'Inception',
-      meta:   'Christopher Nolan — 2010',
-      quote:  'You are waiting for a train.',
-      detail: 'A film that rewired how I think about storytelling, time, and the architecture of dreams. I have watched it more times than I will admit.',
+      title:  'Iron man (2008)',
+      meta:   'Jon Favreau · Marvel Studios',
+      quote:  'I am Iron Man.',
+      detail: 'A film that rewired how I think and put me on the path of problem-solving. The blend of technology, storytelling, and charisma was a revelation. It made me realize the power of creativity and innovation. Along the way, engineering became my superpower, and I’ve been building ever since.',
     },
     m: {
       label:  'Music',
-      title:  'The Weeknd',
-      meta:   'R&B · Electronic · Cinematic',
-      quote:  'Dawn FM changed the game.',
-      detail: 'The production, the concept, the execution. Abel does not make albums — he builds worlds. Few artists make me feel this kind of thing.',
+      title:  'Omah Lay',
+      meta:   'Holy Ghost · Afrobeat',
+      quote:  'Anytime that I smoke these girls be looking like wife material. Is it this or that, If I seek I\'ll find, How I feel inside, I\'ll let you know.',
+      detail: 'The hypnotic rhythms, the blend of languages, the raw emotion in his voice, it’s like he’s speaking directly to my soul. His music taught me that vulnerability is strength, and that true connection comes from being unapologetically yourself.',
     },
     s: {
       label:  'Sport',
@@ -38,10 +38,10 @@ export function initKeyboardShortcuts() {
     },
     g: {
       label:  'Game',
-      title:  'Dark Souls',
-      meta:   'FromSoftware — 2011',
-      quote:  'Praise the Sun.',
-      detail: 'The game that proved difficulty is a design language. Every death teaches. Every bonfire is earned. It changed what I expect from interactive work.',
+      title:  'Mortal Kombat (2024)',
+      meta:   'NetherRealm Studios · Fighting Game',
+      quote:  'Get over here!',
+      detail: 'The visceral thrill of mastering a complex system, the artistry of the animations, the joy of landing a perfect combo. It’s not just a game, it’s a dance, a puzzle, a rush.',
     },
   }
 
@@ -267,7 +267,7 @@ function injectStyles() {
     }
     .egg-quote {
       font-family: HagiaPro, Georgia, serif;
-      font-size: 12px;
+      font-size: 32px;
       font-style: italic;
       color: rgba(139, 30, 30, 0.75);
       letter-spacing: 0.03em;
@@ -284,7 +284,7 @@ function injectStyles() {
     }
     .egg-meta {
       font-family: 'DM Sans', sans-serif;
-      font-size: 10px;
+      font-size: 24px;
       letter-spacing: 0.12em;
       text-transform: uppercase;
       color: rgba(255,255,255,0.2);
@@ -292,7 +292,7 @@ function injectStyles() {
     }
     .egg-detail {
       font-family: 'DM Sans', sans-serif;
-      font-size: 13.5px;
+      font-size: 16.5px;
       line-height: 1.8;
       color: rgba(255,255,255,0.42);
       margin: 0;
@@ -309,7 +309,7 @@ function injectStyles() {
     .egg-secret-label,
     .egg-esc-hint {
       font-family: 'DM Sans', sans-serif;
-      font-size: 10px;
+      font-size: 12px;
       color: rgba(255,255,255,0.12);
       letter-spacing: 0.06em;
     }

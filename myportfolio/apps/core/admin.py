@@ -1,8 +1,57 @@
 from django.contrib import admin
 from django.utils.html import format_html, mark_safe
 from django.utils.html import escape as html_escape
+from django import forms
 from config.admin_site import CustomModelAdmin
-from .models import Skill, Education, Service, GalleryItem, Feedback
+from .models import Skill, Education, EducationGallery, Service, GalleryItem, Feedback
+
+
+class EducationGalleryForm(forms.ModelForm):
+    """Custom form to handle multiple image uploads properly"""
+    class Meta:
+        model = EducationGallery
+        fields = ('image', 'order')
+        widgets = {
+            'image': forms.FileInput(attrs={
+                'accept': 'image/*',
+                'class': 'vFileField',
+            }),
+            'order': forms.NumberInput(attrs={
+                'class': 'vIntegerField',
+            }),
+        }
+
+    def clean_image(self):
+        image = self.cleaned_data.get('image')
+        if image:
+            # Validate file size (max 5MB)
+            if image.size > 5242880:  # 5MB
+                raise forms.ValidationError("Image file size cannot exceed 5MB")
+            
+            # Validate file type
+            allowed_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp']
+            if not any(image.name.lower().endswith(ext) for ext in allowed_extensions):
+                raise forms.ValidationError("Please upload a valid image file (JPG, PNG, GIF, or WebP)")
+        return image
+
+
+class EducationGalleryInline(admin.StackedInline):
+    model = EducationGallery
+    form = EducationGalleryForm
+    extra = 1
+    fields = ('image', 'image_preview', 'order')
+    readonly_fields = ('image_preview',)
+    ordering = ('order',)
+    
+    def image_preview(self, obj):
+        if obj.image:
+            return format_html(
+                '<img src="{}" style="height: 200px; width: auto; '
+                'border-radius: 4px; object-fit: cover;" />',
+                obj.image.url
+            )
+        return 'No image yet'
+    image_preview.short_description = 'Preview'
 
 
 @admin.register(Skill)
@@ -24,11 +73,21 @@ class SkillAdmin(CustomModelAdmin):
 
 @admin.register(Education)
 class EducationAdmin(CustomModelAdmin):
-    list_display = ('degree', 'school', 'current_badge', 'order')
+    list_display = ('degree', 'school', 'gallery_count', 'current_badge', 'order')
     fields = ('degree', 'school', 'location', 'faculty', 'dates', 'is_current', 'order')
     ordering = ('order',)
     list_filter = ('is_current',)
     search_fields = ('degree', 'school', 'location')
+    inlines = [EducationGalleryInline]
+    
+    def gallery_count(self, obj):
+        count = obj.gallery_images.count()
+        return format_html(
+            '<span style="background: rgba(139, 30, 30, 0.1); '
+            'padding: 4px 8px; border-radius: 4px; color: #8B1E1E;">{} image(s)</span>',
+            count
+        )
+    gallery_count.short_description = 'Gallery Images'
     
     def current_badge(self, obj):
         if obj.is_current:
@@ -97,12 +156,20 @@ class GalleryItemAdmin(CustomModelAdmin):
 
 @admin.register(Feedback)
 class FeedbackAdmin(CustomModelAdmin):
-    list_display = ('rating_stars', 'message_preview', 'created_at')
-    fields = ('rating', 'message', 'created_at')
+    list_display = ('name', 'email_display', 'rating_stars', 'message_preview', 'image_preview', 'created_at')
+    fields = ('name', 'email', 'rating', 'message', 'image', 'created_at')
     ordering = ('-created_at',)
     list_filter = ('rating', 'created_at')
-    search_fields = ('message',)
+    search_fields = ('name', 'email', 'message')
     readonly_fields = ('created_at',)
+    
+    def email_display(self, obj):
+        return format_html(
+            '<a href="mailto:{}">{}</a>',
+            obj.email,
+            obj.email
+        )
+    email_display.short_description = 'Email'
     
     def rating_stars(self, obj):
         stars = '★' * obj.rating + '☆' * (5 - obj.rating)
@@ -122,3 +189,12 @@ class FeedbackAdmin(CustomModelAdmin):
             f'<span style="color: rgba(232, 232, 232, 0.6); font-size: 12px;">{escaped}</span>'
         )
     message_preview.short_description = 'Message'
+    
+    def image_preview(self, obj):
+        if obj.image:
+            return format_html(
+                '<img src="{}" style="height: 30px; width: 30px; border-radius: 50%; object-fit: cover;" />',
+                obj.image.url
+            )
+        return '-'
+    image_preview.short_description = 'Image'

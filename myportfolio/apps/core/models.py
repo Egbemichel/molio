@@ -1,4 +1,5 @@
 from django.db import models
+import json
 
 
 class Skill(models.Model):
@@ -27,6 +28,25 @@ class Education(models.Model):
 
     def __str__(self):
         return f"{self.degree} - {self.school}"
+    
+    def get_gallery_images_json(self):
+        """Return gallery image URLs as JSON array"""
+        images = self.gallery_images.all().order_by('order')
+        return json.dumps([img.image.url for img in images])
+
+
+class EducationGallery(models.Model):
+    """Gallery images associated with an education entry"""
+    education = models.ForeignKey(Education, on_delete=models.CASCADE, related_name='gallery_images')
+    image = models.ImageField(upload_to='education/')
+    order = models.IntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']
+        verbose_name_plural = 'Education Gallery Items'
+
+    def __str__(self):
+        return f"{self.education.school} - Image {self.order}"
 
 
 class Service(models.Model):
@@ -62,8 +82,11 @@ class GalleryItem(models.Model):
 class Feedback(models.Model):
     RATING_CHOICES = [(i, f'{i} Star{"s" if i != 1 else ""}') for i in range(1, 6)]
 
+    name = models.CharField(max_length=100, default='Anonymous')
+    email = models.EmailField(default='noemail@example.com')
     rating = models.IntegerField(choices=RATING_CHOICES)
     message = models.TextField()
+    image = models.ImageField(upload_to='feedback/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -71,5 +94,5 @@ class Feedback(models.Model):
         verbose_name_plural = 'Feedback'
 
     def __str__(self):
-        return f"{self.get_rating_display()} - {self.created_at.strftime('%Y-%m-%d')}"
+        return f"{self.name} - {self.get_rating_display()} - {self.created_at.strftime('%Y-%m-%d')}"
 

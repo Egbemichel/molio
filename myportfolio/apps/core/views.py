@@ -35,6 +35,7 @@ def home(request):
             'faculty': edu.faculty,
             'dates': edu.dates,
             'is_current': edu.is_current,
+            'gallery_images': edu.get_gallery_images_json(),
         }
         for edu in education_entries
     ]
@@ -117,15 +118,32 @@ def home(request):
 @require_http_methods(['POST'])
 def submit_feedback(request):
     """
-    API endpoint to submit feedback form with rating and message
-    Expected JSON: { "rating": 1-5, "message": "text" }
+    API endpoint to submit feedback form with name, email, rating, message, and optional image
+    Expected JSON: { "name": "str", "email": "str", "rating": 1-5, "message": "str", "image": "file" }
     """
     try:
-        data = json.loads(request.body)
-        rating = int(data.get('rating', 0))
-        message = data.get('message', '').strip()
+        # Handle both JSON and multipart form data
+        if request.content_type == 'application/json':
+            data = json.loads(request.body)
+            name = data.get('name', '').strip()
+            email = data.get('email', '').strip()
+            rating = int(data.get('rating', 0))
+            message = data.get('message', '').strip()
+            image = None
+        else:
+            name = request.POST.get('name', '').strip()
+            email = request.POST.get('email', '').strip()
+            rating = int(request.POST.get('rating', 0))
+            message = request.POST.get('message', '').strip()
+            image = request.FILES.get('image')
 
         # Validation
+        if not name:
+            return JsonResponse({'error': 'Name is required'}, status=400)
+        
+        if not email:
+            return JsonResponse({'error': 'Email is required'}, status=400)
+        
         if not 1 <= rating <= 5:
             return JsonResponse({'error': 'Rating must be between 1 and 5'}, status=400)
 
@@ -133,7 +151,13 @@ def submit_feedback(request):
             return JsonResponse({'error': 'Message must be between 1 and 500 characters'}, status=400)
 
         # Create feedback entry
-        feedback = Feedback.objects.create(rating=rating, message=message)
+        feedback = Feedback.objects.create(
+            name=name,
+            email=email,
+            rating=rating,
+            message=message,
+            image=image
+        )
 
         return JsonResponse(
             {'success': True, 'message': 'Thank you for your feedback!', 'id': feedback.id},
@@ -142,6 +166,35 @@ def submit_feedback(request):
 
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@require_http_methods(['GET'])
+def get_feedback(request):
+    """
+    API endpoint to retrieve all feedback entries
+    Returns JSON list of feedback with name, email, rating, message, image, and created_at
+    """
+    try:
+        feedback_entries = Feedback.objects.all()[:50]  # Limit to latest 50
+        
+        feedback_list = [
+            {
+                'id': f.id,
+                'name': f.name,
+                'email': f.email,
+                'rating': f.rating,
+                'message': f.message,
+                'image': f.image.url if f.image else None,
+                'created_at': f.created_at.isoformat(),
+                'rating_display': f.get_rating_display(),
+            }
+            for f in feedback_entries
+        ]
+        
+        return JsonResponse({'feedback': feedback_list}, status=200)
+    
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
