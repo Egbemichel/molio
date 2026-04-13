@@ -1,72 +1,319 @@
-{% extends "admin/delete_confirmation.html" %}
+{% extends "admin/base_site.html" %}
 {% load static %}
 
-{% block title %}Delete Confirmation — {{ opts.verbose_name|title }}{% endblock %}
-
-{% block content %}<div class="container mx-auto px-4 py-8 max-w-2xl">
-    <div class="bg-white rounded-xl border border-red-200 p-8 shadow-sm">
-        <!-- Warning Icon -->
-        <div class="text-center mb-6">
-            <div class="inline-flex items-center justify-center w-16 h-16 bg-red-50 rounded-full mb-4">
-                <span class="text-3xl">⚠️</span>
-            </div>
-            <h1 class="text-2xl font-bold text-dark mb-2">Confirm Deletion</h1>
-        </div>
-
-        <!-- Item to be deleted -->
-        <div class="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p class="text-gray-700 mb-2 text-sm font-semibold">You are about to delete:</p>
-            <p class="text-dark font-bold text-lg">{{ object }}</p>
-            <p class="text-gray-600 text-sm mt-2">{{ opts.verbose_name|title }}: <strong>{{ object.pk }}</strong></p>
-        </div>
-
-        <!-- Warning message -->
-        <div class="mb-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <p class="text-yellow-800 font-semibold mb-2">⚡ This action cannot be undone</p>
-        </div>
-
-        <!-- Related objects warning -->
-        {% if deleted_objects %}
-            <div class="mb-8">
-                <h3 class="font-bold text-dark mb-3 text-sm uppercase tracking-widest">Objects to be deleted:</h3>
-                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 max-h-64 overflow-y-auto">
-                    {{ deleted_objects|safe }}
-                </div>
-            </div>
-        {% endif %}
-
-        <!-- Action Buttons -->
-        <div class="flex gap-4 pt-6 border-t border-gray-200">
-            <!-- Delete Button -->
-            <form method="post" class="flex-1">
-                {% csrf_token %}
-                <button 
-                    type="submit"
-                    class="w-full px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition-smooth"
-                >
-                    Yes, delete {{ opts.verbose_name }}
-                </button>
-            </form>
-
-            <!-- Cancel Button -->
-            <a 
-                href="{{ request.META.HTTP_REFERER|default:admin_index }}"
-                class="flex-1 px-6 py-3 bg-gray-200 hover:bg-gray-300 text-dark font-bold rounded-lg transition-smooth text-center"
-            >
-                Cancel, Keep It
-            </a>
-        </div>
-
-        <!-- Additional Info -->
-        <p class="text-gray-500 text-xs text-center mt-6">
-            If you're unsure, you can always go back and edit this item instead of deleting it.
-        </p>
-    </div>
-</div>
-
+{% block extrahead %}
 <style>
-    .transition-smooth {
-        transition: all 0.3s ease;
+    #content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 60vh;
+    }
+
+    .delete-container {
+        max-width: 600px;
+        width: 100%;
+        animation: fadeInScale 0.6s ease-out forwards;
+        opacity: 0;
+    }
+
+    .delete-card {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        padding: 48px 40px;
+        text-align: center;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Warning Icon Animation */
+    .delete-icon {
+        font-size: 64px;
+        margin-bottom: 24px;
+        display: inline-block;
+        animation: shake 0.5s ease-out;
+    }
+
+    .delete-title {
+        font-family: 'HagiaPro', serif;
+        font-size: 32px;
+        font-weight: 300;
+        color: #3F3F3F;
+        margin-bottom: 12px;
+        letter-spacing: -0.5px;
+    }
+
+    .delete-subtitle {
+        font-size: 14px;
+        color: rgba(63, 63, 63, 0.6);
+        letter-spacing: 0.3px;
+        margin-bottom: 32px;
+    }
+
+    /* Object Display */
+    .delete-object-box {
+        background: rgba(244, 67, 54, 0.05);
+        border: 1.5px solid rgba(244, 67, 54, 0.15);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 24px;
+        text-align: left;
+    }
+
+    .delete-object-label {
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: rgba(244, 67, 54, 0.7);
+        margin-bottom: 8px;
+    }
+
+    .delete-object-name {
+        font-family: 'HagiaPro', serif;
+        font-size: 20px;
+        font-weight: 400;
+        color: #F44336;
+        margin-bottom: 8px;
+        word-break: break-word;
+    }
+
+    .delete-object-type {
+        font-size: 12px;
+        color: rgba(63, 63, 63, 0.5);
+    }
+
+    /* Warning Message */
+    .delete-warning {
+        background: rgba(255, 152, 0, 0.08);
+        border-left: 3px solid #FF9800;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 32px;
+        text-align: left;
+    }
+
+    .delete-warning-title {
+        font-weight: 600;
+        color: #FF9800;
+        font-size: 13px;
+        margin-bottom: 6px;
+        letter-spacing: 0.3px;
+    }
+
+    .delete-warning-text {
+        font-size: 13px;
+        color: rgba(63, 63, 63, 0.7);
+        line-height: 1.5;
+    }
+
+    /* Related Objects */
+    .delete-related {
+        background: rgba(0, 0, 0, 0.02);
+        border-radius: 10px;
+        padding: 16px;
+        margin-bottom: 32px;
+        text-align: left;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+    .delete-related-title {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: rgba(63, 63, 63, 0.6);
+        margin-bottom: 12px;
+    }
+
+    .delete-related ul {
+        list-style: none;
+        padding-left: 0;
+    }
+
+    .delete-related li {
+        padding: 8px 12px;
+        margin-bottom: 4px;
+        background: white;
+        border-radius: 6px;
+        border-left: 2px solid #8B1E1E;
+        font-size: 13px;
+        color: #3F3F3F;
+    }
+
+    .delete-related ul ul {
+        margin-left: 12px;
+        margin-top: 4px;
+    }
+
+    /* Actions */
+    .delete-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 32px;
+    }
+
+    .delete-actions form {
+        flex: 1;
+    }
+
+    .delete-btn,
+    .cancel-btn {
+        width: 100%;
+        padding: 14px 24px;
+        border: none;
+        border-radius: 10px;
+        font-family: 'HagiaPro', -apple-system, BlinkMacSystemFont, sans-serif;
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        transition: all 200ms ease;
+        text-decoration: none;
+        display: block;
+        text-align: center;
+    }
+
+    .delete-btn {
+        background: #F44336;
+        color: white;
+        text-transform: uppercase;
+    }
+
+    .delete-btn:hover {
+        background: #e53935;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(244, 67, 54, 0.3);
+    }
+
+    .delete-btn:active {
+        transform: translateY(0);
+    }
+
+    .cancel-btn {
+        background: transparent;
+        color: #8B1E1E;
+        border: 1.5px solid #8B1E1E;
+    }
+
+    .cancel-btn:hover {
+        background: rgba(139, 30, 30, 0.05);
+    }
+
+    /* Animations */
+    @keyframes fadeInScale {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-8px); }
+        75% { transform: translateX(8px); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .delete-container, .delete-icon {
+            animation: none;
+            opacity: 1;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .delete-card {
+            padding: 32px 24px;
+        }
+
+        .delete-title {
+            font-size: 24px;
+        }
+
+        .delete-actions {
+            flex-direction: column;
+        }
+
+        .delete-btn,
+        .cancel-btn {
+            width: 100%;
+        }
     }
 </style>
 {% endblock %}
+
+{% block content %}
+<div class="delete-container">
+    <div class="delete-card">
+        <!-- Icon -->
+        <div class="delete-icon">⚠️</div>
+
+        <!-- Title -->
+        <h1 class="delete-title">Confirm Deletion</h1>
+        <p class="delete-subtitle">This action cannot be undone</p>
+
+        <!-- Object being deleted -->
+        <div class="delete-object-box">
+            <div class="delete-object-label">You are about to permanently delete:</div>
+            <div class="delete-object-name">{{ object }}</div>
+            <div class="delete-object-type">{{ opts.verbose_name|title }} • {{ object.pk }}</div>
+        </div>
+
+        <!-- Warning message -->
+        <div class="delete-warning">
+            <div class="delete-warning-title">⚡ Permanent action</div>
+            <div class="delete-warning-text">
+                Deleting this {{ opts.verbose_name }} cannot be reversed. All associated data will be removed from the system.
+            </div>
+        </div>
+
+        <!-- Related objects -->
+        {% if deleted_objects %}
+        <div class="delete-related">
+            <div class="delete-related-title">Related items to be removed:</div>
+            <div class="delete-related-content">
+                {{ deleted_objects|safe }}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Action buttons -->
+        <div class="delete-actions">
+            <form method="post" style="flex: 1;">
+                {% csrf_token %}
+                <button type="submit" class="delete-btn">Delete {{ opts.verbose_name }}</button>
+            </form>
+            <a href="{{ request.META.HTTP_REFERER|default:'/admin/' }}" class="cancel-btn">Cancel</a>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    // Prevent accidental deletion
+    const deleteBtn = document.querySelector('.delete-btn');
+    if (deleteBtn) {
+        let clickCount = 0;
+        deleteBtn.addEventListener('click', function(e) {
+            if (clickCount === 0) {
+                e.preventDefault();
+                clickCount++;
+                const originalText = this.textContent;
+                this.textContent = 'Click again to confirm';
+                this.style.background = '#d32f2f';
+                
+                setTimeout(() => {
+                    clickCount = 0;
+                    this.textContent = originalText;
+                    this.style.background = '';
+                }, 3000);
+            }
+        });
+    }
+</script>
+{% endblock %}
+

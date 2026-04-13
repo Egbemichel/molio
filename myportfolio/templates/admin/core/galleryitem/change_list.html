@@ -1,0 +1,422 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrahead %}
+<style>
+    .gallery-container {
+        max-width: 100%;
+        animation: fadeInUp 0.6s ease-out forwards;
+        opacity: 0;
+    }
+
+    .gallery-header {
+        margin-bottom: 32px;
+    }
+
+    .gallery-header h1 {
+        font-family: 'HagiaPro', serif;
+        font-size: 36px;
+        font-weight: 300;
+        color: #3F3F3F;
+        margin-bottom: 8px;
+        letter-spacing: -0.5px;
+    }
+
+    .gallery-header p {
+        font-size: 14px;
+        color: rgba(63, 63, 63, 0.6);
+        letter-spacing: 0.3px;
+    }
+
+    /* Search and Filter */
+    .gallery-controls {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 32px;
+    }
+
+    .gallery-search {
+        flex: 1;
+        background: white;
+        border-radius: 12px;
+        padding: 16px 20px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .gallery-search input {
+        width: 100%;
+        border: none;
+        padding: 8px 0;
+        font-family: 'HagiaPro', -apple-system, BlinkMacSystemFont, sans-serif;
+        font-size: 14px;
+        color: #3F3F3F;
+        background: transparent;
+    }
+
+    .gallery-search input:focus {
+        outline: none;
+    }
+
+    .gallery-search input::placeholder {
+        color: rgba(63, 63, 63, 0.3);
+    }
+
+    /* Visual Grid */
+    .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 32px;
+    }
+
+    .gallery-item {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        cursor: pointer;
+        transition: all 300ms ease;
+        animation: fadeInScale 0.5s ease-out forwards;
+        opacity: 0;
+    }
+
+    .gallery-item:hover {
+        transform: translateY(-8px);
+        border-color: rgba(139, 30, 30, 0.2);
+        box-shadow: 0 12px 32px rgba(139, 30, 30, 0.1);
+    }
+
+    .gallery-item-image-wrapper {
+        position: relative;
+        width: 100%;
+        padding-top: 100%; /* 1:1 aspect ratio */
+        background: linear-gradient(135deg, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.02));
+        overflow: hidden;
+    }
+
+    .gallery-item-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 300ms ease;
+    }
+
+    .gallery-item:hover .gallery-item-image {
+        transform: scale(1.05);
+    }
+
+    .gallery-item-no-image {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(63, 63, 63, 0.3);
+        font-size: 40px;
+        background: rgba(0, 0, 0, 0.02);
+    }
+
+    .gallery-item-content {
+        padding: 16px;
+    }
+
+    .gallery-item-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: #3F3F3F;
+        margin-bottom: 8px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        letter-spacing: 0.3px;
+    }
+
+    .gallery-item-meta {
+        font-size: 11px;
+        color: rgba(63, 63, 63, 0.5);
+        margin-bottom: 12px;
+        letter-spacing: 0.2px;
+    }
+
+    .gallery-item-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .gallery-item-link {
+        flex: 1;
+        padding: 6px 12px;
+        background: #8B1E1E;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 600;
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        transition: all 200ms ease;
+    }
+
+    .gallery-item-link:hover {
+        background: #a62626;
+        box-shadow: 0 4px 12px rgba(139, 30, 30, 0.2);
+    }
+
+    .gallery-item-link.delete {
+        background: transparent;
+        color: #F44336;
+        border: 1px solid #F44336;
+    }
+
+    .gallery-item-link.delete:hover {
+        background: rgba(244, 67, 54, 0.05);
+    }
+
+    /* Empty state */
+    .gallery-empty {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        padding: 60px 40px;
+        text-align: center;
+        color: rgba(63, 63, 63, 0.5);
+    }
+
+    .gallery-empty-icon {
+        font-size: 60px;
+        margin-bottom: 16px;
+    }
+
+    .gallery-empty-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: rgba(63, 63, 63, 0.7);
+        margin-bottom: 8px;
+    }
+
+    .gallery-empty-text {
+        font-size: 13px;
+        color: rgba(63, 63, 63, 0.5);
+        line-height: 1.6;
+    }
+
+    /* Add button */
+    .add-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        background: #8B1E1E;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 13px;
+        transition: all 200ms ease;
+        margin-bottom: 24px;
+    }
+
+    .add-button:hover {
+        background: #a62626;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(139, 30, 30, 0.2);
+    }
+
+    /* Pagination */
+    .pagination {
+        padding: 20px;
+        text-align: center;
+    }
+
+    .pagination a,
+    .pagination .current {
+        padding: 8px 14px;
+        margin: 0 4px;
+        border-radius: 6px;
+        font-size: 12px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        color: #3F3F3F;
+        text-decoration: none;
+        transition: all 200ms ease;
+    }
+
+    .pagination a:hover {
+        border-color: #8B1E1E;
+        background: rgba(139, 30, 30, 0.05);
+        color: #8B1E1E;
+    }
+
+    .pagination .current {
+        background: #8B1E1E;
+        color: white;
+        border-color: #8B1E1E;
+        font-weight: 600;
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeInScale {
+        from {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    /* Stagger items */
+    .gallery-item:nth-child(1) { animation-delay: 0.05s; }
+    .gallery-item:nth-child(2) { animation-delay: 0.1s; }
+    .gallery-item:nth-child(3) { animation-delay: 0.15s; }
+    .gallery-item:nth-child(4) { animation-delay: 0.2s; }
+    .gallery-item:nth-child(5) { animation-delay: 0.25s; }
+    .gallery-item:nth-child(6) { animation-delay: 0.3s; }
+    .gallery-item:nth-child(n+7) { animation-delay: 0.35s; }
+
+    @media (prefers-reduced-motion: reduce) {
+        .gallery-container, .gallery-item {
+            animation: none;
+            opacity: 1;
+        }
+    }
+
+    @media (max-width: 1200px) {
+        .gallery-grid {
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        }
+    }
+
+    @media (max-width: 768px) {
+        .gallery-header h1 {
+            font-size: 24px;
+        }
+
+        .gallery-controls {
+            flex-direction: column;
+        }
+
+        .gallery-grid {
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 16px;
+        }
+
+        .gallery-item-content {
+            padding: 12px;
+        }
+
+        .add-button {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="gallery-container">
+    <div class="gallery-header">
+        <h1>{{ opts.verbose_name_plural|title }}</h1>
+        <p>Visual grid of all portfolio items</p>
+    </div>
+
+    {% if has_search %}
+    <div class="gallery-controls">
+        <div class="gallery-search">
+            <form method="get" style="display: flex; gap: 8px;">
+                <input 
+                    type="text" 
+                    name="q" 
+                    value="{{ cl.query }}"
+                    placeholder="Search portfolio items..."
+                />
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if cl.result_list %}
+        <a href="/admin/core/galleryitem/add/" class="add-button">
+            <span>+</span>
+            <span>Add Item</span>
+        </a>
+
+        <div class="gallery-grid">
+            {% for item in cl.result_list %}
+                <div class="gallery-item">
+                    <div class="gallery-item-image-wrapper">
+                        {% if item.image %}
+                            <img src="{{ item.image.url }}" alt="{{ item.title }}" class="gallery-item-image" />
+                        {% else %}
+                            <div class="gallery-item-no-image gallery-item-image">🖼️</div>
+                        {% endif %}
+                    </div>
+                    <div class="gallery-item-content">
+                        <div class="gallery-item-title">{{ item.title }}</div>
+                        <div class="gallery-item-meta">
+                            {% if item.category %}
+                                {{ item.category.name }}
+                            {% else %}
+                                Uncategorized
+                            {% endif %}
+                        </div>
+                        <div class="gallery-item-actions">
+                            <a href="/admin/core/galleryitem/{{ item.pk }}/change/" class="gallery-item-link">Edit</a>
+                            <a href="/admin/core/galleryitem/{{ item.pk }}/delete/" class="gallery-item-link delete">Delete</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        {% if cl.full_result_count > cl.result_list|length %}
+        <div class="pagination">
+            <span>{{ cl.full_result_count }} item{{ cl.full_result_count|pluralize }}</span>
+            {% block pagination %}{% endblock %}
+        </div>
+        {% endif %}
+    {% else %}
+        <div class="gallery-empty">
+            <div class="gallery-empty-icon">🖼️</div>
+            <div class="gallery-empty-title">No portfolio items yet</div>
+            <div class="gallery-empty-text">
+                <p>Start building your portfolio by adding your first gallery item.</p>
+                <br>
+                <a href="/admin/core/galleryitem/add/" class="add-button">Add Your First Item</a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<script type="module">
+    // Animate items on load
+    function animateItems() {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+        const items = document.querySelectorAll('.gallery-item');
+        items.forEach((item, index) => {
+            if (window.gsap) {
+                gsap.fromTo(item,
+                    { scale: 0.9, opacity: 0 },
+                    { scale: 1, opacity: 1, duration: 0.5, delay: index * 0.05, ease: 'back.out' }
+                );
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', animateItems);
+</script>
+{% endblock %}
