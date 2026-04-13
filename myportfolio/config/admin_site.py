@@ -39,12 +39,16 @@ class CustomAdminSite(admin.AdminSite):
             Skill = apps.get_model('core', 'Skill')
             Education = apps.get_model('core', 'Education')
             Service = apps.get_model('core', 'Service')
+            Feedback = apps.get_model('core', 'Feedback')
+            GalleryItem = apps.get_model('core', 'GalleryItem')
             
             extra_context.update({
                 'projects_count': Project.objects.count(),
                 'skills_count': Skill.objects.count(),
                 'education_count': Education.objects.count(),
-                'services_count': Service.objects.count(),
+                'service_count': Service.objects.count(),
+                'feedback_count': Feedback.objects.count(),
+                'galleryitem_count': GalleryItem.objects.count(),
             })
         except Exception:
             pass
