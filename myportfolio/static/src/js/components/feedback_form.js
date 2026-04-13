@@ -8,6 +8,7 @@
  */
 
 import { showButtonLoader, showButtonSuccess, showButtonError } from './page_loader.js'
+import { toast } from './toast.js'
 
 export function initFeedbackForm() {
   const form = document.querySelector('[data-feedback-form]')
@@ -18,6 +19,9 @@ export function initFeedbackForm() {
   const ratingDiv       = form.querySelector('[data-star-rating]')
   const ratingInputs    = form.querySelectorAll('[data-star-rating] input')
   const stars           = form.querySelectorAll('.rating-star')
+  const nameInput       = form.querySelector('[data-feedback-name]')
+  const emailInput      = form.querySelector('[data-feedback-email]')
+  const imageInput      = form.querySelector('[data-feedback-image]')
   const textarea        = form.querySelector('[data-feedback-textarea]')
   const submitBtn       = form.querySelector('[data-feedback-submit]')
   const characterCounter = form.querySelector('[data-character-counter]')
@@ -113,33 +117,88 @@ export function initFeedbackForm() {
     submitBtn.addEventListener('click', async (e) => {
       e.preventDefault()
 
-      if (!currentRating) {
-        alert('Please select a rating')
+      // Validate name
+      const name = nameInput?.value?.trim()
+      if (!name) {
+        toast.warning('Please enter your name')
         return
       }
 
+      // Validate email
+      const email = emailInput?.value?.trim()
+      if (!email) {
+        toast.warning('Please enter your email')
+        return
+      }
+
+      // Validate rating
+      if (!currentRating) {
+        toast.warning('Please select a rating')
+        return
+      }
+
+      // Validate message
       const message = textarea?.value?.trim() || ''
       if (!message) {
-        alert('Please provide feedback')
+        toast.warning('Please provide feedback')
         return
       }
 
       const resetBtn = showButtonLoader(submitBtn)
 
       try {
+        // Use FormData to support file upload
+        const formData = new FormData()
+        formData.append('name', name)
+        formData.append('email', email)
+        formData.append('rating', currentRating)
+        formData.append('message', message)
+        if (imageInput?.files[0]) {
+          formData.append('image', imageInput.files[0])
+        }
+        formData.append('csrfmiddlewaretoken', getCookie('csrftoken'))
+
         const response = await fetch('/api/feedback/', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken'),
-          },
-          body: JSON.stringify({ rating: currentRating, message }),
+          body: formData,
         })
 
         if (!response.ok) throw new Error('Failed to submit feedback')
 
         showButtonSuccess(submitBtn, 2500)
-        updateSmileyState(smiley, 1) // 1★ = biggest smile — celebrate on success
+        toast.success('Thank you! Your feedback has been received')
+        updateSmileyState(smiley, 5) // 5★ = biggest smile — celebrate on success
+
+        // Animate smiley face with pop and wiggle
+        if (window.gsap) {
+          gsap.timeline()
+            .fromTo(smiley,
+              { scale: 1, rotate: 0 },
+              { scale: 1.15, duration: 0.3, ease: 'back.out(2.5)' },
+              0
+            )
+            .to(smiley,
+              { rotate: -5, duration: 0.1 },
+              0.15
+            )
+            .to(smiley,
+              { rotate: 5, duration: 0.1 },
+              0.25
+            )
+            .to(smiley,
+              { rotate: -5, duration: 0.1 },
+              0.35
+            )
+            .to(smiley,
+              { rotate: 0, scale: 1, duration: 0.2, ease: 'elastic.out(1, 0.5)' },
+              0.45
+            )
+        }
+
+        // Dispatch custom event for carousel to refresh
+        document.dispatchEvent(new CustomEvent('feedbackSubmitted', {
+          detail: { name, email, message, rating: currentRating }
+        }))
 
         setTimeout(() => {
           form.reset()
@@ -158,6 +217,7 @@ export function initFeedbackForm() {
       } catch (error) {
         console.error('Feedback submission error:', error)
         showButtonError(submitBtn, 'Feedback failed. Try again', 2500)
+        toast.error('Something went wrong. Please try again')
         resetBtn()
       }
     })

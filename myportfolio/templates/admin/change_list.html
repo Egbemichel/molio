@@ -1,217 +1,505 @@
-{% extends "admin/change_list.html" %}
-{% load static %}
+{% extends "admin/base_site.html" %}
+{% load i18n admin_list static %}
 
-{% block content_title %}
-    <div class="mb-6">
-        <h1 class="text-3xl font-bold text-dark mb-2">{{ opts.verbose_name_plural|title }}</h1>
-        <p class="text-gray-600">Manage all {{ opts.verbose_name_plural }}</p>
-    </div>
-{% endblock %}
-
-{% block search %}
-    {% if has_search %}
-        <div class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-            <form id="changelist-search" method="get">
-                <div class="flex gap-2">
-                    <input 
-                        type="text" 
-                        name="q" 
-                        value="{{ cl.query }}"
-                        placeholder="Search {{ opts.verbose_name_plural }}..."
-                        class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-dark text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-20"
-                    />
-                    <button 
-                        type="submit"
-                        class="px-6 py-2 bg-primary hover:bg-red-800 text-white font-semibold rounded-lg transition-smooth"
-                    >
-                        Search
-                    </button>
-                </div>
-            </form>
-        </div>
-    {% endif %}
-{% endblock %}
-
-{% block date_hierarchy %}{% endblock %}
-
-{% block filters %}
-    {% if cl.has_filters %}
-        <div class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-            <h2 class="font-semibold text-dark mb-4 text-sm uppercase tracking-widest">Filters</h2>
-            <div class="space-y-4">
-                {% for filter_choice in cl.filter_specs %}
-                    <div>
-                        <h3 class="text-sm font-medium text-dark mb-2">{{ filter_choice.title }}</h3>
-                        <ul class="space-y-2">
-                            {% for choice in filter_choice.choices %}
-                                <li>
-                                    <a href="{{ choice.query_string }}" class="text-sm flex items-center gap-2 text-gray-600 hover:text-primary transition-smooth {% if choice.selected %}text-primary font-medium{% endif %}">
-                                        {% if choice.selected %}
-                                            <span class="w-2 h-2 rounded-full bg-primary"></span>
-                                        {% else %}
-                                            <span class="w-2 h-2 rounded-full bg-gray-300"></span>
-                                        {% endif %}
-                                        {{ choice.display }}
-                                    </a>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
-    {% endif %}
-{% endblock %}
-
-{% block result_list %}
-    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <div class="overflow-x-auto">
-            {{ block.super }}
-        </div>
-    </div>
-{% endblock %}
-
-{% block pagination %}
-    <div class="p-6 border-t border-gray-200 bg-gray-50">
-        {{ block.super }}
-    </div>
-{% endblock %}
-
+{% block extrahead %}
+{{ block.super }}
+{{ media }}
 <style>
-    /* Style Django admin table */
-    #result_list {
-        width: 100%;
-        border-collapse: collapse;
+    .changelist-container { max-width: 100%; }
+
+    .changelist-header {
+        margin-bottom: 32px;
+        animation: fadeInDown 0.6s ease-out forwards;
+        opacity: 0;
+    }
+
+    .changelist-header h1 {
+        font-family: 'HagiaPro', serif;
+        font-size: 36px;
+        font-weight: 300;
+        color: #3F3F3F;
+        margin-bottom: 8px;
+        letter-spacing: -0.5px;
+    }
+
+    .changelist-header p {
+        font-size: 14px;
+        color: rgba(63, 63, 63, 0.6);
+    }
+
+    .changelist-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        animation: fadeInDown 0.6s ease-out 0.05s forwards;
+        opacity: 0;
+    }
+
+    .search-form {
+        display: flex;
+        gap: 8px;
+        flex: 1;
+        min-width: 240px;
+    }
+
+    #searchbar {
+        flex: 1;
+        padding: 11px 16px;
+        border: 1.5px solid rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+        font-size: 14px;
+        color: #3F3F3F;
+        transition: border-color 200ms ease, box-shadow 200ms ease;
         background: white;
     }
 
-    #result_list thead {
-        background: linear-gradient(to right, #f9fafb, #f3f4f6);
-        border-bottom: 1px solid #e5e7eb;
+    #searchbar:focus {
+        outline: none;
+        border-color: #8B1E1E;
+        box-shadow: 0 0 0 3px rgba(139, 30, 30, 0.1);
     }
 
-    #result_list thead th {
-        padding: 16px;
-        text-align: left;
-        font-weight: 700;
-        font-size: 12px;
+    .search-form input[type="submit"] {
+        padding: 11px 20px;
+        background: #8B1E1E;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 200ms ease;
+        white-space: nowrap;
+    }
+
+    .search-form input[type="submit"]:hover { background: #a62626; }
+
+    .addlink {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 11px 20px;
+        background: #8B1E1E;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 13px;
+        white-space: nowrap;
+        transition: all 200ms ease;
+    }
+
+    .addlink:hover {
+        background: #a62626;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(139, 30, 30, 0.2);
+    }
+
+    .changelist-layout {
+        display: grid;
+        grid-template-columns: 1fr 260px;
+        gap: 24px;
+        align-items: start;
+    }
+
+    .changelist-layout.no-filters {
+        grid-template-columns: 1fr;
+    }
+
+    /* Results table */
+    .results-wrap {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        animation: fadeInLeft 0.6s ease-out 0.1s forwards;
+        opacity: 0;
+    }
+
+    /* Actions bar */
+    .actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 16px;
+        background: rgba(139, 30, 30, 0.02);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+        flex-wrap: wrap;
+    }
+
+    .actions label {
+        font-size: 11px;
+        font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
-        color: #3f3f3f;
+        letter-spacing: 0.6px;
+        color: rgba(63, 63, 63, 0.6);
+        margin: 0;
     }
 
-    #result_list thead th a {
-        color: #3f3f3f;
-        text-decoration: none;
-    }
-
-    #result_list thead th a:hover {
-        color: #8b1e1e;
-    }
-
-    #result_list tbody tr {
-        border-bottom: 1px solid #e5e7eb;
-        transition: background-color 0.2s;
-    }
-
-    #result_list tbody tr:hover {
-        background-color: #f9fafb;
-    }
-
-    #result_list td {
-        padding: 16px;
-        color: #3f3f3f;
-        font-size: 14px;
-    }
-
-    #result_list a {
-        color: #8b1e1e;
-        text-decoration: none;
-        font-weight: 500;
-    }
-
-    #result_list a:hover {
-        text-decoration: underline;
-    }
-
-    /* Checkboxes */
-    #result_list input[type="checkbox"] {
+    .actions select {
+        padding: 7px 12px;
+        border: 1.5px solid rgba(0, 0, 0, 0.1);
+        border-radius: 6px;
+        font-size: 13px;
+        color: #3F3F3F;
+        background: white;
+        transition: border-color 200ms ease;
         cursor: pointer;
     }
 
-    /* Submit row */
-    .submit-row {
-        padding: 16px;
-        background: white;
-        border-top: 1px solid #e5e7eb;
-        display: flex;
-        gap: 8px;
+    .actions select:focus {
+        outline: none;
+        border-color: #8B1E1E;
     }
 
-    .submit-row input[type="submit"],
-    .submit-row input[type="button"] {
-        padding: 10px 24px;
-        background: #8b1e1e;
+    .actions button {
+        padding: 7px 16px;
+        background: #3F3F3F;
         color: white;
         border: none;
         border-radius: 6px;
+        font-size: 12px;
         font-weight: 600;
         cursor: pointer;
-        transition: all 0.3s;
-        font-family: 'HagiaPro', system-ui, -apple-system, sans-serif;
+        transition: background 200ms ease;
     }
 
-    .submit-row input[type="submit"]:hover {
-        background: #6b1418;
+    .actions button:hover { background: #555; }
+
+    #result_list {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    #result_list thead {
+        background: rgba(139, 30, 30, 0.02);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    #result_list th {
+        padding: 14px 16px;
+        text-align: left;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.7px;
+        color: rgba(63, 63, 63, 0.6);
+    }
+
+    #result_list th a {
+        color: rgba(63, 63, 63, 0.6);
+        text-decoration: none;
+        transition: color 200ms ease;
+    }
+
+    #result_list th a:hover { color: #8B1E1E; }
+
+    #result_list th.sorted a { color: #8B1E1E; }
+
+    #result_list tbody tr {
+        border-bottom: 0.5px solid rgba(0, 0, 0, 0.05);
+        transition: background 200ms ease;
+    }
+
+    #result_list tbody tr:last-child { border-bottom: none; }
+
+    #result_list tbody tr:hover { background: rgba(139, 30, 30, 0.025); }
+
+    #result_list td {
+        padding: 14px 16px;
+        font-size: 14px;
+        color: #3F3F3F;
+    }
+
+    #result_list td a {
+        color: #8B1E1E;
+        text-decoration: none;
+        font-weight: 500;
+        transition: opacity 200ms ease;
+    }
+
+    #result_list td a:hover { opacity: 0.7; }
+
+    #result_list input[type="checkbox"] {
+        accent-color: #8B1E1E;
+        cursor: pointer;
+    }
+
+    .action-checkbox { text-align: center; width: 40px; }
+
+    /* Empty state */
+    .no-results {
+        padding: 48px 24px;
+        text-align: center;
+        color: rgba(63, 63, 63, 0.4);
+        font-size: 14px;
     }
 
     /* Pagination */
-    .paginator {
+    .cl-pagination {
+        padding: 16px;
+        border-top: 1px solid rgba(0, 0, 0, 0.06);
         display: flex;
-        gap: 8px;
-        align-items: center;
         justify-content: center;
-        flex-wrap: wrap;
     }
 
-    .step-links {
+    .cl-pagination .step-links {
         display: flex;
-        gap: 8px;
+        gap: 4px;
         align-items: center;
-        justify-content: center;
-        flex-wrap: wrap;
     }
 
-    .step-links a,
-    .step-links span {
-        padding: 6px 12px;
+    .cl-pagination a,
+    .cl-pagination .current {
+        padding: 7px 12px;
         border-radius: 6px;
-        font-size: 14px;
-        transition: all 0.3s;
-    }
-
-    .step-links a {
-        border: 1px solid #e5e7eb;
-        color: #3f3f3f;
+        font-size: 12px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        color: #3F3F3F;
         text-decoration: none;
+        transition: all 200ms ease;
     }
 
-    .step-links a:hover {
-        border-color: #8b1e1e;
-        background: #fff5f5;
-        color: #8b1e1e;
+    .cl-pagination a:hover {
+        border-color: #8B1E1E;
+        color: #8B1E1E;
+        background: rgba(139, 30, 30, 0.04);
     }
 
-    .step-links .this-page {
-        background: #8b1e1e;
+    .cl-pagination .current {
+        background: #8B1E1E;
         color: white;
-        border-color: #8b1e1e;
-        padding: 6px 12px;
+        border-color: #8B1E1E;
+        font-weight: 600;
     }
 
-    /* Empty resultset */
-    .results p {
-        color: #666;
-        font-size: 14px;
+    /* Filter sidebar */
+    .filter-sidebar {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        padding: 20px;
+        animation: fadeInRight 0.6s ease-out 0.15s forwards;
+        opacity: 0;
+        position: sticky;
+        top: 24px;
+    }
+
+    .filter-sidebar h2 {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: rgba(63, 63, 63, 0.5);
+        margin-bottom: 16px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+    }
+
+    .filter-sidebar h3 {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        color: rgba(63, 63, 63, 0.45);
+        margin: 14px 0 6px;
+    }
+
+    .filter-sidebar ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .filter-sidebar li { margin-bottom: 2px; }
+
+    .filter-sidebar a {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 10px;
+        border-radius: 6px;
+        color: rgba(63, 63, 63, 0.7);
+        text-decoration: none;
+        font-size: 13px;
+        transition: all 200ms ease;
+    }
+
+    .filter-sidebar a:hover {
+        background: rgba(139, 30, 30, 0.05);
+        color: #8B1E1E;
+    }
+
+    .filter-sidebar a.selected {
+        background: rgba(139, 30, 30, 0.08);
+        color: #8B1E1E;
+        font-weight: 600;
+    }
+
+    @keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-16px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInLeft {
+        from { opacity: 0; transform: translateX(-16px); }
+        to   { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes fadeInRight {
+        from { opacity: 0; transform: translateX(16px); }
+        to   { opacity: 1; transform: translateX(0); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .changelist-header, .changelist-toolbar,
+        .results-wrap, .filter-sidebar {
+            animation: none;
+            opacity: 1;
+        }
+    }
+
+    @media (max-width: 1024px) {
+        .changelist-layout { grid-template-columns: 1fr; }
+        .filter-sidebar { position: static; order: -1; }
+    }
+
+    @media (max-width: 768px) {
+        .changelist-header h1 { font-size: 26px; }
+        .changelist-toolbar { flex-direction: column; align-items: stretch; }
+        .addlink { justify-content: center; }
+        #result_list { display: block; overflow-x: auto; }
     }
 </style>
+{% endblock %}
+
+{% block content %}
+<div class="changelist-container">
+
+    <div class="changelist-header">
+        <h1>{{ opts.verbose_name_plural|capfirst }}</h1>
+        <p>{% blocktranslate with name=opts.verbose_name_plural %}Manage all {{ name }}{% endblocktranslate %}</p>
+    </div>
+
+    <!-- Toolbar: search + add button -->
+    <div class="changelist-toolbar">
+        {% if cl.search_fields %}
+        <form class="search-form" id="changelist-search" method="get">
+            <input
+                type="text"
+                id="searchbar"
+                name="q"
+                value="{{ cl.query }}"
+                placeholder="{% blocktranslate with name=opts.verbose_name_plural %}Search {{ name }}...{% endblocktranslate %}"
+                autofocus/>
+            <input type="submit" value="{% trans 'Search' %}"/>
+        </form>
+        {% endif %}
+
+        {% if has_add_permission %}
+        <a href="add/" class="addlink">
+            + {% blocktranslate with name=opts.verbose_name %}Add {{ name }}{% endblocktranslate %}
+        </a>
+        {% endif %}
+    </div>
+
+    {% block date_hierarchy %}
+        {% if cl.date_hierarchy %}{% date_hierarchy cl %}{% endif %}
+    {% endblock %}
+
+    <div class="changelist-layout {% if not cl.has_filters %}no-filters{% endif %}">
+
+        <!-- Results column -->
+        <div>
+            <form id="changelist-form" method="post"
+                {% if cl.formset and cl.formset.is_multipart %}enctype="multipart/form-data"{% endif %}
+                novalidate>
+                {% csrf_token %}
+                {% if cl.formset %}
+                    <div>{{ cl.formset.management_form }}</div>
+                {% endif %}
+
+                <div class="results-wrap">
+
+                    {% if action_form and actions_on_top and cl.show_admin_actions %}
+                    <div class="actions">
+                        <label>{% trans "Action:" %}</label>
+                        {{ action_form.action }}
+                        <button type="submit" name="index" value="0">{% trans "Go" %}</button>
+                        {% if cl.result_count %}
+                            <span style="font-size:12px;color:rgba(63,63,63,0.5);margin-left:auto;">
+                                {{ cl.result_count }} {{ opts.verbose_name_plural }}
+                            </span>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    {% if cl.result_list %}
+                        {% result_list cl %}
+                    {% else %}
+                        <p class="no-results">
+                            {% blocktranslate with name=opts.verbose_name_plural %}No {{ name }} found.{% endblocktranslate %}
+                        </p>
+                    {% endif %}
+
+                    {% if action_form and actions_on_bottom and cl.show_admin_actions %}
+                    <div class="actions">
+                        {{ action_form.action }}
+                        <button type="submit" name="index" value="0">{% trans "Go" %}</button>
+                    </div>
+                    {% endif %}
+
+                    {% if cl.result_count %}
+                    <div class="cl-pagination">
+                        <span class="step-links">{% pagination cl %}</span>
+                    </div>
+                    {% endif %}
+
+                </div>
+
+                {% if cl.formset and cl.result_count %}
+                <div style="padding:16px;">
+                    <input type="submit" name="_save" value="{% trans 'Save' %}"
+                        style="padding:10px 24px;background:#8B1E1E;color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer;">
+                </div>
+                {% endif %}
+            </form>
+        </div>
+
+        <!-- Filter sidebar -->
+        {% if cl.has_filters %}
+        <div class="filter-sidebar">
+            <h2>{% trans "Filter" %}</h2>
+            {% for spec in cl.filter_specs %}
+                {% admin_list_filter cl spec %}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+
+<script>
+(function () {
+    var toggle = document.getElementById('action-toggle');
+    if (!toggle) return;
+    var boxes = document.querySelectorAll('#result_list input[type="checkbox"]:not(#action-toggle)');
+
+    toggle.addEventListener('change', function () {
+        boxes.forEach(function (cb) { cb.checked = toggle.checked; });
+    });
+
+    boxes.forEach(function (cb) {
+        cb.addEventListener('change', function () {
+            var all = Array.from(boxes).every(function (c) { return c.checked; });
+            var some = Array.from(boxes).some(function (c) { return c.checked; });
+            toggle.checked = all;
+            toggle.indeterminate = some && !all;
+        });
+    });
+})();
+</script>
+{% endblock %}
