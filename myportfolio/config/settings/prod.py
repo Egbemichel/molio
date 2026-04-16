@@ -7,7 +7,7 @@ import os
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 DEBUG = False
 SECRET_KEY = env('SECRET_KEY')
-ALLOWED_HOSTS = env('ALLOWED_HOSTS', cast=Csv())
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',')
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # HTTPS & SECURITY HEADERS
