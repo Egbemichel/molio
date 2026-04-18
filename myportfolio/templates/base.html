@@ -15,8 +15,53 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.29/dist/fancybox/fancybox.css" />
 
   {% block extra_head %}{% endblock %}
+
+  <style>
+    .mobile-block { display: none; }
+
+    @media (max-width: 768px) { /* ← adjust breakpoint here */
+      .mobile-block {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        padding: 2rem;
+        background: white;
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+      }
+      .mobile-block img {
+        width: 60%;
+        max-width: 280px;
+        border-radius: 12px;
+      }
+      .mobile-block p {
+        margin-top: 1.5rem;
+        text-align: right;
+        padding-right: 1.5rem; /* ← adjust right alignment here */
+        font-size: 1rem;
+        line-height: 1.6;
+        color: #333;
+      }
+      body > *:not(.mobile-block) {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
 </head>
 <body class="bg-primary antialiased">
+
+  <!-- Mobile Block Screen -->
+  <div class="mobile-block">
+    <img src="{% static 'images/me_working.png' %}" alt="Me working hard">
+    <p class="font-hagia"> >
+      Caught me still squeezing pixels into a tiny screen.<br>
+      Check back soon — or grab a laptop.
+    </p>
+  </div>
 
   <main>{% block content %}{% endblock %}</main>
 
