@@ -15,4 +15,5 @@ static/dist/css/*
 !static/dist/css/main.css
 node_modules/
 staticfiles/
+staticfiles_build/
 Makefile

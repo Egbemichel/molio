@@ -20,3 +20,6 @@ else:
 
 application = get_wsgi_application()
 
+# Vercel's @vercel/python runtime looks for a module-level `app` callable.
+app = application
+
