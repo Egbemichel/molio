@@ -36,13 +36,18 @@ jobs:
         run: python manage.py test --verbosity=2
 
   deploy:
-    name: Deploy to Render
+    name: Promote to release (Back4App deploys this)
     needs: test
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - name: Trigger Render deploy
-        run: |
-          curl -fsSL -X POST "$RENDER_DEPLOY_HOOK"
-        env:
-          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Back4App auto-deploys the `release` branch. We only advance it once the
+      # test job above is green, so broken commits never reach production.
+      - name: Promote tested commit to release branch
+        run: git push origin HEAD:release --force
