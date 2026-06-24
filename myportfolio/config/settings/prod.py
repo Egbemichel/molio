@@ -42,7 +42,9 @@ MIDDLEWARE = ['whitenoise.middleware.WhiteNoiseMiddleware'] + MIDDLEWARE
 DATABASES = {
     'default': dj_database_url.config(
         default=env('DATABASE_URL'),
-        conn_max_age=600,
+        # Neon (serverless) auto-suspends and kills idle connections, so don't
+        # hold them open — reconnect per request to avoid AdminShutdown errors.
+        conn_max_age=0,
         ssl_require=True,  # Neon requires SSL
     )
 }

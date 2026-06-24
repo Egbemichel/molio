@@ -6,6 +6,13 @@ __pycache__/
 db.sqlite3
 media/
 static/dist/
+# …but track the compiled Tailwind CSS so the deploy build stays light
+# (no Node stage needed in Docker). Rebuild with `npm run build` after CSS changes.
+!static/dist/
+static/dist/*
+!static/dist/css/
+static/dist/css/*
+!static/dist/css/main.css
 node_modules/
 staticfiles/
 Makefile
