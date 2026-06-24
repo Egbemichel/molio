@@ -2,10 +2,17 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.middleware.csrf import get_token
+from django.core.mail import EmailMessage
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
+from django.conf import settings
 from apps.projects.models import Project, Category
 from apps.core.models import Skill, Education, Service, GalleryItem, Feedback
 from datetime import date
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def home(request):
@@ -113,6 +120,61 @@ def home(request):
         'social_links': social_links,
         'contact_info': contact_info,
     })
+
+
+@require_http_methods(['POST'])
+def contact(request):
+    """
+    Contact form endpoint: validates the message and emails it to the site owner.
+    The visitor's email is set as reply-to so replies go straight to them.
+    Expected JSON: { "name", "email", "subject", "message", "company"(honeypot) }
+    """
+    try:
+        if request.content_type == 'application/json':
+            data = json.loads(request.body)
+        else:
+            data = request.POST
+
+        name = (data.get('name') or '').strip()
+        email = (data.get('email') or '').strip()
+        subject = (data.get('subject') or '').strip()
+        message = (data.get('message') or '').strip()
+        # Honeypot: real users never fill a hidden "company" field; bots do.
+        if (data.get('company') or '').strip():
+            return JsonResponse({'success': True, 'message': 'Thanks!'}, status=200)
+
+        if not name:
+            return JsonResponse({'error': 'Please enter your name.'}, status=400)
+        try:
+            validate_email(email)
+        except ValidationError:
+            return JsonResponse({'error': 'Please enter a valid email address.'}, status=400)
+        if not message:
+            return JsonResponse({'error': 'Please write a message.'}, status=400)
+        if len(message) > 5000:
+            return JsonResponse({'error': 'Message is too long.'}, status=400)
+
+        EmailMessage(
+            subject=f'[Portfolio] {subject or "New message"} — from {name}',
+            body=f'Name: {name}\nEmail: {email}\nSubject: {subject or "(none)"}\n\n{message}',
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[settings.CONTACT_RECIPIENT_EMAIL],
+            reply_to=[email],
+        ).send(fail_silently=False)
+
+        return JsonResponse(
+            {'success': True, 'message': "Message sent — I'll get back to you soon."},
+            status=200,
+        )
+
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid request.'}, status=400)
+    except Exception:
+        logger.exception('Contact email failed to send')
+        return JsonResponse(
+            {'error': 'Could not send right now. Please email me directly.'},
+            status=500,
+        )
 
 
 @require_http_methods(['POST'])

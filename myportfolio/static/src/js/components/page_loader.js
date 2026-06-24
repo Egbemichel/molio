@@ -160,7 +160,7 @@ function injectLoaderStyles() {
     .loader-name {
       display: flex;
       align-items: baseline;
-      font-family: font-geisha;
+      font-family: 'Geisha', serif;
       font-size: clamp(80px, 14vw, 148px);
       font-weight: 400;
       color: #8B1E1E;
