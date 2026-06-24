@@ -62,7 +62,9 @@ INSTALLED_APPS += ['cloudinary_storage', 'cloudinary']
 CLOUDINARY_STORAGE = {'CLOUDINARY_URL': env('CLOUDINARY_URL')}
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR.parent, 'staticfiles')
+# Collected into <project>/staticfiles_build/static so Vercel's static-build can
+# serve it from /static/* (WhiteNoise also serves from here on Docker hosts).
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles_build', 'static')
 
 STORAGES = {
     'default': {
