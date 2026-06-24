@@ -9,15 +9,17 @@ import os
 DEBUG = False
 SECRET_KEY = env('SECRET_KEY')
 
-# Hosts come from the ALLOWED_HOSTS env var (comma-separated). On Render the
-# service's public hostname is also injected automatically.
+# Hosts come from the ALLOWED_HOSTS env var (comma-separated). A leading dot
+# acts as a wildcard for all subdomains, e.g. ".b4a.run" matches Back4App's
+# rotating temporary URLs so a new URL doesn't lock you out.
 ALLOWED_HOSTS = env('ALLOWED_HOSTS', default='', cast=Csv())
-RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
-if RENDER_EXTERNAL_HOSTNAME:
-    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
-# Required by Django for the admin/CSRF to work behind HTTPS.
-CSRF_TRUSTED_ORIGINS = [f'https://{host}' for host in ALLOWED_HOSTS if host]
+# Required by Django for the admin/CSRF to work behind HTTPS. A "*.b4a.run"
+# wildcard origin is derived from any leading-dot host above.
+CSRF_TRUSTED_ORIGINS = [
+    f'https://*{host}' if host.startswith('.') else f'https://{host}'
+    for host in ALLOWED_HOSTS if host
+]
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # HTTPS & SECURITY HEADERS
