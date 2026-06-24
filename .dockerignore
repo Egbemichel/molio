@@ -1,0 +1,13 @@
+venv/
+**/__pycache__/
+*.pyc
+*.sqlite3
+db.sqlite3
+.git/
+.github/
+.env
+.env.*
+!myportfolio/.env.example
+media/
+staticfiles/
+*.md
