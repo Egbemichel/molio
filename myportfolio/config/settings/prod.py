@@ -65,7 +65,9 @@ STORAGES = {
         'BACKEND': 'cloudinary_storage.storage.MediaCloudinaryStorage',
     },
     'staticfiles': {
-        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+        # Non-manifest: compresses + serves static files, but a missing/edge-case
+        # reference can't hard-crash a page the way ManifestStaticFilesStorage does.
+        'BACKEND': 'whitenoise.storage.CompressedStaticFilesStorage',
     },
 }
 
