@@ -21,45 +21,60 @@ Contact section with form and email
                 </div>
             </div>
 
-            <div x-data="{ 
-                name: '', 
-                subject: '', 
-                message: '',
-                sendEmail() {
-                    const mailtoLink = `mailto:{{ email }}?subject=${encodeURIComponent(this.subject)}&body=${encodeURIComponent('From: ' + this.name + '\n\n' + this.message)}`;
-                    window.location.href = mailtoLink;
-                }
-            }">
-                <form @submit.prevent="sendEmail" class="space-y-8">
+            <div>
+                <form id="contact-form" class="space-y-8" novalidate>
+                    {% csrf_token %}
+
+                    {% comment %} Honeypot: invisible to humans, bots fill it and get silently dropped {% endcomment %}
+                    <div class="hidden" aria-hidden="true">
+                        <label for="contact-company">Company</label>
+                        <input type="text" id="contact-company" name="company" tabindex="-1" autocomplete="off">
+                    </div>
+
                     <div class="group">
-                        <label class="block font-hagia text-xl uppercase tracking-widest opacity-70 mb-2 transition-opacity group-focus-within:opacity-100">Your Name</label>
-                        <input type="text" x-model="name" required
+                        <label for="contact-name" class="block font-hagia text-xl uppercase tracking-widest opacity-70 mb-2 transition-opacity group-focus-within:opacity-100">
+                            Your Name <span class="text-accent" aria-hidden="true">*</span>
+                        </label>
+                        <input id="contact-name" name="name" type="text" required autocomplete="name"
                             class="w-full bg-transparent border-b-2 border-dark/10 py-4 font-hagia text-2xl outline-none focus:border-accent transition-colors placeholder:opacity-50"
                             placeholder="Egbe Michel">
                     </div>
 
                     <div class="group">
-                        <label class="block font-hagia text-xl uppercase tracking-widest opacity-70 mb-2 transition-opacity group-focus-within:opacity-100">Subject</label>
-                        <input type="text" x-model="subject" required
+                        <label for="contact-email" class="block font-hagia text-xl uppercase tracking-widest opacity-70 mb-2 transition-opacity group-focus-within:opacity-100">
+                            Your Email <span class="text-accent" aria-hidden="true">*</span>
+                        </label>
+                        <input id="contact-email" name="email" type="email" required autocomplete="email" inputmode="email"
+                            class="w-full bg-transparent border-b-2 border-dark/10 py-4 font-hagia text-2xl outline-none focus:border-accent transition-colors placeholder:opacity-50"
+                            placeholder="you@example.com">
+                    </div>
+
+                    <div class="group">
+                        <label for="contact-subject" class="block font-hagia text-xl uppercase tracking-widest opacity-70 mb-2 transition-opacity group-focus-within:opacity-100">Subject</label>
+                        <input id="contact-subject" name="subject" type="text" autocomplete="off"
                             class="w-full bg-transparent border-b-2 border-dark/10 py-4 font-hagia text-2xl outline-none focus:border-accent transition-colors placeholder:opacity-50"
                             placeholder="Project Inquiry">
                     </div>
 
                     <div class="group">
-                        <label class="block font-hagia text-xl uppercase tracking-widest opacity-70 mb-2 transition-opacity group-focus-within:opacity-100">Message</label>
-                        <textarea x-model="message" required rows="4"
+                        <label for="contact-message" class="block font-hagia text-xl uppercase tracking-widest opacity-70 mb-2 transition-opacity group-focus-within:opacity-100">
+                            Message <span class="text-accent" aria-hidden="true">*</span>
+                        </label>
+                        <textarea id="contact-message" name="message" required rows="4"
                             class="w-full bg-transparent border-b-2 border-dark/10 py-4 font-hagia text-2xl outline-none focus:border-accent transition-colors resize-none placeholder:opacity-50"
                             placeholder="Tell me about your idea..."></textarea>
                     </div>
 
-                    <button type="submit" 
+                    <button type="submit"
                         class="group relative flex items-center gap-4 bg-dark text-white px-10 py-5 rounded-full font-hagia text-xl overflow-hidden transition-all hover:pr-14 active:scale-95">
                         <span class="relative z-10">Send Message</span>
-                        <svg class="w-6 h-6 transition-transform group-hover:translate-x-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-6 h-6 transition-transform group-hover:translate-x-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
                         </svg>
                         <div class="absolute inset-0 bg-accent translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
                     </button>
+
+                    <p id="contact-status" role="status" aria-live="polite" class="font-hagia text-xl min-h-[1.5em]"></p>
                 </form>
             </div>
         </div>

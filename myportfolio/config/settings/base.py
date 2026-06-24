@@ -82,3 +82,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Auth & Login Configuration
 LOGIN_REDIRECT_URL = "/admin/"
 LOGIN_URL = "/admin/login/"
+
+# Contact form: where contact-form submissions are emailed.
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="noreply@molio.com")
+CONTACT_RECIPIENT_EMAIL = env("CONTACT_RECIPIENT_EMAIL", default="egbemichel39@gmail.com")

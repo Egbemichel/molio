@@ -203,3 +203,42 @@
         animation-play-state: paused;
     }
 }
+
+/* ───────────────────────────────────────────────────────────────
+   Accessibility: visible keyboard focus
+   Inputs use outline-none for the design; restore a clear focus ring
+   for keyboard users only (focus-visible), without affecting mouse clicks.
+   ─────────────────────────────────────────────────────────────── */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+    outline: 2px solid #8B1E1E;
+    outline-offset: 3px;
+    border-radius: 2px;
+}
+
+/* ───────────────────────────────────────────────────────────────
+   Respect prefers-reduced-motion (WCAG / skill rule: reduced-motion)
+   Stop the infinite marquees and damp all transitions/animations for
+   users who ask the OS to minimize motion.
+   ─────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    /* Marquees would jump to their end frame above; freeze them in place */
+    .animate-marquee,
+    .animate-marquee-reverse {
+        animation: none !important;
+        transform: none !important;
+    }
+}

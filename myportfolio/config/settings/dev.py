@@ -7,3 +7,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# Print emails to the console locally instead of sending real SMTP.
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
