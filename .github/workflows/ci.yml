@@ -1,0 +1,38 @@
+name: CI
+
+# Deployment is handled by Vercel (auto-deploys main on every push).
+# This workflow only validates the code: it runs the Django test suite on
+# pushes to main and on pull requests, so broken changes show up before merge.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: myportfolio
+    env:
+      DJANGO_SETTINGS_MODULE: config.settings.dev   # sqlite, no external services
+      SECRET_KEY: ci-not-a-real-secret
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.9"
+          cache: pip
+          cache-dependency-path: myportfolio/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Check for missing migrations
+        run: python manage.py makemigrations --check --dry-run
+
+      - name: Run tests
+        run: python manage.py test --verbosity=2
