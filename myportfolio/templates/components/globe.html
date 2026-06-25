@@ -23,6 +23,33 @@ document.addEventListener('DOMContentLoaded', function () {
     const myLat = 3.8667;
     const myLng = 11.5167;
 
+    function hasWebGL() {
+        try {
+            const c = document.createElement('canvas');
+            return !!(window.WebGLRenderingContext &&
+                (c.getContext('webgl') || c.getContext('experimental-webgl')));
+        } catch (e) { return false; }
+    }
+
+    function showGlobeFallback() {
+        container.innerHTML =
+            '<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:14px;background:radial-gradient(circle at 50% 38%, #0b1a33 0%, #030712 72%);">' +
+                '<div style="width:130px;height:130px;border-radius:50%;border:2px solid rgba(74,144,217,0.45);box-shadow:inset 0 0 70px rgba(74,144,217,0.25);"></div>' +
+                '<p style="color:#fff;font-size:1.25rem;margin:0;">Yaoundé, Cameroon</p>' +
+                '<p style="color:rgba(255,255,255,0.4);font-size:0.85rem;margin:0;">3.87° N, 11.52° E</p>' +
+            '</div>';
+    }
+
+    // Bail out gracefully if the libs failed to load or the browser/device has
+    // no WebGL (e.g. hardware acceleration disabled) — show a fallback instead
+    // of an invisible black box.
+    if (typeof Globe === 'undefined' || typeof THREE === 'undefined' || !hasWebGL()) {
+        showGlobeFallback();
+        return;
+    }
+
+    try {
+
     const globe = Globe()(container)
         .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-day.jpg')
         .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png')
@@ -87,5 +114,10 @@ document.addEventListener('DOMContentLoaded', function () {
         globe.width(container.clientWidth);
         globe.height(container.clientHeight);
     });
+
+    } catch (e) {
+        console.warn('Globe init failed, showing fallback:', e);
+        showGlobeFallback();
+    }
 });
 </script>
