@@ -33,5 +33,9 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      # Ensure Neon has the latest schema before syncing (Vercel doesn't migrate).
+      - name: Apply migrations
+        run: python manage.py migrate --no-input
+
       - name: Sync repositories
         run: python manage.py sync_github
