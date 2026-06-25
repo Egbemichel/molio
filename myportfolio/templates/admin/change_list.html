@@ -23,7 +23,7 @@
     }
 
     .changelist-header p {
-        font-size: 14px;
+        font-size: 16px;
         color: rgba(63, 63, 63, 0.6);
     }
 
@@ -50,7 +50,7 @@
         padding: 11px 16px;
         border: 1.5px solid rgba(0, 0, 0, 0.1);
         border-radius: 10px;
-        font-size: 14px;
+        font-size: 16px;
         color: #3F3F3F;
         transition: border-color 200ms ease, box-shadow 200ms ease;
         background: white;
@@ -68,7 +68,7 @@
         color: white;
         border: none;
         border-radius: 8px;
-        font-size: 13px;
+        font-size: 15px;
         font-weight: 600;
         cursor: pointer;
         transition: background 200ms ease;
@@ -87,7 +87,7 @@
         text-decoration: none;
         border-radius: 8px;
         font-weight: 600;
-        font-size: 13px;
+        font-size: 15px;
         white-space: nowrap;
         transition: all 200ms ease;
     }
@@ -131,7 +131,7 @@
     }
 
     .actions label {
-        font-size: 11px;
+        font-size: 14px;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.6px;
@@ -143,7 +143,7 @@
         padding: 7px 12px;
         border: 1.5px solid rgba(0, 0, 0, 0.1);
         border-radius: 6px;
-        font-size: 13px;
+        font-size: 15px;
         color: #3F3F3F;
         background: white;
         transition: border-color 200ms ease;
@@ -161,7 +161,7 @@
         color: white;
         border: none;
         border-radius: 6px;
-        font-size: 12px;
+        font-size: 15px;
         font-weight: 600;
         cursor: pointer;
         transition: background 200ms ease;
@@ -182,7 +182,7 @@
     #result_list th {
         padding: 14px 16px;
         text-align: left;
-        font-size: 11px;
+        font-size: 14px;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.7px;
@@ -210,7 +210,7 @@
 
     #result_list td {
         padding: 14px 16px;
-        font-size: 14px;
+        font-size: 16px;
         color: #3F3F3F;
     }
 
@@ -235,7 +235,7 @@
         padding: 48px 24px;
         text-align: center;
         color: rgba(63, 63, 63, 0.4);
-        font-size: 14px;
+        font-size: 16px;
     }
 
     /* Pagination */
@@ -256,7 +256,7 @@
     .cl-pagination .current {
         padding: 7px 12px;
         border-radius: 6px;
-        font-size: 12px;
+        font-size: 15px;
         border: 1px solid rgba(0, 0, 0, 0.1);
         color: #3F3F3F;
         text-decoration: none;
@@ -289,7 +289,7 @@
     }
 
     .filter-sidebar h2 {
-        font-size: 11px;
+        font-size: 14px;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.8px;
@@ -300,7 +300,7 @@
     }
 
     .filter-sidebar h3 {
-        font-size: 11px;
+        font-size: 14px;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.6px;
@@ -324,7 +324,7 @@
         border-radius: 6px;
         color: rgba(63, 63, 63, 0.7);
         text-decoration: none;
-        font-size: 13px;
+        font-size: 15px;
         transition: all 200ms ease;
     }
 
@@ -430,7 +430,7 @@
                         {{ action_form.action }}
                         <button type="submit" name="index" value="0">{% trans "Go" %}</button>
                         {% if cl.result_count %}
-                            <span style="font-size:12px;color:rgba(63,63,63,0.5);margin-left:auto;">
+                            <span style="font-size:15px;color:rgba(63,63,63,0.5);margin-left:auto;">
                                 {{ cl.result_count }} {{ opts.verbose_name_plural }}
                             </span>
                         {% endif %}
