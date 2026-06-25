@@ -92,3 +92,8 @@ CONTACT_RECIPIENT_EMAIL = env("CONTACT_RECIPIENT_EMAIL", default="egbemichel39@g
 # Django's email backend (console in dev).
 RESEND_API_KEY = env("RESEND_API_KEY", default="")
 RESEND_FROM_EMAIL = env("RESEND_FROM_EMAIL", default="Portfolio <onboarding@resend.dev>")
+
+# GitHub project sync. GITHUB_TOKEN is a read-only PAT (raises the API rate
+# limit from 60 to 5000/hr); GITHUB_USERNAME is whose public repos to import.
+GITHUB_USERNAME = env("GITHUB_USERNAME", default="Egbemichel")
+GITHUB_TOKEN = env("GITHUB_TOKEN", default="")

@@ -1,7 +1,10 @@
-from django.contrib import admin
+from django.contrib import admin, messages
+from django.shortcuts import redirect
+from django.urls import path
 from django.utils.html import format_html
 from config.admin_site import CustomModelAdmin
 from .models import Project, Category, TechStack
+from .github_sync import sync_github_repos
 
 
 class ProjectInline(admin.TabularInline):
@@ -67,16 +70,19 @@ class CategoryAdmin(CustomModelAdmin):
 class ProjectAdmin(CustomModelAdmin):
     """Enhanced admin interface for Projects with dark theme styling"""
     
+    # Projects-only changelist template adds the "Sync from GitHub" button
+    change_list_template = 'admin/projects/project/change_list.html'
+
     # List view configuration
-    list_display = ('title', 'category', 'featured', 'tech_count', 'order', 'created_at_formatted')
-    list_editable = ('category', 'featured', 'order')
-    list_filter = ('category', 'featured', 'created_at')
+    list_display = ('title', 'category', 'published', 'featured', 'tech_count', 'order', 'created_at_formatted')
+    list_editable = ('category', 'published', 'featured', 'order')
+    list_filter = ('published', 'is_github_managed', 'category', 'featured', 'created_at')
     search_fields = ('title', 'description', 'role')
-    
+
     # Auto-fills the slug based on the title
     prepopulated_fields = {'slug': ('title',)}
     filter_horizontal = ('technologies',)
-    
+
     # Enhanced fieldset organization
     fieldsets = (
         ('Basic Info', {
@@ -84,7 +90,7 @@ class ProjectAdmin(CustomModelAdmin):
             'description': 'Project identification and timeline'
         }),
         ('Content', {
-            'fields': ('description', 'points', 'github_link'),
+            'fields': ('description', 'points', 'github_link', 'live_url'),
             'description': 'Project description and links'
         }),
         ('Media', {
@@ -92,13 +98,45 @@ class ProjectAdmin(CustomModelAdmin):
             'description': 'Images and associated technologies'
         }),
         ('Publishing', {
-            'fields': ('featured', 'order'),
+            'fields': ('published', 'featured', 'order'),
+            'description': 'Unpublished projects are hidden from the public site'
+        }),
+        ('GitHub Sync', {
+            'fields': ('is_github_managed', 'github_repo_id', 'last_synced_at'),
             'classes': ('collapse',),
-            'description': 'Visibility and ordering settings'
+            'description': 'Auto-populated by the GitHub sync'
         }),
     )
-    
-    readonly_fields = ('created_at_display',)
+
+    readonly_fields = ('created_at_display', 'github_repo_id', 'last_synced_at', 'is_github_managed')
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom = [
+            path(
+                'sync-github/',
+                self.admin_site.admin_view(self.sync_github_view),
+                name='projects_project_sync_github',
+            ),
+        ]
+        return custom + urls
+
+    def sync_github_view(self, request):
+        """Run the GitHub sync, then return to the changelist with a message."""
+        if request.method != 'POST':
+            return redirect('admin:projects_project_changelist')
+        try:
+            summary = sync_github_repos()
+            self.message_user(
+                request,
+                f"GitHub sync complete: {summary['created']} created, "
+                f"{summary['updated']} updated ({summary['total_repos']} repos scanned). "
+                "New projects are drafts — finish them, then publish.",
+                level=messages.SUCCESS,
+            )
+        except Exception as exc:  # surface API/credential errors to the admin
+            self.message_user(request, f"GitHub sync failed: {exc}", level=messages.ERROR)
+        return redirect('admin:projects_project_changelist')
     
     def tech_count(self, obj):
         """Display technology count with color coding"""
