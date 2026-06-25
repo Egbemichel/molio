@@ -86,3 +86,9 @@ LOGIN_URL = "/admin/login/"
 # Contact form: where contact-form submissions are emailed.
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="noreply@molio.com")
 CONTACT_RECIPIENT_EMAIL = env("CONTACT_RECIPIENT_EMAIL", default="egbemichel39@gmail.com")
+
+# Resend HTTP email API — reliable on serverless hosts (Vercel) where SMTP is
+# blocked/flaky. When RESEND_API_KEY is empty, the contact view falls back to
+# Django's email backend (console in dev).
+RESEND_API_KEY = env("RESEND_API_KEY", default="")
+RESEND_FROM_EMAIL = env("RESEND_FROM_EMAIL", default="Portfolio <onboarding@resend.dev>")
