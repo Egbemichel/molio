@@ -6,6 +6,7 @@ from django.core.mail import EmailMessage
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.conf import settings
+from django.db.models import Prefetch
 from apps.projects.models import Project, Category
 from apps.core.models import Skill, Education, Service, GalleryItem, Feedback
 from datetime import date
@@ -55,8 +56,13 @@ def _deliver_contact_message(name, email, subject, message):
 
 
 def home(request):
-    projects = Project.objects.prefetch_related('technologies').all()
-    categories = Category.objects.prefetch_related('projects', 'projects__technologies').all()
+    # Only published projects reach the public site; GitHub-synced drafts stay hidden.
+    published_projects = Project.objects.filter(published=True).prefetch_related('technologies')
+    projects = published_projects
+    categories = Category.objects.prefetch_related(
+        Prefetch('projects', queryset=published_projects),
+        'projects__technologies',
+    ).all()
     
     # Calculate age dynamically
     birth_date = date(2005, 8, 20)
