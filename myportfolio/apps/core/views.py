@@ -11,8 +11,47 @@ from apps.core.models import Skill, Education, Service, GalleryItem, Feedback
 from datetime import date
 import json
 import logging
+import requests
 
 logger = logging.getLogger(__name__)
+
+
+def _deliver_contact_message(name, email, subject, message):
+    """Email a contact submission to the site owner.
+
+    Prefers Resend's HTTP API (reliable on serverless hosts like Vercel, where
+    SMTP is flaky/blocked). Falls back to Django's email backend (e.g. the
+    console backend in dev) when RESEND_API_KEY isn't configured.
+    """
+    full_subject = f'[Portfolio] {subject or "New message"} — from {name}'
+    body = f'Name: {name}\nEmail: {email}\nSubject: {subject or "(none)"}\n\n{message}'
+
+    if settings.RESEND_API_KEY:
+        resp = requests.post(
+            'https://api.resend.com/emails',
+            headers={
+                'Authorization': f'Bearer {settings.RESEND_API_KEY}',
+                'Content-Type': 'application/json',
+            },
+            json={
+                'from': settings.RESEND_FROM_EMAIL,
+                'to': [settings.CONTACT_RECIPIENT_EMAIL],
+                'reply_to': email,
+                'subject': full_subject,
+                'text': body,
+            },
+            timeout=10,
+        )
+        if resp.status_code not in (200, 201):
+            raise RuntimeError(f'Resend API error {resp.status_code}: {resp.text}')
+    else:
+        EmailMessage(
+            subject=full_subject,
+            body=body,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[settings.CONTACT_RECIPIENT_EMAIL],
+            reply_to=[email],
+        ).send(fail_silently=False)
 
 
 def home(request):
@@ -154,13 +193,7 @@ def contact(request):
         if len(message) > 5000:
             return JsonResponse({'error': 'Message is too long.'}, status=400)
 
-        EmailMessage(
-            subject=f'[Portfolio] {subject or "New message"} — from {name}',
-            body=f'Name: {name}\nEmail: {email}\nSubject: {subject or "(none)"}\n\n{message}',
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            to=[settings.CONTACT_RECIPIENT_EMAIL],
-            reply_to=[email],
-        ).send(fail_silently=False)
+        _deliver_contact_message(name, email, subject, message)
 
         return JsonResponse(
             {'success': True, 'message': "Message sent — I'll get back to you soon."},
