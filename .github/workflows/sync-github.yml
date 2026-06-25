@@ -33,6 +33,17 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Verify required secrets are set
+        run: |
+          missing=
+          [ -z "$DATABASE_URL" ] && missing="$missing DATABASE_URL"
+          [ -z "$SECRET_KEY" ] && missing="$missing SECRET_KEY"
+          [ -z "$CLOUDINARY_URL" ] && missing="$missing CLOUDINARY_URL"
+          if [ -n "$missing" ]; then
+            echo "::error::Missing Actions secret(s):$missing — add them in Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+
       # Ensure Neon has the latest schema before syncing (Vercel doesn't migrate).
       - name: Apply migrations
         run: python manage.py migrate --no-input
