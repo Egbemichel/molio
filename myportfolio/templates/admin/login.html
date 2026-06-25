@@ -29,7 +29,14 @@
     <style>
         @font-face {
             font-family: 'HagiaPro';
-            src: url('{% static "fonts/HagiaPro.woff2" %}') format('woff2');
+            src: url('{% static "fonts/HagiaPro-Regular.otf" %}') format('opentype');
+            font-weight: 400;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'HagiaPro';
+            src: url('{% static "fonts/HagiaPro-Medium.otf" %}') format('opentype');
+            font-weight: 500;
             font-display: swap;
         }
         
@@ -84,7 +91,7 @@
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen flex items-center justify-center p-4">
+<body class="bg-[#E8E8E8] min-h-screen flex items-center justify-center p-4">
     <div class="w-full max-w-md">
         <!-- Logo/Header -->
         <div class="text-center mb-12">

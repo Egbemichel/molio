@@ -16,7 +16,20 @@
     <style>
         @font-face {
             font-family: 'HagiaPro';
-            src: url('{% static "fonts/HagiaPro.woff2" %}') format('woff2');
+            src: url('{% static "fonts/HagiaPro-Regular.otf" %}') format('opentype');
+            font-weight: 400;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'HagiaPro';
+            src: url('{% static "fonts/HagiaPro-Medium.otf" %}') format('opentype');
+            font-weight: 500;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'HagiaPro';
+            src: url('{% static "fonts/HagiaPro-ExtraBold.otf" %}') format('opentype');
+            font-weight: 800;
             font-display: swap;
         }
 
@@ -158,12 +171,18 @@
         .sidebar-logout {
             display: flex;
             align-items: center;
+            width: 100%;
             padding: 10px 12px;
             color: rgba(255, 255, 255, 0.3);
             text-decoration: none;
+            font-family: inherit;
             font-size: 13px;
             letter-spacing: 0.3px;
+            text-align: left;
+            background: transparent;
+            border: none;
             border-radius: 6px;
+            cursor: pointer;
             transition: all 200ms ease;
         }
 
@@ -465,12 +484,16 @@
         </div>
 
         <div class="sidebar-footer">
-            <a href="/admin/logout/" class="sidebar-logout">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                </svg>
-                Sign out
-            </a>
+            {% comment %} Django 4.1+ requires POST for admin logout — a GET link silently fails. {% endcomment %}
+            <form method="post" action="{% url 'admin:logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="sidebar-logout">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                    </svg>
+                    Sign out
+                </button>
+            </form>
         </div>
     </nav>
 
