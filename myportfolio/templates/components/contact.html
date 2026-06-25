@@ -21,8 +21,17 @@ Contact section with form and email
                 </div>
             </div>
 
-            <div>
-                <form id="contact-form" class="space-y-8" novalidate>
+            <div class="relative">
+                {% comment %}
+                Decorative 3D character that leans on the form's left edge.
+                Must be a transparent (no-background) PNG so it overlays cleanly.
+                Tune the overlap with -translate-x-[..] and its size with h-[..]/max-h-[..].
+                Hidden below lg so it never collides with the stacked form.
+                {% endcomment %}
+                <img src="{% static 'images/contact_me.png' %}" alt="" aria-hidden="true"
+                    class="hidden lg:block absolute bottom-0 left-0 z-20 h-[92%] max-h-[500px] w-auto -translate-x-[80%] object-contain object-bottom select-none pointer-events-none drop-shadow-xl">
+
+                <form id="contact-form" class="relative z-10 space-y-8 lg:pl-12" novalidate>
                     {% csrf_token %}
 
                     {% comment %} Honeypot: invisible to humans, bots fill it and get silently dropped {% endcomment %}
