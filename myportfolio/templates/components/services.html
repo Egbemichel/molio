@@ -13,15 +13,15 @@ Services carousel section - scrolls through services naturally based on scroll p
          }">
 
     <!-- Sticky carousel container -->
-    <div class="sticky top-0 w-full h-screen flex flex-col items-center justify-center overflow-hidden bg-white z-10 pt-48">
+    <div class="sticky top-0 w-full h-screen flex flex-col items-center justify-center overflow-hidden bg-white z-10 pt-32 md:pt-48">
 
         <!-- Header -->
-        <div class="absolute top-0 left-0 right-0 pt-16 px-8 z-20">
-            <div class="max-w-[100rem] mx-auto w-full px-[60px]">
-                <h2 class="font-hagia font-medium text-7xl text-dark tracking-tight">
+        <div class="absolute top-0 left-0 right-0 pt-10 md:pt-16 px-8 z-20">
+            <div class="max-w-[100rem] mx-auto w-full px-0 md:px-[60px]">
+                <h2 class="font-hagia font-medium text-4xl md:text-7xl text-dark tracking-tight">
                     Services
                 </h2>
-                <p class="font-hagia text-3xl text-dark/60 mt-4 max-w-2xl leading-relaxed">
+                <p class="font-hagia text-lg md:text-3xl text-dark/60 mt-4 max-w-2xl leading-relaxed">
                    I take your half-baked idea, ask way too many questions, design, write code, It does stuff. People seem to like it.
                 </p>
             </div>
@@ -41,12 +41,12 @@ Services carousel section - scrolls through services naturally based on scroll p
                          }">
                         
                         <!-- Background SVG illustration -->
-                        <div class="absolute inset-0 pointer-events-none overflow-visible flex items-center justify-end pr-20">
+                        <div class="absolute inset-0 pointer-events-none overflow-visible flex items-center justify-end pr-4 md:pr-20">
                             <!-- Service 1: Design -->
                             <img x-show="index === 0" 
                                  src="{% static 'svg/service-01-design.png' %}" 
                                  alt="Design service illustration"
-                                 class="w-96 h-96"
+                                 class="w-48 h-48 md:w-96 md:h-96"
                                  :style="{
                                     transition: 'opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
                                     transitionDelay: currentIndex === index ? '0.3s' : '0s'
@@ -56,7 +56,7 @@ Services carousel section - scrolls through services naturally based on scroll p
                             <img x-show="index === 1" 
                                  src="{% static 'svg/service-02-development.png' %}" 
                                  alt="Development service illustration"
-                                 class="w-96 h-96"
+                                 class="w-48 h-48 md:w-96 md:h-96"
                                  :style="{ 
                                     
                                     transition: 'opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
@@ -67,7 +67,7 @@ Services carousel section - scrolls through services naturally based on scroll p
                             <img x-show="index === 2" 
                                  src="{% static 'svg/service-03-strategy.png' %}" 
                                  alt="Strategy service illustration"
-                                 class="w-96 h-96"
+                                 class="w-48 h-48 md:w-96 md:h-96"
                                  :style="{ 
                                 
                                     transition: 'opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
@@ -78,7 +78,7 @@ Services carousel section - scrolls through services naturally based on scroll p
                             <img x-show="index === 3" 
                                  src="{% static 'svg/service-04-consulting.png' %}" 
                                  alt="Consulting service illustration"
-                                 class="w-96 h-96"
+                                 class="w-48 h-48 md:w-96 md:h-96"
                                  :style="{ 
                                     
                                     transition: 'opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
@@ -89,7 +89,7 @@ Services carousel section - scrolls through services naturally based on scroll p
                             <img x-show="index === 4" 
                                  src="{% static 'svg/service-05-implementation.png' %}" 
                                  alt="Implementation service illustration"
-                                 class="w-96 h-96"
+                                 class="w-48 h-48 md:w-96 md:h-96"
                                  :style="{ 
                                     
                                     transition: 'opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
@@ -100,7 +100,7 @@ Services carousel section - scrolls through services naturally based on scroll p
                             <img x-show="index === 5" 
                                  src="{% static 'svg/service-06-support.png' %}" 
                                  alt="Support service illustration"
-                                 class="w-96 h-96"
+                                 class="w-48 h-48 md:w-96 md:h-96"
                                  :style="{ 
                                 
                                     transition: 'opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
@@ -111,7 +111,7 @@ Services carousel section - scrolls through services naturally based on scroll p
                         <!-- Content -->
                         <div class="max-w-4xl w-full px-8 relative z-10">
                             <div class="mb-12">
-                                <span class="font-hagia text-6xl uppercase tracking-[0.2em] text-accent block"
+                                <span class="font-hagia text-3xl md:text-6xl uppercase tracking-[0.2em] text-accent block"
                                       :style="{ 
                                         opacity: currentIndex === index ? 1 : 0,
                                         transform: currentIndex === index ? 'scale(1)' : 'scale(0.95)',
@@ -122,7 +122,7 @@ Services carousel section - scrolls through services naturally based on scroll p
                                 </span>
                             </div>
 
-                            <h2 class="font-hagia font-medium text-7xl md:text-8xl mb-8 tracking-tight leading-tight text-dark"
+                            <h2 class="font-hagia font-medium text-4xl sm:text-6xl md:text-8xl mb-6 md:mb-8 tracking-tight leading-tight text-dark"
                                 :style="{ 
                                     opacity: currentIndex === index ? 1 : 0,
                                     transform: currentIndex === index ? 'translateY(0)' : 'translateY(20px)',
@@ -131,7 +131,7 @@ Services carousel section - scrolls through services naturally based on scroll p
                                 }"
                                 x-text="service.title"></h2>
 
-                            <p class="font-hagia text-4xl leading-relaxed max-w-3xl text-dark"
+                            <p class="font-hagia text-xl md:text-4xl leading-relaxed max-w-3xl text-dark"
                                :style="{ 
                                     opacity: currentIndex === index ? 1 : 0,
                                     transform: currentIndex === index ? 'translateY(0)' : 'translateY(20px)',
