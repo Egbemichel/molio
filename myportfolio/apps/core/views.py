@@ -56,13 +56,18 @@ def _deliver_contact_message(name, email, subject, message):
 
 
 def home(request):
-    # Only published projects reach the public site; GitHub-synced drafts stay hidden.
+    # A project shows on the public site only if it's published AND in a category.
+    # (GitHub-synced drafts are unpublished, so they stay hidden.) Only categories
+    # that actually have a published project are included, so the carousel never
+    # gets an empty/draft-only category.
     published_projects = Project.objects.filter(published=True).prefetch_related('technologies')
     projects = published_projects
-    categories = Category.objects.prefetch_related(
-        Prefetch('projects', queryset=published_projects),
-        'projects__technologies',
-    ).all()
+    categories = (
+        Category.objects
+        .filter(projects__published=True)
+        .distinct()
+        .prefetch_related(Prefetch('projects', queryset=published_projects))
+    )
     
     # Calculate age dynamically
     birth_date = date(2005, 8, 20)
