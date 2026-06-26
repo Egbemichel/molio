@@ -16,32 +16,32 @@
     }
     
     .section-inner {
-        @apply max-w-[100rem] mx-auto w-full relative z-10 px-[60px];
+        @apply max-w-[100rem] mx-auto w-full relative z-10 px-0 md:px-[60px];
     }
-    
+
     .section-header {
-        @apply mb-20;
+        @apply mb-12 md:mb-20;
     }
-    
+
     .section-title {
-        @apply font-hagia font-medium text-6xl mb-4 tracking-tight;
+        @apply font-hagia font-medium text-4xl md:text-6xl mb-4 tracking-tight;
     }
-    
+
     .section-subtitle {
-        @apply font-hagia text-4xl text-dark opacity-50 max-w-xl leading-relaxed;
+        @apply font-hagia text-2xl md:text-4xl text-dark opacity-50 max-w-xl leading-relaxed;
     }
 
     /* Typography Utilities */
     .heading-lg {
-        @apply font-hagia font-medium text-6xl tracking-tight;
+        @apply font-hagia font-medium text-4xl md:text-6xl tracking-tight;
     }
-    
+
     .heading-md {
-        @apply font-hagia font-medium text-5xl tracking-tight;
+        @apply font-hagia font-medium text-3xl md:text-5xl tracking-tight;
     }
-    
+
     .heading-sm {
-        @apply font-hagia font-medium text-3xl;
+        @apply font-hagia font-medium text-2xl md:text-3xl;
     }
     
     .text-accent-lg {

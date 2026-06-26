@@ -12,9 +12,9 @@ Skills carousel section with marquee animation
             <template x-for="i in 2">
                 <div class="flex">
                     <template x-for="skill in firstRow" :key="skill.name">
-                        <div class="flex items-center bg-white border border-[#A05A5A]/30 rounded-3xl px-10 py-8 mx-6 shadow-sm min-w-[320px]">
-                            <img :src="skill.icon" :alt="skill.name" class="w-20 h-20 object-contain mr-6">
-                            <span class="font-hagia font-medium text-3xl text-dark" x-text="skill.name"></span>
+                        <div class="flex items-center bg-white border border-[#A05A5A]/30 rounded-2xl md:rounded-3xl px-6 md:px-10 py-5 md:py-8 mx-3 md:mx-6 shadow-sm min-w-[220px] md:min-w-[320px]">
+                            <img :src="skill.icon" :alt="skill.name" class="w-12 h-12 md:w-20 md:h-20 object-contain mr-4 md:mr-6">
+                            <span class="font-hagia font-medium text-xl md:text-3xl text-dark" x-text="skill.name"></span>
                         </div>
                     </template>
                 </div>
@@ -27,9 +27,9 @@ Skills carousel section with marquee animation
             <template x-for="i in 2">
                 <div class="flex">
                     <template x-for="skill in secondRow" :key="skill.name">
-                        <div class="flex items-center bg-white border border-dark/30 rounded-3xl px-10 py-8 mx-6 shadow-sm min-w-[320px]">
-                            <img :src="skill.icon" :alt="skill.name" class="w-20 h-20 object-contain mr-6">
-                            <span class="font-hagia font-medium text-3xl text-dark" x-text="skill.name"></span>
+                        <div class="flex items-center bg-white border border-dark/30 rounded-2xl md:rounded-3xl px-6 md:px-10 py-5 md:py-8 mx-3 md:mx-6 shadow-sm min-w-[220px] md:min-w-[320px]">
+                            <img :src="skill.icon" :alt="skill.name" class="w-12 h-12 md:w-20 md:h-20 object-contain mr-4 md:mr-6">
+                            <span class="font-hagia font-medium text-xl md:text-3xl text-dark" x-text="skill.name"></span>
                         </div>
                     </template>
                 </div>
@@ -42,9 +42,9 @@ Skills carousel section with marquee animation
             <template x-for="i in 2">
                 <div class="flex">
                     <template x-for="skill in thirdRow" :key="skill.name">
-                        <div class="flex items-center bg-white border border-[#A05A5A]/30 rounded-3xl px-10 py-8 mx-6 shadow-sm min-w-[320px]">
-                            <img :src="skill.icon" :alt="skill.name" class="w-20 h-20 object-contain mr-6">
-                            <span class="font-hagia font-medium text-3xl text-dark" x-text="skill.name"></span>
+                        <div class="flex items-center bg-white border border-[#A05A5A]/30 rounded-2xl md:rounded-3xl px-6 md:px-10 py-5 md:py-8 mx-3 md:mx-6 shadow-sm min-w-[220px] md:min-w-[320px]">
+                            <img :src="skill.icon" :alt="skill.name" class="w-12 h-12 md:w-20 md:h-20 object-contain mr-4 md:mr-6">
+                            <span class="font-hagia font-medium text-xl md:text-3xl text-dark" x-text="skill.name"></span>
                         </div>
                     </template>
                 </div>
