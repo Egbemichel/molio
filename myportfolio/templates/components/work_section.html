@@ -6,7 +6,7 @@
     isTransitioning: false,
     categories: [
         {% for cat in categories %}
-        {% if cat.projects.exists %} {# Only include categories that have projects #}
+        {% if cat.projects.all %} {# prefetched published projects only #}
         {
             name: '{{ cat.name|escapejs }}',
             projects: [
