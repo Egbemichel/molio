@@ -5,14 +5,14 @@ Personal information display section
 {% endcomment %}
 
 <section id="personal" class="relative w-full bg-white text-dark py-24 md:py-32 px-8 md:px-16 overflow-hidden">
-    <div class="max-w-[100rem] mx-auto w-full relative z-10 px-[60px]">
-        <h2 class="font-hagia font-medium text-5xl mb-16 tracking-tight">Personal Information</h2>
+    <div class="max-w-[100rem] mx-auto w-full relative z-10 px-0 md:px-[60px]">
+        <h2 class="font-hagia font-medium text-3xl md:text-5xl mb-10 md:mb-16 tracking-tight">Personal Information</h2>
 
         <dl class="space-y-6 max-w-2xl">
             {% for item in info_items %}
-                <div class="flex items-baseline gap-12 border-b border-dark/5 pb-4">
-                    <dt class="font-hagia font-medium text-4xl w-36 text-dark opacity-70">{{ item.label }}:</dt>
-                    <dd class="font-hagia text-4xl text-accent flex items-center gap-4">
+                <div class="flex flex-col md:flex-row md:items-baseline gap-1 md:gap-12 border-b border-dark/5 pb-4">
+                    <dt class="font-hagia font-medium text-xl md:text-4xl w-auto md:w-36 text-dark opacity-70">{{ item.label }}:</dt>
+                    <dd class="font-hagia text-xl md:text-4xl text-accent flex items-center gap-3 md:gap-4 flex-wrap">
                         {% if item.is_link %}
                             <a href="mailto:{{ item.value }}" class="hover:underline transition-all">
                                 {{ item.display_value|default:item.value }}
