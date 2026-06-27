@@ -8,7 +8,7 @@ from django.core.exceptions import ValidationError
 from django.conf import settings
 from django.db.models import Prefetch
 from apps.projects.models import Project, Category
-from apps.core.models import Skill, Education, Service, GalleryItem, Feedback
+from apps.core.models import Skill, Education, Service, GalleryItem, Feedback, Resume
 from datetime import date
 import json
 import logging
@@ -151,6 +151,16 @@ def home(request):
         {'name': 'LinkedIn', 'url': 'https://www.linkedin.com/in/egbe-michel-40863a299/', 'icon': linkedin_icon},
     ]
     
+    # Active CV/résumé for download (guarded: never 500 if not migrated yet)
+    try:
+        cv = Resume.objects.filter(is_active=True).order_by('-updated_at').first()
+        cv_url = cv.file.url if cv and cv.file else None
+        # On Cloudinary, fl_attachment forces a download instead of opening in-tab.
+        if cv_url and '/upload/' in cv_url:
+            cv_url = cv_url.replace('/upload/', '/upload/fl_attachment/', 1)
+    except Exception:
+        cv_url = None
+
     # Contact information
     contact_info = {
         'email': 'egbemichel39@gmail.com',
@@ -169,6 +179,7 @@ def home(request):
         'gallery_items': gallery_items,
         'social_links': social_links,
         'contact_info': contact_info,
+        'cv_url': cv_url,
     })
 
 
