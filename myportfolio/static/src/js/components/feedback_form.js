@@ -29,7 +29,6 @@ export function initFeedbackForm() {
   let currentRating = 0
   const maxChars = 500
 
-  console.log('🎯 Initializing feedback form...')
 
   if (textarea) textarea.value = ''
   updateSmileyState(smiley, 0)
@@ -215,7 +214,6 @@ export function initFeedbackForm() {
         }, 1500)
 
       } catch (error) {
-        console.error('Feedback submission error:', error)
         showButtonError(submitBtn, 'Feedback failed. Try again', 2500)
         toast.error('Something went wrong. Please try again')
         resetBtn()
