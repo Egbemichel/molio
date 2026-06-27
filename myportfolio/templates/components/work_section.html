@@ -16,7 +16,7 @@
                     role: '{{ p.role|escapejs }}',
                     date: '{{ p.date_range|escapejs }}',
                     desc: '{{ p.description|escapejs }}',
-                    points: {{ p.points|safe|default:'[]' }},
+                    points: JSON.parse('{{ p.points_json|escapejs }}'),
                     mockup: '{% if p.mockup %}{{ p.mockup.url }}{% endif %}',
                     logo: '{% if p.logo %}{{ p.logo.url }}{% endif %}',
                     github: '{{ p.github_link|default:"#" }}',

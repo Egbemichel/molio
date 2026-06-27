@@ -1,4 +1,6 @@
 from django.db import models
+import json
+
 
 class TechStack(models.Model):
     name = models.CharField(max_length=50)
@@ -66,3 +68,8 @@ class Project(models.Model):
 
     def __str__(self):
         return self.title
+
+    @property
+    def points_json(self):
+        """points as a JSON string, for safe embedding in a template/attribute."""
+        return json.dumps(self.points or [])
