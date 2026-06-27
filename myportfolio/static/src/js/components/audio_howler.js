@@ -5,20 +5,16 @@
  */
 
 export function initAudioPlayers() {
-  console.log('🔊 Initializing audio players...')
 
   if (!window.Howl) {
-    console.error('❌ Howler.js not loaded — check CDN in base.html')
     return
   }
 
   injectAudioStyles()
 
   const buttons = document.querySelectorAll('[data-audio-player]')
-  console.log(`Found ${buttons.length} audio player(s)`)
 
   if (buttons.length === 0) {
-    console.warn('⚠️ No [data-audio-player] elements found in DOM')
     return
   }
 
@@ -28,7 +24,6 @@ export function initAudioPlayers() {
   buttons.forEach((button) => {
     const src = button.getAttribute('data-audio-src')
     if (!src) {
-      console.warn('⚠️ [data-audio-player] missing data-audio-src')
       return
     }
 
@@ -105,7 +100,6 @@ export function initAudioPlayers() {
         onstop: () => { setPlaying(false); currentSound = null; currentButton = null },
         onend: () => { setPlaying(false); currentSound = null; currentButton = null },
         onerror: (id, err) => {
-          console.error('Audio error:', err)
           setPlaying(false)
           label.textContent = 'Could not load audio'
           setTimeout(() => { label.textContent = customLabel }, 2500)
@@ -125,7 +119,6 @@ export function initAudioPlayers() {
     })
   })
 
-  console.log('✅ Audio players initialized')
 }
 
 function injectAudioStyles() {

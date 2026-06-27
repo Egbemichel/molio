@@ -10,7 +10,6 @@
  */
 
 export function initKeyboardShortcuts() {
-  console.log('⌨️ Initializing keyboard shortcuts...')
 
   injectStyles()
 
@@ -68,7 +67,6 @@ export function initKeyboardShortcuts() {
     }
   })
 
-  console.log('✅ Easter eggs ready: Shift+F · Shift+M · Shift+S · Shift+G')
 }
 
 // ── Hint toast ────────────────────────────────────────────────
