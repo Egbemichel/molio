@@ -209,11 +209,11 @@ class ResumeAdmin(CustomModelAdmin):
 
     def active_badge(self, obj):
         if obj.is_active:
-            return format_html(
+            return mark_safe(
                 '<span style="background: rgba(82, 183, 136, 0.2); padding: 4px 8px; '
                 'border-radius: 4px; color: #52b788; font-weight: 600; font-size: 12px;">Active</span>'
             )
-        return format_html('<span style="color: rgba(232,232,232,0.4); font-size: 12px;">inactive</span>')
+        return mark_safe('<span style="color: rgba(232,232,232,0.4); font-size: 12px;">inactive</span>')
     active_badge.short_description = 'Status'
 
     def download_link(self, obj):
