@@ -5,8 +5,13 @@ Contact section with form and email
 @param: location - Location string
 {% endcomment %}
 
-<section id="contact" class="w-full bg-white py-24 md:py-32 px-8 md:px-16">
-    <div class="max-w-[100rem] mx-auto w-full px-0 md:px-[60px]">
+<section id="contact" class="relative overflow-hidden w-full bg-white py-24 md:py-32 px-8 md:px-16">
+    {% comment %} Mobile-only character: peeks up from the bottom-right, tilted for
+    personality. The section is overflow-hidden so it can never push horizontal scroll. {% endcomment %}
+    <img src="{% static 'images/contact_me.png' %}" alt="" aria-hidden="true"
+        class="lg:hidden absolute bottom-0 right-1 z-0 w-28 sm:w-36 translate-y-3 -rotate-6 object-contain object-bottom select-none pointer-events-none drop-shadow-xl">
+
+    <div class="max-w-[100rem] mx-auto w-full relative z-10 px-0 md:px-[60px]">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20">
             <div class="flex flex-col justify-center">
                 <h2 class="font-hagia font-medium text-4xl md:text-6xl mb-6 tracking-tight">

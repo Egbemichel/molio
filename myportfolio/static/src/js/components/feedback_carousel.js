@@ -5,11 +5,9 @@
  */
 
 export function initFeedbackCarousel() {
-  console.log('🎠 Initializing feedback carousel...')
   
   const carousel = document.querySelector('[data-feedback-carousel]')
   if (!carousel) {
-    console.warn('⚠️ Feedback carousel container not found')
     return
   }
 
@@ -18,7 +16,6 @@ export function initFeedbackCarousel() {
 
   // Reload feedback after form submission
   document.addEventListener('feedbackSubmitted', () => {
-    console.log('🔄 Refreshing carousel after feedback submission...')
     loadFeedback()
   })
 }
@@ -35,15 +32,12 @@ async function loadFeedback() {
     const feedback = data.feedback || []
 
     if (feedback.length === 0) {
-      console.log('ℹ️ No feedback yet')
       populateCarousel([])
       return
     }
 
-    console.log(`📊 Loaded ${feedback.length} feedback entries`)
     populateCarousel(feedback)
   } catch (err) {
-    console.error('❌ Error loading feedback:', err)
   }
 }
 

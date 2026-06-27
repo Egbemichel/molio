@@ -96,3 +96,33 @@ class Feedback(models.Model):
     def __str__(self):
         return f"{self.name} - {self.get_rating_display()} - {self.created_at.strftime('%Y-%m-%d')}"
 
+
+def cv_file_storage():
+    """Store the CV on Cloudinary (raw) in production; default storage elsewhere.
+    Callable so dev/CI don't need Cloudinary configured to load the model."""
+    from django.conf import settings
+    if 'cloudinary_storage' in settings.INSTALLED_APPS:
+        from cloudinary_storage.storage import RawMediaCloudinaryStorage
+        return RawMediaCloudinaryStorage()
+    from django.core.files.storage import default_storage
+    return default_storage
+
+
+class Resume(models.Model):
+    """The downloadable CV/résumé. File lives on Cloudinary, row lives in Neon."""
+    label = models.CharField(max_length=100, default='CV',
+                             help_text='Internal label, e.g. "CV 2026".')
+    file = models.FileField(upload_to='cv/', storage=cv_file_storage,
+                            help_text='Upload a PDF. Replaces the current downloadable CV.')
+    is_active = models.BooleanField(default=True,
+                                    help_text='The CV offered for download on the site.')
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-updated_at']
+        verbose_name = 'Resume / CV'
+        verbose_name_plural = 'Resume / CV'
+
+    def __str__(self):
+        return f'{self.label} ({"active" if self.is_active else "inactive"})'
+

@@ -1,0 +1,95 @@
+{% comment %}
+Floating "Steal my CV" download button. Self-contained CSS so it never depends
+on a Tailwind rebuild. Only renders when an active CV exists (cv_url).
+{% endcomment %}
+{% if cv_url %}
+<a class="cv-fab" href="{{ cv_url }}" download data-cursor="pointer"
+   aria-label="Download Egbe Michel's CV">
+  <span class="cv-fab__fill" aria-hidden="true"></span>
+  <span class="cv-fab__icon" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+         stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 3v11"/><path d="m7.5 10 4.5 4.5L16.5 10"/><path d="M5 20h14"/>
+    </svg>
+  </span>
+  <span class="cv-fab__text">pnpm install my-cv</span>
+</a>
+
+<style>
+  .cv-fab {
+    position: fixed;
+    z-index: 9998;
+    right: clamp(14px, 4vw, 34px);
+    bottom: calc(clamp(14px, 4vw, 30px) + env(safe-area-inset-bottom, 0px));
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 13px 21px;
+    border-radius: 999px;
+    background: #1c1c1c;
+    color: #E8E8E8;
+    font-family: 'HagiaPro', system-ui, sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: 0.2px;
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.20);
+    transform: rotate(-3deg);                 /* on-brand tilt */
+    transition: transform 380ms cubic-bezier(.34,1.56,.64,1),
+                box-shadow 380ms ease;
+    /* slides up into place after the page loader */
+    animation: cvEnter 0.7s cubic-bezier(.34,1.56,.64,1) 0.9s backwards;
+  }
+
+  /* accent fills from the bottom on hover — the site's signature CTA move */
+  .cv-fab__fill {
+    position: absolute; inset: 0; z-index: 0;
+    background: #8B1E1E;
+    transform: translateY(101%);
+    transition: transform 420ms cubic-bezier(.4,0,.2,1);
+  }
+  .cv-fab__icon, .cv-fab__text { position: relative; z-index: 1; }
+  .cv-fab__icon { display: inline-flex; }
+  .cv-fab__icon svg { width: 18px; height: 18px; display: block; }
+
+  /* desktop hover: straighten, lift, fill rises, arrow bobs */
+  @media (hover: hover) {
+    .cv-fab:hover {
+      transform: rotate(0deg) translateY(-4px);
+      box-shadow: 0 18px 42px rgba(139, 30, 30, 0.30);
+    }
+    .cv-fab:hover .cv-fab__fill { transform: translateY(0); }
+    .cv-fab:hover .cv-fab__icon svg { animation: cvBob 0.7s ease infinite; }
+  }
+
+  .cv-fab:active { transform: rotate(0deg) scale(0.95); }
+  .cv-fab:focus-visible { outline: 2px solid #8B1E1E; outline-offset: 3px; }
+
+  @keyframes cvEnter {
+    from { opacity: 0; transform: translateY(46px) rotate(-3deg); }
+    to   { opacity: 1; transform: translateY(0)   rotate(-3deg); }
+  }
+  @keyframes cvBob {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(3px); }
+  }
+
+  /* mobile: a touch smaller, still bottom-right, clears the home indicator */
+  @media (max-width: 640px) {
+    .cv-fab { padding: 11px 17px; font-size: 14px; gap: 7px; transform: rotate(-4deg); }
+    .cv-fab__icon svg { width: 16px; height: 16px; }
+    @keyframes cvEnter {
+      from { opacity: 0; transform: translateY(46px) rotate(-4deg); }
+      to   { opacity: 1; transform: translateY(0)   rotate(-4deg); }
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cv-fab { animation: none; transition: none; }
+    .cv-fab__fill { transition: none; }
+    .cv-fab:hover .cv-fab__icon svg { animation: none; }
+  }
+</style>
+{% endif %}

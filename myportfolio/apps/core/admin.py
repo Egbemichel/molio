@@ -3,7 +3,7 @@ from django.utils.html import format_html, mark_safe
 from django.utils.html import escape as html_escape
 from django import forms
 from config.admin_site import CustomModelAdmin
-from .models import Skill, Education, EducationGallery, Service, GalleryItem, Feedback
+from .models import Skill, Education, EducationGallery, Service, GalleryItem, Feedback, Resume
 
 
 class EducationGalleryForm(forms.ModelForm):
@@ -198,3 +198,26 @@ class FeedbackAdmin(CustomModelAdmin):
             )
         return '-'
     image_preview.short_description = 'Image'
+
+
+@admin.register(Resume)
+class ResumeAdmin(CustomModelAdmin):
+    list_display = ('label', 'active_badge', 'download_link', 'updated_at')
+    fields = ('label', 'file', 'is_active')
+    list_filter = ('is_active',)
+    ordering = ('-updated_at',)
+
+    def active_badge(self, obj):
+        if obj.is_active:
+            return format_html(
+                '<span style="background: rgba(82, 183, 136, 0.2); padding: 4px 8px; '
+                'border-radius: 4px; color: #52b788; font-weight: 600; font-size: 12px;">Active</span>'
+            )
+        return format_html('<span style="color: rgba(232,232,232,0.4); font-size: 12px;">inactive</span>')
+    active_badge.short_description = 'Status'
+
+    def download_link(self, obj):
+        if obj.file:
+            return format_html('<a href="{}" target="_blank" rel="noopener">Open file ↗</a>', obj.file.url)
+        return '-'
+    download_link.short_description = 'File'
