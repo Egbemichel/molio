@@ -49,7 +49,6 @@ export function initContact() {
         setStatus(reason, true)
       }
     } catch (err) {
-      console.error('Contact form error:', err)
       showButtonError(submitBtn, 'Try again', 3000)
       resetBtn()
       setStatus('Network error — please check your connection or email me directly.', true)

@@ -4,10 +4,8 @@
  */
 
 export function initCustomCursor() {
-  console.log('🖱️ Initializing custom cursor...')
 
   if (window.matchMedia('(hover: none)').matches) {
-    console.log('⚠️ Touch device, cursor disabled')
     return
   }
 
@@ -86,7 +84,6 @@ export function initCustomCursor() {
     }
   })
 
-  console.log('✅ Custom cursor initialized')
 }
 
 function injectCursorStyles() {

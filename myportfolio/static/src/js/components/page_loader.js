@@ -14,15 +14,12 @@
  */
 
 export function initPageLoader() {
-  console.log('⏳ Initializing page loader...')
 
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    console.log('⚠️ Reduced motion: loader skipped')
     return
   }
 
   if (!window.gsap) {
-    console.error('❌ GSAP not loaded — add it to base.html before main.js')
     return
   }
 
@@ -32,10 +29,23 @@ export function initPageLoader() {
   document.body.appendChild(loader)
   document.body.style.overflow = 'hidden'
 
-  const letters   = loader.querySelectorAll('.loader-letter')
-  const underline = loader.querySelector('.loader-underline')
+  // Fail-safe: the loader covers the whole screen, so if the GSAP timeline ever
+  // fails to finish (e.g. an animation quirk on some mobile browsers) the page
+  // would be stuck blank. Guarantee removal after a hard timeout no matter what.
+  const failSafe = setTimeout(() => {
+    if (loader.parentNode) loader.parentNode.removeChild(loader)
+    document.body.style.overflow = ''
+  }, 4000)
 
-  const tl = gsap.timeline({ onComplete: () => exitLoader(loader) })
+  let tl
+  try {
+    tl = gsap.timeline({ onComplete: () => { clearTimeout(failSafe); exitLoader(loader) } })
+  } catch (err) {
+    clearTimeout(failSafe)
+    if (loader.parentNode) loader.parentNode.removeChild(loader)
+    document.body.style.overflow = ''
+    return
+  }
 
   // 1. Bg fades in
   tl.fromTo(loader,
@@ -97,7 +107,6 @@ function exitLoader(loader) {
     onComplete: () => {
       document.body.style.overflow = ''
       if (loader.parentNode) loader.parentNode.removeChild(loader)
-      console.log('✅ Loader done')
     },
   })
 }

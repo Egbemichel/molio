@@ -8,15 +8,12 @@
  */
 
 export function initEduGallery() {
-  console.log('🖼️ Initializing education gallery...')
 
   injectGalleryStyles()
 
   const cards = document.querySelectorAll('[data-edu-card]')
-  console.log(`Found ${cards.length} education card(s)`)
 
   if (cards.length === 0) {
-    console.warn('⚠️ No [data-edu-card] elements found')
     return
   }
 
@@ -28,7 +25,6 @@ export function initEduGallery() {
     try {
       images = JSON.parse(rawImages).slice(0, 10)
     } catch (e) {
-      console.warn('⚠️ Invalid data-images JSON on card:', card)
       return
     }
 
@@ -88,7 +84,6 @@ export function initEduGallery() {
     })
   })
 
-  console.log('✅ Education gallery initialized')
 }
 
 function openGalleryModal(images, sourceCard) {

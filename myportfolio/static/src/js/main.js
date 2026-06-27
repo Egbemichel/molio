@@ -34,7 +34,6 @@ function safeInit(name, fn) {
   try {
     fn()
   } catch (err) {
-    console.error(`❌ [${name}] init failed:`, err)
   }
 }
 
@@ -43,7 +42,6 @@ function safeInit(name, fn) {
 safeInit('PageLoader', initPageLoader)
 
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('🚀 Portfolio initializing...')
 
   safeInit('Navbar',             initNavbar)
   safeInit('Filter',             initFilter)
@@ -55,5 +53,4 @@ document.addEventListener('DOMContentLoaded', () => {
   safeInit('FeedbackForm',       initFeedbackForm)
   safeInit('EduGallery',         initEduGallery)
 
-  console.log('✅ All features initialized')
 })

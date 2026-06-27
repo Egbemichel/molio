@@ -6,39 +6,15 @@ from django.core.mail import EmailMessage
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.conf import settings
-from django.db import connection
 from django.db.models import Prefetch
 from apps.projects.models import Project, Category
-from apps.core.models import Skill, Education, Service, GalleryItem, Feedback
+from apps.core.models import Skill, Education, Service, GalleryItem, Feedback, Resume
 from datetime import date
 import json
 import logging
-import os
 import requests
 
 logger = logging.getLogger(__name__)
-
-
-@require_http_methods(['GET'])
-def whichdb(request):
-    """TEMPORARY debug endpoint — exact per-row state from the live DB. REMOVE after."""
-    db = connection.settings_dict
-    return JsonResponse({
-        'db_host': db.get('HOST'),
-        'db_name': db.get('NAME'),
-        'counts': {
-            'education': Education.objects.count(),
-            'skills': Skill.objects.count(),
-            'projects': Project.objects.count(),
-            'published_projects': Project.objects.filter(published=True).count(),
-            'published_with_category': Project.objects.filter(
-                published=True, category__isnull=False).count(),
-            'categories_with_published': Category.objects.filter(
-                projects__published=True).distinct().count(),
-        },
-        'categories': list(Category.objects.values('id', 'name')),
-        'projects': list(Project.objects.values('id', 'title', 'published', 'category_id')[:25]),
-    }, json_dumps_params={'indent': 2})
 
 
 def _deliver_contact_message(name, email, subject, message):
@@ -175,6 +151,16 @@ def home(request):
         {'name': 'LinkedIn', 'url': 'https://www.linkedin.com/in/egbe-michel-40863a299/', 'icon': linkedin_icon},
     ]
     
+    # Active CV/résumé for download (guarded: never 500 if not migrated yet)
+    try:
+        cv = Resume.objects.filter(is_active=True).order_by('-updated_at').first()
+        cv_url = cv.file.url if cv and cv.file else None
+        # On Cloudinary, fl_attachment forces a download instead of opening in-tab.
+        if cv_url and '/upload/' in cv_url:
+            cv_url = cv_url.replace('/upload/', '/upload/fl_attachment/', 1)
+    except Exception:
+        cv_url = None
+
     # Contact information
     contact_info = {
         'email': 'egbemichel39@gmail.com',
@@ -193,6 +179,7 @@ def home(request):
         'gallery_items': gallery_items,
         'social_links': social_links,
         'contact_info': contact_info,
+        'cv_url': cv_url,
     })
 
 
