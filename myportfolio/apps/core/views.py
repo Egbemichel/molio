@@ -21,25 +21,24 @@ logger = logging.getLogger(__name__)
 
 @require_http_methods(['GET'])
 def whichdb(request):
-    """TEMPORARY debug endpoint — reports which DB/settings the live process is
-    actually using and the real row counts it sees. REMOVE after diagnosis."""
+    """TEMPORARY debug endpoint — exact per-row state from the live DB. REMOVE after."""
     db = connection.settings_dict
     return JsonResponse({
-        'settings_module': os.environ.get('DJANGO_SETTINGS_MODULE'),
-        'engine': db.get('ENGINE'),
         'db_host': db.get('HOST'),
         'db_name': db.get('NAME'),
         'counts': {
             'education': Education.objects.count(),
             'skills': Skill.objects.count(),
-            'services': Service.objects.count(),
-            'gallery': GalleryItem.objects.count(),
-            'feedback': Feedback.objects.count(),
-            'categories': Category.objects.count(),
             'projects': Project.objects.count(),
             'published_projects': Project.objects.filter(published=True).count(),
+            'published_with_category': Project.objects.filter(
+                published=True, category__isnull=False).count(),
+            'categories_with_published': Category.objects.filter(
+                projects__published=True).distinct().count(),
         },
-    })
+        'categories': list(Category.objects.values('id', 'name')),
+        'projects': list(Project.objects.values('id', 'title', 'published', 'category_id')[:25]),
+    }, json_dumps_params={'indent': 2})
 
 
 def _deliver_contact_message(name, email, subject, message):
