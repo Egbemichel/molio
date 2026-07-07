@@ -103,12 +103,22 @@ class EducationAdmin(CustomModelAdmin):
 
 @admin.register(Service)
 class ServiceAdmin(CustomModelAdmin):
-    list_display = ('service_number', 'title', 'description_preview', 'order')
+    list_display = ('service_number', 'title', 'image_preview', 'description_preview', 'order')
     ordering = ('order', 'number')
-    fields = ('number', 'title', 'description', 'order')
+    fields = ('number', 'title', 'description', 'image', 'order')
     list_filter = ('number',)
     search_fields = ('title', 'description')
-    
+
+    def image_preview(self, obj):
+        if obj.image:
+            return format_html(
+                '<img src="{}" style="height: 40px; width: auto; '
+                'border-radius: 6px; object-fit: cover;" />',
+                obj.image.url
+            )
+        return '-'
+    image_preview.short_description = 'Illustration'
+
     def service_number(self, obj):
         return format_html(
             '<span style="background: rgba(139, 30, 30, 0.2); padding: 4px 8px; '
