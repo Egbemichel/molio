@@ -46,8 +46,10 @@ export function initKeyboardShortcuts() {
 
   let activeModal = null
 
-  // Ambient hint — shows once per session, fades away on its own
-  showHintToast()
+  // Ambient hint — desktop only. The shortcuts need a physical keyboard, so on
+  // touch/mobile we never show the menu.
+  const isDesktop = window.matchMedia('(hover: hover) and (pointer: fine)').matches
+  if (isDesktop) showHintToast()
 
   document.addEventListener('keydown', (e) => {
     if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return
