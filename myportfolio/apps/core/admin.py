@@ -23,15 +23,18 @@ class EducationGalleryForm(forms.ModelForm):
 
     def clean_image(self):
         image = self.cleaned_data.get('image')
-        if image:
-            # Validate file size (max 5MB)
-            if image.size > 5242880:  # 5MB
-                raise forms.ValidationError("Image file size cannot exceed 5MB")
-            
-            # Validate file type
+        # Only newly-uploaded files carry a size/content type to check; an
+        # unchanged existing image on edit is left alone.
+        if image and hasattr(image, 'size'):
+            # Generous ceiling only to reject absurd files — normal phone photos
+            # (often 3-8MB) are fine because they're compressed on save.
+            if image.size > 20 * 1024 * 1024:  # 20MB
+                raise forms.ValidationError("Image file is too large (max 20MB).")
+
             allowed_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp']
-            if not any(image.name.lower().endswith(ext) for ext in allowed_extensions):
-                raise forms.ValidationError("Please upload a valid image file (JPG, PNG, GIF, or WebP)")
+            name = getattr(image, 'name', '') or ''
+            if not any(name.lower().endswith(ext) for ext in allowed_extensions):
+                raise forms.ValidationError("Please upload a valid image file (JPG, PNG, GIF, or WebP).")
         return image
 
 

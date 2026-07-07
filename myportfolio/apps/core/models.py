@@ -1,10 +1,11 @@
 from django.db import models
+from .imagefields import CompressedImageField
 import json
 
 
 class Skill(models.Model):
     name = models.CharField(max_length=100)
-    icon = models.ImageField(upload_to='skills/')
+    icon = CompressedImageField(upload_to='skills/')
     order = models.IntegerField(default=0)
 
     class Meta:
@@ -38,7 +39,7 @@ class Education(models.Model):
 class EducationGallery(models.Model):
     """Gallery images associated with an education entry"""
     education = models.ForeignKey(Education, on_delete=models.CASCADE, related_name='gallery_images')
-    image = models.ImageField(upload_to='education/')
+    image = CompressedImageField(upload_to='education/')
     order = models.IntegerField(default=0)
 
     class Meta:
@@ -53,7 +54,7 @@ class Service(models.Model):
     number = models.IntegerField(unique=True)
     title = models.CharField(max_length=200)
     description = models.TextField()
-    image = models.ImageField(upload_to='services/', blank=True, null=True)
+    image = CompressedImageField(upload_to='services/', blank=True, null=True)
     order = models.IntegerField(default=0)
 
     class Meta:
@@ -67,7 +68,7 @@ class GalleryItem(models.Model):
     SPAN_CHOICES = [(1, '1 Column'), (2, '2 Columns')]
     ROW_CHOICES = [(1, '1 Row'), (2, '2 Rows')]
 
-    image = models.ImageField(upload_to='gallery/')
+    image = CompressedImageField(upload_to='gallery/')
     alt_text = models.CharField(max_length=200)
     col_span = models.IntegerField(choices=SPAN_CHOICES, default=1)
     row_span = models.IntegerField(choices=ROW_CHOICES, default=1)
@@ -87,7 +88,7 @@ class Feedback(models.Model):
     email = models.EmailField(default='noemail@example.com')
     rating = models.IntegerField(choices=RATING_CHOICES)
     message = models.TextField()
-    image = models.ImageField(upload_to='feedback/', blank=True, null=True)
+    image = CompressedImageField(upload_to='feedback/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
