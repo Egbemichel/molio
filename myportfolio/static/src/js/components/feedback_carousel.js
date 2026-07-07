@@ -1,11 +1,16 @@
 /**
  * feedback_carousel.js
  * Displays feedback in an interactive carousel with profile images, names, and ratings
- * Updates in real-time when new feedback is submitted
+ * Updates in real-time when new feedback is submitted.
+ *
+ * Handles all four async states through the shared state_ui system:
+ *   loading → skeleton slide, empty → gentle prompt, error → retry, success → carousel.
  */
 
+import { renderState, clearState } from './state_ui.js'
+
 export function initFeedbackCarousel() {
-  
+
   const carousel = document.querySelector('[data-feedback-carousel]')
   if (!carousel) {
     return
@@ -21,23 +26,40 @@ export function initFeedbackCarousel() {
 }
 
 async function loadFeedback() {
+  const carousel = document.querySelector('[data-feedback-carousel]')
+  const track = carousel?.querySelector('[data-carousel-track]')
+  const dots = carousel?.querySelector('[data-carousel-dots]')
+  if (!track) return
+
+  // ── LOADING ── show a skeleton slide while the request is in flight
+  if (dots) dots.innerHTML = ''
+  track.style.transform = 'translateX(0)'
+  track.innerHTML = ''
+  renderState(track, { variant: 'loading' })
+
   try {
     const response = await fetch('/api/feedback/get/')
-    
+
     if (!response.ok) {
-      throw new Error('Failed to fetch feedback')
+      throw new Error(`Failed to fetch feedback (${response.status})`)
     }
 
     const data = await response.json()
     const feedback = data.feedback || []
 
-    if (feedback.length === 0) {
-      populateCarousel([])
-      return
-    }
-
+    // populateCarousel renders the EMPTY state itself when the list is empty.
     populateCarousel(feedback)
   } catch (err) {
+    // ── ERROR ── surface it with a retry, instead of a silent blank void
+    track.innerHTML = ''
+    if (dots) dots.innerHTML = ''
+    renderState(track, {
+      variant: 'error',
+      title: "Couldn't load feedback",
+      message: 'Something got in the way. Give it another try.',
+      actionLabel: 'Retry',
+      onAction: () => loadFeedback(),
+    })
   }
 }
 
@@ -48,16 +70,18 @@ function populateCarousel(feedbackList) {
   
   if (!carousel || !track || !dots) return
 
-  // Clear existing items
+  // Clear existing items (also removes any loading/error state block)
+  clearState(track)
   track.innerHTML = ''
   dots.innerHTML = ''
 
   if (feedbackList.length === 0) {
-    track.innerHTML = `
-      <div class="flex-shrink-0 w-full flex items-center justify-center min-h-64">
-        <p class="text-dark/40 font-hagia text-lg">No feedback yet. Be the first!</p>
-      </div>
-    `
+    // ── EMPTY ── an inviting prompt rather than a bare line
+    renderState(track, {
+      variant: 'empty',
+      title: 'No words yet',
+      message: 'Be the first to leave your mark — the form is right below.',
+    })
     return
   }
 

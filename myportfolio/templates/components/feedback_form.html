@@ -19,7 +19,7 @@
 
                     <!-- Navigation Controls -->
                     <div class="flex items-center justify-between">
-                        <button 
+                        <button
                             data-carousel-prev
                             aria-label="Previous feedback"
                             class="flex items-center justify-center">
@@ -33,7 +33,7 @@
                             <!-- Dots populated by JavaScript -->
                         </div>
 
-                        <button 
+                        <button
                             data-carousel-next
                             aria-label="Next feedback"
                             class="flex items-center justify-center">
@@ -131,10 +131,10 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block font-hagia text-xl uppercase tracking-widest opacity-70 mb-2">Your Name</label>
-                        <input 
+                        <input
                             type="text"
                             data-feedback-name
-                            name="name" 
+                            name="name"
                             placeholder="Egbe Michel"
                             required
                             class="w-full bg-primary border-2 border-dark/10 rounded-2xl px-6 py-3 font-hagia text-lg text-dark placeholder-dark/30 transition-all duration-300 focus:border-accent focus:border-2"
@@ -142,10 +142,10 @@
                     </div>
                     <div>
                         <label class="block font-hagia text-xl uppercase tracking-widest opacity-70 mb-2">Your Email</label>
-                        <input 
+                        <input
                             type="email"
                             data-feedback-email
-                            name="email" 
+                            name="email"
                             placeholder="you@example.com"
                             required
                             class="w-full bg-primary border-2 border-dark/10 rounded-2xl px-6 py-3 font-hagia text-lg text-dark placeholder-dark/30 transition-all duration-300 focus:border-accent focus:border-2"
@@ -156,7 +156,7 @@
                 <!-- Image Upload (Optional) -->
                 <div>
                     <label class="block font-hagia text-xl uppercase tracking-widest opacity-70 mb-2">Profile Picture (Optional)</label>
-                    <input 
+                    <input
                         type="file"
                         data-feedback-image
                         name="image"
@@ -238,227 +238,11 @@
     }
 </style>
 
-<script>
-(function () {
-    const form      = document.querySelector('[data-feedback-form]')
-    if (!form) return
-
-    const smiley    = form.querySelector('[data-smiley-face]')
-    const mouth     = smiley.querySelector('[data-mouth]')
-    const pupils    = smiley.querySelectorAll('[data-pupil]')
-    const browL     = smiley.querySelector('[data-eyebrow="left"]')
-    const browR     = smiley.querySelector('[data-eyebrow="right"]')
-    const starEyeL  = smiley.querySelector('[data-star-eye="left"]')
-    const starEyeR  = smiley.querySelector('[data-star-eye="right"]')
-    const eyeWhites = smiley.querySelectorAll('.eye-white-l, .eye-white-r')
-
-    const stars     = form.querySelectorAll('.rating-star')
-    const textarea  = form.querySelector('[data-feedback-textarea]')
-    const counter   = form.querySelector('[data-character-counter]')
-    const submitBtn = form.querySelector('[data-feedback-submit]')
-
-    let currentRating = 0
-
-    // ── Smiley states ──────────────────────────────────────────
-    // SVG Y axis goes DOWN. Control point CY relative to anchor Y=60:
-    //   CY < 60  →  curve bows UP   →  SMILE
-    //   CY > 60  →  curve bows DOWN →  FROWN
-    //   CY = 60  →  straight line   →  NEUTRAL
-    const states = {
-        0: { mouthCy: 60, browLY: 30, browRY: 30, pupilDy: 0    }, // neutral flat
-        1: { mouthCy: 42, browLY: 24, browRY: 24, pupilDy: -1.5 }, // 1★ = biggest smile
-        2: { mouthCy: 50, browLY: 27, browRY: 27, pupilDy: -1   }, // 2★ = happy smile
-        3: { mouthCy: 60, browLY: 30, browRY: 30, pupilDy: 0    }, // neutral
-        4: { mouthCy: 67, browLY: 33, browRY: 33, pupilDy: 1    }, // 4★ = sad
-        5: { mouthCy: 72, browLY: 36, browRY: 36, pupilDy: 1.5  }, // 5★ = biggest frown
-    }
-
-    function updateSmiley(rating) {
-        const s = states[rating] ?? states[0]
-
-        // Mouth curve
-        mouth.setAttribute('d', `M 32 60 Q 50 ${s.mouthCy} 68 60`)
-
-        // Eyebrows — raise on happy, furrow on sad
-        browL.setAttribute('d', `M 28 ${s.browLY + 3} Q 34 ${s.browLY} 40 ${s.browLY + 3}`)
-        browR.setAttribute('d', `M 60 ${s.browRY} Q 66 ${s.browRY - 3} 72 ${s.browRY}`)
-
-        // Pupils
-        pupils.forEach(p => p.setAttribute('cy', 43 + s.pupilDy))
-
-        // Star eyes at rating 5
-        const isStarred = rating === 1
-        eyeWhites.forEach(e => e.style.opacity = isStarred ? '0' : '1')
-        pupils.forEach(p    => p.style.opacity  = isStarred ? '0' : '1')
-        starEyeL.style.opacity = isStarred ? '1' : '0'
-        starEyeR.style.opacity = isStarred ? '1' : '0'
-
-        if (isStarred && window.gsap) {
-            gsap.fromTo(smiley,
-                { scale: 1 },
-                { scale: 1.1, yoyo: true, repeat: 1, duration: 0.18, ease: 'power2.out' }
-            )
-        }
-    }
-
-    // ── Stars ─────────────────────────────────────────────────
-    // Key fix: on mouseleave, restore to currentRating state (not empty).
-    // On click, set currentRating so subsequent mouseleave locks correctly.
-    stars.forEach((star, idx) => {
-        const val = idx + 1
-
-        star.addEventListener('mouseenter', () => {
-            // Show hover state up to hovered star, preserve filled beyond
-            stars.forEach((s, i) => {
-                s.classList.remove('is-filled', 'is-hovered')
-                if (i < val) {
-                    s.classList.add('is-hovered')
-                } else if (i < currentRating) {
-                    s.classList.add('is-filled')
-                }
-                // stagger scale
-                setTimeout(() => {
-                    s.style.transform = i < val ? 'scale(1.2)' : 'scale(1)'
-                }, i * 18)
-            })
-            updateSmiley(val)
-        })
-
-        star.addEventListener('mouseleave', () => {
-            stars.forEach((s, i) => {
-                s.classList.remove('is-hovered')
-                s.style.transform = 'scale(1)'
-                if (i < currentRating) {
-                    s.classList.add('is-filled')
-                } else {
-                    s.classList.remove('is-filled')
-                }
-            })
-            // Only reset face if nothing clicked yet — otherwise freeze it
-            if (currentRating === 0) updateSmiley(0)
-        })
-
-        star.addEventListener('click', () => {
-            currentRating = val
-
-            const label = star.closest('label')
-            if (label) {
-                const radio = label.querySelector('input[type="radio"]')
-                if (radio) radio.checked = true
-            }
-
-            // Lock filled state — no hover class, just is-filled
-            stars.forEach((s, i) => {
-                s.classList.remove('is-hovered')
-                if (i < val) {
-                    s.classList.add('is-filled')
-                    // GSAP pop — maintains the spring feel on the clicked stars
-                    if (window.gsap) {
-                        gsap.fromTo(s,
-                            { scale: 0.75 },
-                            { scale: 1, duration: 0.4, delay: i * 0.045, ease: 'back.out(2.5)' }
-                        )
-                    }
-                } else {
-                    s.classList.remove('is-filled')
-                    s.style.transform = 'scale(1)'
-                }
-            })
-            // Face stays exactly as it was during hover — no updateSmiley here
-        })
-    })
-
-    // ── Character counter ──────────────────────────────────────
-    textarea.addEventListener('input', () => {
-        const len = textarea.value.length
-        const max = parseInt(textarea.getAttribute('maxlength')) || 500
-        const remaining = max - len
-
-        counter.textContent = `${len}/${max}`
-        counter.style.color   = remaining < 20 ? '#8B1E1E' : ''
-        counter.style.opacity = remaining < 20 ? '1' : '0.5'
-
-        // Auto-expand
-        textarea.style.height = 'auto'
-        textarea.style.height = textarea.scrollHeight + 'px'
-    })
-
-    // ── Submit ─────────────────────────────────────────────────
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault()
-
-        // Get all fields
-        const name = form.querySelector('[data-feedback-name]')?.value.trim()
-        const email = form.querySelector('[data-feedback-email]')?.value.trim()
-        const image = form.querySelector('[data-feedback-image]')?.files[0]
-        const message = textarea.value.trim()
-
-        // Validation
-        if (!name)  { alert('Please enter your name'); return }
-        if (!email) { alert('Please enter your email'); return }
-        if (!currentRating) { alert('Please select a rating'); return }
-        if (!message)  { alert('Please share your feedback'); return }
-
-        let reset = () => {}
-        if (window.__portfolioLoaders) {
-            reset = window.__portfolioLoaders.showButtonLoader(submitBtn)
-        } else {
-            submitBtn.disabled = true
-        }
-
-        try {
-            // Use FormData to handle file upload
-            const formData = new FormData()
-            formData.append('name', name)
-            formData.append('email', email)
-            formData.append('rating', currentRating)
-            formData.append('message', message)
-            if (image) formData.append('image', image)
-            formData.append('csrfmiddlewaretoken', getCookie('csrftoken'))
-
-            const res = await fetch('/api/feedback/', {
-                method: 'POST',
-                body: formData,
-            })
-            if (!res.ok) throw new Error('Server error')
-
-            if (window.__portfolioLoaders) {
-                window.__portfolioLoaders.showButtonSuccess(submitBtn)
-            }
-            updateSmiley(5)
-
-            // Dispatch event for carousel to refresh with new feedback
-            document.dispatchEvent(new CustomEvent('feedbackSubmitted', {
-                detail: { name, email, message, rating: currentRating }
-            }))
-
-            setTimeout(() => {
-                form.reset()
-                textarea.style.height = ''
-                counter.textContent   = '0/500'
-                counter.style.color   = ''
-                counter.style.opacity = '0.5'
-                currentRating = 0
-                stars.forEach(s => s.classList.remove('is-filled', 'is-hovered'))
-                updateSmiley(0)
-                if (!window.__portfolioLoaders) submitBtn.disabled = false
-            }, 2200)
-
-        } catch (err) {
-            reset()
-            if (window.__portfolioLoaders) {
-                window.__portfolioLoaders.showButtonError(submitBtn, 'Try again')
-            } else {
-                submitBtn.disabled = false
-            }
-        }
-    })
-
-    function getCookie(name) {
-        const m = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'))
-        return m ? decodeURIComponent(m[2]) : ''
-    }
-
-    updateSmiley(0)
-})()
-</script>
+{% comment %}
+The feedback form's behaviour (stars, smiley, counter, submit, and the
+loading / success / error states) is handled entirely by the feedback_form.js
+module wired in main.js. An earlier inline <script> here duplicated that logic
+and bound a SECOND submit handler to the same form, so every submit fired twice
+(two API calls, two toasts). It has been removed so there is a single source of
+truth for the form's state handling.
+{% endcomment %}
