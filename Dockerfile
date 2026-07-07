@@ -29,11 +29,12 @@ RUN SECRET_KEY=build-only \
 
 EXPOSE 8000
 
-# Migrate, ensure an admin user exists (idempotent), then serve. Single
-# worker + threads keeps us inside Back4App's 256 MB free instance; $PORT is
-# honored if the platform injects it.
+# Migrate, ensure an admin user exists (idempotent), then serve. Worker/thread
+# counts and the generous request timeout (needed for multi-image uploads) come
+# from gunicorn.conf.py so every entrypoint stays consistent. $PORT is honored
+# if the platform injects it.
 CMD python manage.py migrate --no-input && \
     python create_admin.py && \
     gunicorn config.wsgi:application \
       --bind 0.0.0.0:${PORT:-8000} \
-      --workers 1 --threads 4 --timeout 60
+      -c gunicorn.conf.py

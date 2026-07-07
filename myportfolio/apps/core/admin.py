@@ -23,15 +23,18 @@ class EducationGalleryForm(forms.ModelForm):
 
     def clean_image(self):
         image = self.cleaned_data.get('image')
-        if image:
-            # Validate file size (max 5MB)
-            if image.size > 5242880:  # 5MB
-                raise forms.ValidationError("Image file size cannot exceed 5MB")
-            
-            # Validate file type
+        # Only newly-uploaded files carry a size/content type to check; an
+        # unchanged existing image on edit is left alone.
+        if image and hasattr(image, 'size'):
+            # Generous ceiling only to reject absurd files — normal phone photos
+            # (often 3-8MB) are fine because they're compressed on save.
+            if image.size > 20 * 1024 * 1024:  # 20MB
+                raise forms.ValidationError("Image file is too large (max 20MB).")
+
             allowed_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp']
-            if not any(image.name.lower().endswith(ext) for ext in allowed_extensions):
-                raise forms.ValidationError("Please upload a valid image file (JPG, PNG, GIF, or WebP)")
+            name = getattr(image, 'name', '') or ''
+            if not any(name.lower().endswith(ext) for ext in allowed_extensions):
+                raise forms.ValidationError("Please upload a valid image file (JPG, PNG, GIF, or WebP).")
         return image
 
 
@@ -103,12 +106,22 @@ class EducationAdmin(CustomModelAdmin):
 
 @admin.register(Service)
 class ServiceAdmin(CustomModelAdmin):
-    list_display = ('service_number', 'title', 'description_preview', 'order')
+    list_display = ('service_number', 'title', 'image_preview', 'description_preview', 'order')
     ordering = ('order', 'number')
-    fields = ('number', 'title', 'description', 'order')
+    fields = ('number', 'title', 'description', 'image', 'order')
     list_filter = ('number',)
     search_fields = ('title', 'description')
-    
+
+    def image_preview(self, obj):
+        if obj.image:
+            return format_html(
+                '<img src="{}" style="height: 40px; width: auto; '
+                'border-radius: 6px; object-fit: cover;" />',
+                obj.image.url
+            )
+        return '-'
+    image_preview.short_description = 'Illustration'
+
     def service_number(self, obj):
         return format_html(
             '<span style="background: rgba(139, 30, 30, 0.2); padding: 4px 8px; '
