@@ -1,14 +1,18 @@
 {% load static %}
 {% comment %}
-Services carousel section - scrolls through services naturally based on scroll position
-@param: services - List of service objects with 'number', 'title', and 'description'
+Services carousel section - scrolls through services naturally based on scroll position.
+
+Everything shown here (number, title, description, and the illustration image) is
+data-driven from the database via `services_json`. Nothing is hardcoded per service,
+so the carousel works for any number of services in any order.
+@param: services_json - JSON list of service objects: { number, title, description, image }
 {% endcomment %}
 
-<section id="services" 
+<section id="services"
          class="relative w-full bg-white px-8 md:px-16 border-t border-dark/5"
          x-data="servicesScrollCarousel()"
          @scroll.window="handleScroll()"
-         :style="{ 
+         :style="{
             minHeight: sectionHeight + 'px'
          }">
 
@@ -33,76 +37,20 @@ Services carousel section - scrolls through services naturally based on scroll p
                 <!-- Service items -->
                 <template x-for="(service, index) in servicesArray" :key="index">
                     <div class="absolute inset-0 flex flex-col items-center justify-center"
-                         :style="{ 
+                         :style="{
                             opacity: currentIndex === index ? 1 : 0,
                             transform: currentIndex < index ? 'translateX(80px)' : (currentIndex > index ? 'translateX(-80px)' : 'translateX(0)'),
                             transition: 'all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
                             pointerEvents: currentIndex === index ? 'auto' : 'none'
                          }">
-                        
-                        <!-- Background SVG illustration -->
+
+                        <!-- Background illustration — comes from the database (service.image) -->
                         <div class="absolute inset-0 pointer-events-none overflow-visible flex items-center justify-end pr-4 md:pr-20">
-                            <!-- Service 1: Design -->
-                            <img x-show="index === 0" 
-                                 src="{% static 'svg/service-01-design.png' %}" 
-                                 alt="Design service illustration"
+                            <img x-show="service.image"
+                                 :src="service.image"
+                                 :alt="service.title + ' illustration'"
                                  class="w-48 h-48 md:w-96 md:h-96"
                                  :style="{
-                                    transition: 'opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-                                    transitionDelay: currentIndex === index ? '0.3s' : '0s'
-                                 }"/>
-                            
-                            <!-- Service 2: Development -->
-                            <img x-show="index === 1" 
-                                 src="{% static 'svg/service-02-development.png' %}" 
-                                 alt="Development service illustration"
-                                 class="w-48 h-48 md:w-96 md:h-96"
-                                 :style="{ 
-                                    
-                                    transition: 'opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-                                    transitionDelay: currentIndex === index ? '0.3s' : '0s'
-                                 }"/>
-                            
-                            <!-- Service 3: Strategy -->
-                            <img x-show="index === 2" 
-                                 src="{% static 'svg/service-03-strategy.png' %}" 
-                                 alt="Strategy service illustration"
-                                 class="w-48 h-48 md:w-96 md:h-96"
-                                 :style="{ 
-                                
-                                    transition: 'opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-                                    transitionDelay: currentIndex === index ? '0.3s' : '0s'
-                                 }"/>
-                            
-                            <!-- Service 4: Consulting -->
-                            <img x-show="index === 3" 
-                                 src="{% static 'svg/service-04-consulting.png' %}" 
-                                 alt="Consulting service illustration"
-                                 class="w-48 h-48 md:w-96 md:h-96"
-                                 :style="{ 
-                                    
-                                    transition: 'opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-                                    transitionDelay: currentIndex === index ? '0.3s' : '0s'
-                                 }"/>
-                            
-                            <!-- Service 5: Implementation -->
-                            <img x-show="index === 4" 
-                                 src="{% static 'svg/service-05-implementation.png' %}" 
-                                 alt="Implementation service illustration"
-                                 class="w-48 h-48 md:w-96 md:h-96"
-                                 :style="{ 
-                                    
-                                    transition: 'opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-                                    transitionDelay: currentIndex === index ? '0.3s' : '0s'
-                                 }"/>
-                            
-                            <!-- Service 6: Support -->
-                            <img x-show="index === 5" 
-                                 src="{% static 'svg/service-06-support.png' %}" 
-                                 alt="Support service illustration"
-                                 class="w-48 h-48 md:w-96 md:h-96"
-                                 :style="{ 
-                                
                                     transition: 'opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
                                     transitionDelay: currentIndex === index ? '0.3s' : '0s'
                                  }"/>
@@ -112,7 +60,7 @@ Services carousel section - scrolls through services naturally based on scroll p
                         <div class="max-w-4xl w-full px-8 relative z-10">
                             <div class="mb-12">
                                 <span class="font-hagia text-3xl md:text-6xl uppercase tracking-[0.2em] text-accent block"
-                                      :style="{ 
+                                      :style="{
                                         opacity: currentIndex === index ? 1 : 0,
                                         transform: currentIndex === index ? 'scale(1)' : 'scale(0.95)',
                                         transition: 'all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
@@ -123,7 +71,7 @@ Services carousel section - scrolls through services naturally based on scroll p
                             </div>
 
                             <h2 class="font-hagia font-medium text-4xl sm:text-6xl md:text-8xl mb-6 md:mb-8 tracking-tight leading-tight text-dark"
-                                :style="{ 
+                                :style="{
                                     opacity: currentIndex === index ? 1 : 0,
                                     transform: currentIndex === index ? 'translateY(0)' : 'translateY(20px)',
                                     transition: 'all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
@@ -132,7 +80,7 @@ Services carousel section - scrolls through services naturally based on scroll p
                                 x-text="service.title"></h2>
 
                             <p class="font-hagia text-xl md:text-4xl leading-relaxed max-w-3xl text-dark"
-                               :style="{ 
+                               :style="{
                                     opacity: currentIndex === index ? 1 : 0,
                                     transform: currentIndex === index ? 'translateY(0)' : 'translateY(20px)',
                                     transition: 'all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
@@ -192,10 +140,10 @@ Services carousel section - scrolls through services naturally based on scroll p
             init() {
                 // Calculate section dimensions
                 this.calculateSectionDimensions();
-                
+
                 // Observe section position
                 this.setupIntersectionObserver();
-                
+
                 // Update on window resize
                 window.addEventListener('resize', () => this.calculateSectionDimensions());
             },
@@ -222,48 +170,23 @@ Services carousel section - scrolls through services naturally based on scroll p
 
             handleScroll() {
                 const scrollY = window.scrollY;
-                const section = this.$el;
-                
+
                 // Only update if section is in range
-                if (scrollY >= this.sectionTop - window.innerHeight && 
+                if (scrollY >= this.sectionTop - window.innerHeight &&
                     scrollY <= this.sectionTop + this.sectionHeight) {
-                    
+
                     // Calculate progress through services section
                     const progressInSection = Math.max(0, scrollY - this.sectionTop);
                     const viewportHeight = window.innerHeight;
                     const serviceProgress = progressInSection / viewportHeight;
-                    
+
                     // Calculate which service to show
                     const newIndex = Math.floor(serviceProgress);
                     const clampedIndex = Math.min(newIndex, this.servicesArray.length - 1);
-                    
-                    // If index changed and it's odd (has confetti), restart animation
-                    if (clampedIndex !== this.currentIndex) {
-                        this.currentIndex = clampedIndex;
-                        if (clampedIndex % 2 === 1) {
-                            this.$nextTick(() => this.restartConfettiAnimation(clampedIndex));
-                        }
-                    } else {
-                        this.currentIndex = clampedIndex;
-                    }
-                }
-            },
 
-            restartConfettiAnimation(index) {
-                // Get the confetti SVG for this index
-                setTimeout(() => {
-                    const confettiSvg = document.getElementById(`confetti-${index}`);
-                    if (confettiSvg) {
-                        const g = confettiSvg.querySelector('g');
-                        if (g) {
-                            // Remove and re-add the group to trigger animation restart
-                            const clone = g.cloneNode(true);
-                            g.parentNode.replaceChild(clone, g);
-                        }
-                    }
-                }, 50);
+                    this.currentIndex = clampedIndex;
+                }
             }
         }
     }
 </script>
-
