@@ -83,6 +83,11 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGIN_REDIRECT_URL = "/admin/"
 LOGIN_URL = "/admin/login/"
 
+# Allow larger admin uploads — several images (e.g. an Education gallery) in one
+# request. Files over 2.5MB still stream to a temp file rather than memory.
+DATA_UPLOAD_MAX_MEMORY_SIZE = 25 * 1024 * 1024      # 25 MB request body
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 5000
+
 # Contact form: where contact-form submissions are emailed.
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="noreply@molio.com")
 CONTACT_RECIPIENT_EMAIL = env("CONTACT_RECIPIENT_EMAIL", default="egbemichel39@gmail.com")

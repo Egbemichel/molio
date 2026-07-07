@@ -33,6 +33,13 @@ Education timeline component
 
                     <div class="absolute -left-[22px] top-3 w-4 h-4 rounded-full {% if edu.is_current %}bg-accent border-4 border-white{% else %}bg-dark/20 border-4 border-white{% endif %}"></div>
                 </div>
+            {% empty %}
+                {# EMPTY state — no education entries yet #}
+                <div class="py-8 relative">
+                    <div class="absolute -left-[22px] top-3 w-4 h-4 rounded-full bg-dark/20 border-4 border-white"></div>
+                    <h3 class="font-hagia font-medium text-3xl md:text-5xl text-dark mb-3 tracking-tight">Education, coming soon</h3>
+                    <p class="font-hagia text-lg md:text-2xl text-dark/60 max-w-md">This chapter is still being written.</p>
+                </div>
             {% endfor %}
         </div>
     </div>

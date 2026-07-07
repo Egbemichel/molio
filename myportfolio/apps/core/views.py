@@ -154,10 +154,9 @@ def home(request):
     # Active CV/résumé for download (guarded: never 500 if not migrated yet)
     try:
         cv = Resume.objects.filter(is_active=True).order_by('-updated_at').first()
+        # Plain Cloudinary raw URL → opens as an inline PDF preview in a new tab,
+        # from which the viewer can download it.
         cv_url = cv.file.url if cv and cv.file else None
-        # On Cloudinary, fl_attachment forces a download instead of opening in-tab.
-        if cv_url and '/upload/' in cv_url:
-            cv_url = cv_url.replace('/upload/', '/upload/fl_attachment/', 1)
     except Exception:
         cv_url = None
 
