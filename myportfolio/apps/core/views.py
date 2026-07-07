@@ -111,6 +111,7 @@ def home(request):
             'number': serv.number,
             'title': serv.title,
             'description': serv.description,
+            'image': serv.image.url if serv.image else '',
         }
         for serv in services
     ]
