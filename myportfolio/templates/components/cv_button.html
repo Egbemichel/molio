@@ -3,8 +3,8 @@ Floating "Steal my CV" download button. Self-contained CSS so it never depends
 on a Tailwind rebuild. Only renders when an active CV exists (cv_url).
 {% endcomment %}
 {% if cv_url %}
-<a class="cv-fab" href="{{ cv_url }}" download data-cursor="pointer"
-   aria-label="Download Egbe Michel's CV">
+<a class="cv-fab" href="{{ cv_url }}" target="_blank" rel="noopener" data-cursor="pointer"
+   aria-label="Open Egbe Michel's CV">
   <span class="cv-fab__fill" aria-hidden="true"></span>
   <span class="cv-fab__icon" aria-hidden="true">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
@@ -35,10 +35,8 @@ on a Tailwind rebuild. Only renders when an active CV exists (cv_url).
     text-decoration: none;
     white-space: nowrap;
     overflow: hidden;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.20);
     transform: rotate(-3deg);                 /* on-brand tilt */
-    transition: transform 380ms cubic-bezier(.34,1.56,.64,1),
-                box-shadow 380ms ease;
+    transition: transform 380ms cubic-bezier(.34,1.56,.64,1);
     /* slides up into place after the page loader */
     animation: cvEnter 0.7s cubic-bezier(.34,1.56,.64,1) 0.9s backwards;
   }
@@ -58,7 +56,6 @@ on a Tailwind rebuild. Only renders when an active CV exists (cv_url).
   @media (hover: hover) {
     .cv-fab:hover {
       transform: rotate(0deg) translateY(-4px);
-      box-shadow: 0 18px 42px rgba(139, 30, 30, 0.30);
     }
     .cv-fab:hover .cv-fab__fill { transform: translateY(0); }
     .cv-fab:hover .cv-fab__icon svg { animation: cvBob 0.7s ease infinite; }
