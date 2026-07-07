@@ -292,6 +292,28 @@
             flex: 1;
             overflow-y: auto;
             padding: 40px;
+            min-width: 0;
+        }
+
+        /* ──────────────────────────────────────────────────────────
+           CONTAINMENT — nothing may push the page wider than the screen.
+           (#content computes overflow-x:auto because it scrolls vertically,
+           so any over-wide child would show a horizontal scrollbar.)
+           ────────────────────────────────────────────────────────── */
+        html, body { max-width: 100%; overflow-x: hidden; }
+        #content img { max-width: 100%; height: auto; }
+        #content table { max-width: 100%; }
+
+        /* Dense tables that can't be reflowed (inline formsets, raw admin
+           tables) and code blocks scroll inside their own box — the small,
+           local scroll stays contained instead of stretching the whole page. */
+        #content .inline-group .tabular,
+        #content .inline-related .module,
+        #content pre {
+            display: block;
+            max-width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         /* ──────────────────────────────────────────────────────────
@@ -422,7 +444,8 @@
             .admin-sidebar {
                 transform: translateX(-100%);
                 transition: transform 300ms ease;
-                width: 320px;
+                /* never wider than the screen, so the drawer itself can't overflow */
+                width: min(320px, 86vw);
             }
 
             .admin-sidebar.open {
@@ -434,14 +457,22 @@
             }
 
             .admin-header {
-                padding: 16px 20px;
+                padding: 14px 16px;
             }
 
+            .admin-breadcrumbs { font-size: 14px; }
+
             #content {
-                padding: 20px;
+                padding: 18px 16px;
             }
 
             .admin-menu-toggle { display: inline-flex; }
+        }
+
+        @media (max-width: 480px) {
+            /* keep just the avatar in the header — the name can wrap the bar */
+            .admin-user-info span { display: none; }
+            #content { padding: 16px 12px; }
         }
 
         /* ──────────────────────────────────────────────────────────
