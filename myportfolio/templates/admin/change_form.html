@@ -306,6 +306,11 @@
         .form-container { animation: none; opacity: 1; }
     }
 
+    /* FK "raise" widgets (select + add/edit icons) must be able to shrink,
+       or the row overflows to the right. */
+    .related-widget-wrapper { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .related-widget-wrapper > select { flex: 1; min-width: 0; }
+
     @media (max-width: 1024px) {
         .form-wrapper { grid-template-columns: 1fr; }
         .form-sidebar { position: static; }
@@ -313,7 +318,12 @@
 
     @media (max-width: 768px) {
         .form-header h1 { font-size: 26px; }
-        .form-content { padding: 20px; }
+        .form-content { padding: 18px 16px; }
+        fieldset { padding: 16px 14px; }
+
+        /* Django's split date/time widget: stack the two inputs full-width */
+        .datetime { display: flex; flex-direction: column; gap: 8px; align-items: stretch; }
+        .datetime input { width: 100% !important; }
     }
 </style>
 {% endblock %}
