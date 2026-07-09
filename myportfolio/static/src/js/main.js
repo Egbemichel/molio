@@ -12,6 +12,7 @@ import { initAudioPlayers }       from './components/audio_howler.js'
 import { initFeedbackForm }       from './components/feedback_form.js'
 import { initFeedbackCarousel }   from './components/feedback_carousel.js'
 import { initEduGallery }         from './components/edu_gallery.js'
+import { initImageFallback }      from './components/image_fallback.js'
 import { toast }                  from './components/toast.js'
 
 // Make toast globally available
@@ -37,9 +38,11 @@ function safeInit(name, fn) {
   }
 }
 
-// Loader runs immediately — before DOMContentLoaded
-// so it's visible from the very first paint
+// These run immediately (not on DOMContentLoaded) so they're active from the
+// very first paint: the loader must show at once, and the image-fallback
+// listener must be attached before any <img> has a chance to fail.
 safeInit('PageLoader', initPageLoader)
+safeInit('ImageFallback', initImageFallback)
 
 document.addEventListener('DOMContentLoaded', () => {
 

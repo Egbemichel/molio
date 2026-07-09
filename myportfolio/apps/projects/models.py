@@ -1,4 +1,5 @@
 from django.db import models
+from apps.core.imagefields import CompressedImageField
 import json
 
 
@@ -7,7 +8,7 @@ class TechStack(models.Model):
     # This will hold the logo (Flutter, Django, etc.).
     # blank=True so GitHub-synced languages can be auto-created without an icon
     # (you add the icon later).
-    image = models.ImageField(upload_to='tech_stack/', blank=True)
+    image = CompressedImageField(upload_to='tech_stack/', blank=True)
 
     def __str__(self):
         return self.name
@@ -38,8 +39,8 @@ class Project(models.Model):
     points = models.JSONField(default=list, help_text="Enter as a list of strings")
 
     # Assets
-    logo = models.ImageField(upload_to='projects/logos/', blank=True)
-    mockup = models.ImageField(upload_to='projects/mockups/', blank=True)
+    logo = CompressedImageField(upload_to='projects/logos/', blank=True)
+    mockup = CompressedImageField(upload_to='projects/mockups/', blank=True)
     github_link = models.URLField(blank=True)
     live_url = models.URLField(blank=True, help_text="Live demo / homepage URL")
 

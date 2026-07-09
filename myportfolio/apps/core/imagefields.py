@@ -19,7 +19,9 @@ import io
 import logging
 import os
 
+from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
+from django.core.files.uploadedfile import UploadedFile
 from django.db.models import ImageField
 
 logger = logging.getLogger(__name__)
@@ -29,6 +31,69 @@ logger = logging.getLogger(__name__)
 MAX_EDGE = 1600
 # JPEG quality for photographic (opaque) images. 82 is visually lossless-ish.
 QUALITY = 82
+# Reject uploads larger than this outright (before compression) — a guard against
+# runaway memory, not a limit on normal photos (which are compressed anyway).
+MAX_UPLOAD_BYTES = 20 * 1024 * 1024  # 20 MB
+# Human-facing list of what we accept.
+ACCEPTED_LABEL = 'JPG, PNG, WEBP, GIF or HEIC'
+
+
+def _register_heif():
+    """Teach Pillow to read iPhone HEIC/HEIF photos, if the plugin is present.
+
+    Without this, HEIC uploads (the iPhone default) can't be decoded, so they'd
+    be stored as-is and then fail to display in browsers. Best-effort: if the
+    optional `pillow-heif` package isn't installed we simply don't gain HEIC
+    support (and such uploads are rejected with a clear message at validation).
+    """
+    try:
+        import pillow_heif
+        pillow_heif.register_heif_opener()
+        return True
+    except Exception:
+        return False
+
+
+HEIF_SUPPORTED = _register_heif()
+
+
+def validate_image_upload(f):
+    """Form-level validator: reject non-images / oversized files with a clear,
+    specific message BEFORE anything touches storage.
+
+    Only ever runs on a freshly-uploaded file (wired via formfield()), so it
+    never re-fetches an unchanged image from Cloudinary.
+    """
+    if not f:
+        return
+
+    size = getattr(f, 'size', None)
+    if size is not None and size > MAX_UPLOAD_BYTES:
+        raise ValidationError(
+            'That image is too large (%.1f MB). The maximum is %d MB.'
+            % (size / (1024 * 1024), MAX_UPLOAD_BYTES // (1024 * 1024))
+        )
+
+    # Confirm it's actually a decodable image (not a renamed .exe, a broken
+    # download, or a HEIC we can't read on this server).
+    try:
+        from PIL import Image
+    except Exception:
+        return  # Pillow missing — don't block; storage/display will surface it.
+
+    try:
+        f.seek(0)
+        Image.open(f).verify()
+    except Exception:
+        raise ValidationError(
+            'That file could not be read as an image. Please upload a %s file.'
+            % ACCEPTED_LABEL
+        )
+    finally:
+        try:
+            f.seek(0)
+        except Exception:
+            pass
 
 
 def compress_image(file_obj, max_edge=MAX_EDGE, quality=QUALITY):
@@ -116,6 +181,15 @@ class CompressedImageField(ImageField):
     (an unchanged image on an edit is left alone). Deconstructs to itself, so no
     special migration handling is needed.
     """
+
+    def formfield(self, **kwargs):
+        # Validate uploads at form time (admin + any ModelForm). Django's
+        # FileField.clean skips validators when the file is unchanged, so this
+        # never re-reads an existing image — only genuinely new uploads.
+        formfield = super().formfield(**kwargs)
+        if formfield is not None:
+            formfield.validators = [*formfield.validators, validate_image_upload]
+        return formfield
 
     def pre_save(self, model_instance, add):
         file = getattr(model_instance, self.attname)
