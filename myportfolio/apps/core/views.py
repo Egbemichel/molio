@@ -9,6 +9,7 @@ from django.conf import settings
 from django.db.models import Prefetch
 from apps.projects.models import Project, Category
 from apps.core.models import Skill, Education, Service, GalleryItem, Feedback, Resume
+from apps.core.imagefields import validate_image_upload
 from datetime import date
 import json
 import logging
@@ -117,9 +118,11 @@ def home(request):
     ]
     
     # Fetch gallery items from database
+    # Use .url (absolute in production via Cloudinary) — NOT .name behind a
+    # hardcoded /media/ prefix, which 404s once storage isn't local.
     gallery_items = [
         {
-            'src': item.image.name,
+            'src': item.image.url if item.image else '',
             'alt': item.alt_text,
             'col_span': item.col_span,
             'row_span': item.row_span
@@ -242,32 +245,49 @@ def submit_feedback(request):
         # Handle both JSON and multipart form data
         if request.content_type == 'application/json':
             data = json.loads(request.body)
-            name = data.get('name', '').strip()
-            email = data.get('email', '').strip()
-            rating = int(data.get('rating', 0))
-            message = data.get('message', '').strip()
+            name = (data.get('name') or '').strip()
+            email = (data.get('email') or '').strip()
+            rating_raw = data.get('rating', 0)
+            message = (data.get('message') or '').strip()
             image = None
         else:
             name = request.POST.get('name', '').strip()
             email = request.POST.get('email', '').strip()
-            rating = int(request.POST.get('rating', 0))
+            rating_raw = request.POST.get('rating', 0)
             message = request.POST.get('message', '').strip()
             image = request.FILES.get('image')
 
-        # Validation
+        # Validation — each returns a specific, human message the UI can toast.
         if not name:
-            return JsonResponse({'error': 'Name is required'}, status=400)
-        
-        if not email:
-            return JsonResponse({'error': 'Email is required'}, status=400)
-        
+            return JsonResponse({'error': 'Please enter your name.'}, status=400)
+
+        try:
+            validate_email(email)
+        except ValidationError:
+            return JsonResponse({'error': 'Please enter a valid email address.'}, status=400)
+
+        try:
+            rating = int(rating_raw)
+        except (TypeError, ValueError):
+            rating = 0
         if not 1 <= rating <= 5:
-            return JsonResponse({'error': 'Rating must be between 1 and 5'}, status=400)
+            return JsonResponse({'error': 'Please pick a rating from 1 to 5 stars.'}, status=400)
 
-        if not message or len(message) > 500:
-            return JsonResponse({'error': 'Message must be between 1 and 500 characters'}, status=400)
+        if not message:
+            return JsonResponse({'error': 'Please write a short message.'}, status=400)
+        if len(message) > 500:
+            return JsonResponse({'error': 'Your message is too long (max 500 characters).'}, status=400)
 
-        # Create feedback entry
+        # If an image was attached, validate it up front so the visitor gets a
+        # precise reason (too big / not an image) instead of a generic failure.
+        if image is not None:
+            try:
+                validate_image_upload(image)
+            except ValidationError as ve:
+                msg = ve.messages[0] if getattr(ve, 'messages', None) else 'That image could not be used.'
+                return JsonResponse({'error': msg}, status=400)
+
+        # Create feedback entry (image is compressed on save by the model field)
         feedback = Feedback.objects.create(
             name=name,
             email=email,
@@ -277,14 +297,18 @@ def submit_feedback(request):
         )
 
         return JsonResponse(
-            {'success': True, 'message': 'Thank you for your feedback!', 'id': feedback.id},
+            {'success': True, 'message': 'Thank you! Your feedback has been received.', 'id': feedback.id},
             status=201
         )
 
     except json.JSONDecodeError:
-        return JsonResponse({'error': 'Invalid JSON'}, status=400)
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+        return JsonResponse({'error': 'We could not read your submission. Please try again.'}, status=400)
+    except Exception:
+        logger.exception('Feedback submission failed')
+        return JsonResponse(
+            {'error': 'Something went wrong saving your feedback. Please try again in a moment.'},
+            status=500,
+        )
 
 
 @require_http_methods(['GET'])
