@@ -296,6 +296,20 @@
         }
 
         /* ──────────────────────────────────────────────────────────
+           WIDTH RESET — Django's own admin/css/base.css hard-codes
+           `#container { min-width: 980px }`. On a phone that makes the whole
+           content column 980px wide (it just gets clipped by the overflow
+           guard, so buttons/inputs run off-screen). Force the custom shell to
+           be fluid. !important because base.css targets the same #container id.
+           ────────────────────────────────────────────────────────── */
+        #container { min-width: 0 !important; width: auto; max-width: 100%; }
+        #content, .admin-header,
+        .dashboard-container, .changelist-container, .form-container {
+            min-width: 0;
+            max-width: 100%;
+        }
+
+        /* ──────────────────────────────────────────────────────────
            CONTAINMENT — nothing may push the page wider than the screen.
            (#content computes overflow-x:auto because it scrolls vertically,
            so any over-wide child would show a horizontal scrollbar.)
