@@ -216,7 +216,10 @@ class ResumeAdmin(CustomModelAdmin):
     active_badge.short_description = 'Status'
 
     def download_link(self, obj):
-        if obj.file:
-            return format_html('<a href="{}" target="_blank" rel="noopener">Open file ↗</a>', obj.file.url)
+        # Use the signed delivery URL — the plain Cloudinary URL 401s when the
+        # account restricts PDF delivery ("deny or ACL failure").
+        url = obj.delivery_url() if obj.pk else None
+        if url:
+            return format_html('<a href="{}" target="_blank" rel="noopener">Open file ↗</a>', url)
         return '-'
     download_link.short_description = 'File'
