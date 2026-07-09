@@ -3,7 +3,10 @@ Django==6.0.3
 django-admin-interface==0.32.0
 django-colorfield==0.14.0
 pillow==12.1.1
-pillow-heif==0.18.0
+# 1.4.0 ships prebuilt manylinux wheels for cp314 (Render's default Python).
+# Older lines (e.g. 0.18.0) have no cp314 wheel and fall back to compiling
+# against the host libheif, which is too old on Render and fails the build.
+pillow-heif==1.4.0
 python-decouple==3.8
 python-slugify==8.0.4
 sqlparse==0.5.5
