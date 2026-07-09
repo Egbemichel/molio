@@ -1,4 +1,5 @@
 import { showButtonLoader, showButtonSuccess, showButtonError } from './page_loader.js'
+import { toast } from './toast.js'
 
 export function initContact() {
   const form = document.getElementById('contact-form')
@@ -35,8 +36,10 @@ export function initContact() {
       const payload = await res.json().catch(() => ({}))
 
       if (res.ok) {
+        const msg = payload.message || "Message sent — I'll get back to you soon."
         showButtonSuccess(submitBtn, 3000)
-        setStatus(payload.message || "Message sent — I'll get back to you soon.", false)
+        setStatus(msg, false)
+        toast.success(msg)
         setTimeout(() => {
           form.reset()
           resetBtn()
@@ -47,11 +50,14 @@ export function initContact() {
         showButtonError(submitBtn, 'Try again', 3000)
         resetBtn()
         setStatus(reason, true)
+        toast.error(reason)
       }
     } catch (err) {
+      const reason = 'Network error — please check your connection or email me directly.'
       showButtonError(submitBtn, 'Try again', 3000)
       resetBtn()
-      setStatus('Network error — please check your connection or email me directly.', true)
+      setStatus(reason, true)
+      toast.error(reason)
     }
   })
 }
