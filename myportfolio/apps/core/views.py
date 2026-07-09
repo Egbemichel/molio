@@ -158,10 +158,11 @@ def home(request):
     # Active CV/résumé for download (guarded: never 500 if not migrated yet)
     try:
         cv = Resume.objects.filter(is_active=True).order_by('-updated_at').first()
-        # Plain Cloudinary raw URL → opens as an inline PDF preview in a new tab,
-        # from which the viewer can download it.
-        cv_url = cv.file.url if cv and cv.file else None
+        # Signed Cloudinary URL — a plain one 401s when the account restricts
+        # PDF delivery. Opens as an inline preview in a new tab.
+        cv_url = cv.delivery_url() if cv else None
     except Exception:
+        logger.exception('Could not resolve the CV URL')
         cv_url = None
 
     # Contact information

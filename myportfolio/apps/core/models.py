@@ -1,6 +1,9 @@
 from django.db import models
 from .imagefields import CompressedImageField
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Skill(models.Model):
@@ -127,4 +130,43 @@ class Resume(models.Model):
 
     def __str__(self):
         return f'{self.label} ({"active" if self.is_active else "inactive"})'
+
+    def delivery_url(self):
+        """A URL a browser can actually open.
+
+        On Cloudinary the CV is stored as a `raw` asset. Cloudinary refuses
+        *plain* delivery of PDFs when the account restricts that media type,
+        answering `401` with `X-Cld-Error: deny or ACL failure`. A **signed**
+        delivery URL is the supported way to serve restricted media, and signing
+        an unrestricted asset is harmless — so we always sign on Cloudinary.
+
+        Falls back to the plain storage URL (dev / non-Cloudinary) and never
+        raises: a broken CV link must not take the home page down.
+        """
+        if not self.file:
+            return None
+
+        from django.conf import settings
+        if 'cloudinary_storage' in settings.INSTALLED_APPS:
+            try:
+                from cloudinary.utils import cloudinary_url
+                # Storage._save() persists Cloudinary's public_id, which is
+                # already prefixed (media/…) and, for raw assets, keeps the
+                # file extension — so file.name IS the public_id.
+                url, _opts = cloudinary_url(
+                    self.file.name,
+                    resource_type='raw',
+                    type='upload',
+                    sign_url=True,
+                    secure=True,
+                )
+                return url
+            except Exception:
+                logger.exception('Could not sign the CV URL; falling back to the plain one')
+
+        try:
+            return self.file.url
+        except Exception:
+            logger.exception('Could not build any CV URL')
+            return None
 
