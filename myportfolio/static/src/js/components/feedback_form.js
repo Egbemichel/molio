@@ -143,6 +143,20 @@ export function initFeedbackForm() {
         return
       }
 
+      // Validate the optional image up front so the visitor gets an instant,
+      // specific reason instead of a round-trip failure.
+      const imageFile = imageInput?.files?.[0]
+      if (imageFile) {
+        if (!imageFile.type.startsWith('image/')) {
+          toast.error('That file is not an image. Please choose a JPG, PNG, WEBP, GIF or HEIC.')
+          return
+        }
+        if (imageFile.size > 20 * 1024 * 1024) {
+          toast.error(`That image is too large (${(imageFile.size / 1048576).toFixed(1)} MB). The maximum is 20 MB.`)
+          return
+        }
+      }
+
       const resetBtn = showButtonLoader(submitBtn)
 
       try {
@@ -152,8 +166,8 @@ export function initFeedbackForm() {
         formData.append('email', email)
         formData.append('rating', currentRating)
         formData.append('message', message)
-        if (imageInput?.files[0]) {
-          formData.append('image', imageInput.files[0])
+        if (imageFile) {
+          formData.append('image', imageFile)
         }
         formData.append('csrfmiddlewaretoken', getCookie('csrftoken'))
 
@@ -161,11 +175,19 @@ export function initFeedbackForm() {
           method: 'POST',
           body: formData,
         })
+        const payload = await response.json().catch(() => ({}))
 
-        if (!response.ok) throw new Error('Failed to submit feedback')
+        if (!response.ok) {
+          // Surface the server's specific reason (e.g. exactly which field / why)
+          const reason = payload.error || 'Something went wrong. Please try again.'
+          showButtonError(submitBtn, 'Try again', 3000)
+          resetBtn()
+          toast.error(reason)
+          return
+        }
 
         showButtonSuccess(submitBtn, 2500)
-        toast.success('Thank you! Your feedback has been received')
+        toast.success(payload.message || 'Thank you! Your feedback has been received.')
         updateSmileyState(smiley, 5) // 5★ = biggest smile — celebrate on success
 
         // Animate smiley face with pop and wiggle
