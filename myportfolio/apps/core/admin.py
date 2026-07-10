@@ -1,8 +1,11 @@
-from django.contrib import admin
+from django.contrib import admin, messages
+from django.shortcuts import redirect, render
+from django.urls import path, reverse
 from django.utils.html import format_html, mark_safe
 from django.utils.html import escape as html_escape
 from django import forms
 from config.admin_site import CustomModelAdmin
+from .devicon import DeviconUnavailable, get_catalog
 from .models import Skill, Education, EducationGallery, Service, GalleryItem, Feedback, Resume
 
 
@@ -45,19 +48,106 @@ class EducationGalleryInline(admin.StackedInline):
 
 @admin.register(Skill)
 class SkillAdmin(CustomModelAdmin):
-    list_display = ('name', 'icon_preview', 'order')
-    ordering = ('order',)
+    list_display = ('name', 'icon_preview', 'source_badge', 'order')
+    ordering = ('order', 'name')
     fields = ('name', 'icon', 'order')
-    
+    search_fields = ('name', 'slug')
+
     def icon_preview(self, obj):
-        if obj.icon:
+        src = obj.icon_src
+        if src:
             return format_html(
                 '<img src="{}" style="height: 24px; width: auto; '
                 'border-radius: 4px; object-fit: contain;" />',
-                obj.icon.url
+                src
             )
         return '-'
     icon_preview.short_description = 'Icon'
+
+    def source_badge(self, obj):
+        if obj.slug:
+            return mark_safe(
+                '<span style="background: rgba(139,30,30,0.12); padding: 3px 8px; '
+                'border-radius: 4px; color: #8B1E1E; font-size: 11px;">catalog</span>'
+            )
+        return mark_safe('<span style="color: rgba(232,232,232,0.4); font-size: 11px;">uploaded</span>')
+    source_badge.short_description = 'Source'
+
+    # ── catalog picker ──────────────────────────────────────────────────────
+    def get_urls(self):
+        return [
+            path(
+                'catalog/',
+                self.admin_site.admin_view(self.catalog_view),
+                name='core_skill_catalog',
+            ),
+        ] + super().get_urls()
+
+    def catalog_view(self, request):
+        """Toggle skills on/off from the Devicon catalog — no uploads needed."""
+        changelist_url = reverse('admin:core_skill_changelist')
+
+        if request.method == 'POST':
+            selected = set(request.POST.getlist('slugs'))
+            try:
+                catalog = {item['slug']: item for item in get_catalog()}
+            except DeviconUnavailable:
+                messages.error(request, 'Could not reach the icon catalog. Nothing was changed.')
+                return redirect(changelist_url)
+
+            existing = {s.slug: s for s in Skill.objects.exclude(slug__isnull=True)}
+
+            # Turn on anything newly ticked.
+            added = 0
+            for slug in selected - existing.keys():
+                item = catalog.get(slug)
+                if not item:
+                    continue
+                Skill.objects.create(
+                    name=item['label'],
+                    slug=item['slug'],
+                    variant=item['variant'],
+                    icon_url=item['url'],
+                )
+                added += 1
+
+            # Turn off anything unticked. Only catalog-sourced skills are ever
+            # removed here — skills you uploaded by hand are never touched.
+            removed, _ = Skill.objects.filter(slug__in=(existing.keys() - selected)).delete()
+
+            if added or removed:
+                bits = []
+                if added:
+                    bits.append(f'{added} added')
+                if removed:
+                    bits.append(f'{removed} removed')
+                messages.success(request, 'Skills updated — ' + ', '.join(bits) + '.')
+            else:
+                messages.info(request, 'No changes to save.')
+            return redirect(changelist_url)
+
+        # GET — render the grid, or a proper error state if the CDN is down.
+        error = None
+        catalog = []
+        try:
+            catalog = get_catalog(force_refresh='refresh' in request.GET)
+        except DeviconUnavailable as exc:
+            error = str(exc)
+
+        selected = set(
+            Skill.objects.exclude(slug__isnull=True).values_list('slug', flat=True)
+        )
+
+        context = {
+            **self.admin_site.each_context(request),
+            'title': 'Skill catalog',
+            'catalog': catalog,
+            'selected': selected,
+            'error': error,
+            'opts': self.model._meta,
+            'changelist_url': changelist_url,
+        }
+        return render(request, 'admin/core/skill/catalog.html', context)
 
 
 @admin.register(Education)
