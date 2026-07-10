@@ -7,15 +7,48 @@ logger = logging.getLogger(__name__)
 
 
 class Skill(models.Model):
+    """A skill shown in the carousel.
+
+    The logo comes from one of two places:
+      * `slug` set  -> a Devicon logo served from the CDN (no upload, toggled on
+        from the admin catalog picker), or
+      * `icon` set  -> a logo you uploaded yourself, for anything not in Devicon.
+    `icon_src` resolves whichever is present.
+    """
     name = models.CharField(max_length=100)
-    icon = CompressedImageField(upload_to='skills/')
+
+    # Devicon-backed logo. slug is NULL (not '') for uploaded skills so the
+    # unique constraint doesn't collide across them.
+    slug = models.SlugField(max_length=100, blank=True, null=True, unique=True,
+                            help_text='Devicon slug, e.g. "django". Set by the catalog picker.')
+    variant = models.CharField(max_length=50, blank=True,
+                               help_text='Devicon SVG variant, e.g. "original" or "plain".')
+    icon_url = models.URLField(max_length=500, blank=True,
+                               help_text='CDN URL of the Devicon SVG.')
+
+    # Manual fallback for logos Devicon doesn't carry.
+    icon = CompressedImageField(upload_to='skills/', blank=True,
+                                help_text='Only needed when this skill is not from the catalog.')
+
     order = models.IntegerField(default=0)
 
     class Meta:
-        ordering = ['order']
+        ordering = ['order', 'name']
 
     def __str__(self):
         return self.name
+
+    @property
+    def icon_src(self):
+        """The URL the carousel should render, whichever source supplied it."""
+        if self.icon_url:
+            return self.icon_url
+        if self.icon:
+            try:
+                return self.icon.url
+            except Exception:
+                logger.exception('Could not resolve uploaded icon URL for skill %s', self.pk)
+        return ''
 
 
 class Education(models.Model):
