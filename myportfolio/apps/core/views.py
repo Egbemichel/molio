@@ -98,11 +98,13 @@ def home(request):
         for edu in education_entries
     ]
     
-    # Fetch skills from database
-    skills = Skill.objects.all()
+    # Fetch skills from database. icon_src resolves either the Devicon CDN URL
+    # (catalog skills) or an uploaded file — skills without either are skipped
+    # so the carousel never renders an empty tile.
     skills_list = [
-        {'name': skill.name, 'icon': skill.icon.url}
-        for skill in skills
+        {'name': skill.name, 'icon': skill.icon_src}
+        for skill in Skill.objects.all()
+        if skill.icon_src
     ]
     
     # Fetch services from database
