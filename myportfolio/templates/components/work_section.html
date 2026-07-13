@@ -1,362 +1,281 @@
 {% load static %}
 {% comment %}
-Work / Projects — editorial (Swiss-grid) layout.
-Left rail lists categories and stays pinned (position: sticky) while the right
-column scrolls through that category's projects one by one, revealing on scroll,
-before the whole section eventually scrolls away. Projects are rendered
-server-side (real DOM) so the scroll observers and reveals are robust.
+Projects — editorial rectangle. The section is framed by the two outer vertical
+lines (from the enclosing .editorial-region) plus a top and bottom horizontal
+line. A narrow left rail holds the categories (centred + sticky so it stays in
+view while the right column scrolls through the projects); an accent marker
+rides the left line to the active category's row.
 {% endcomment %}
 
 <section id="work" class="work-section">
-    <div class="work-inner">
+    <span class="wline wline--top" aria-hidden="true"></span>
+    <span class="wline wline--bottom" aria-hidden="true"></span>
 
-        <header class="work-head">
-            <span class="work-eyebrow">Selected Work</span>
-            <h2 class="work-title">Things I've built</h2>
-        </header>
+    <div class="work-grid" data-work>
+        <!-- LEFT — narrow, centred, sticky category rail -->
+        <aside class="work-cats">
+            <div class="work-cats-inner">
+                <span class="work-cat-marker" aria-hidden="true"></span>
+                <span class="work-cats-label">Categories</span>
+                <ul class="work-cats-list">
+                    {% for cat in categories %}
+                    {% if cat.projects.all %}
+                    <li>
+                        <button type="button" class="work-cat" data-cat-link="{{ cat.id }}"
+                                title="{{ cat.name }}" data-cursor="pointer">
+                            <span class="work-cat-idx">{{ forloop.counter|stringformat:"02d" }}</span>
+                            <span class="work-cat-name">{{ cat.name }}</span>
+                        </button>
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+        </aside>
 
-        <div class="work-grid" data-work>
-            <!-- LEFT — sticky category rail -->
-            <aside class="work-cats">
-                <div class="work-cats-inner">
-                    <span class="work-cats-label">Categories</span>
-                    <ul class="work-cats-list">
-                        {% for cat in categories %}
-                        {% if cat.projects.all %}
-                        <li>
-                            <button type="button" class="work-cat" data-cat-link="{{ cat.id }}" data-cursor="pointer">
-                                <span class="work-cat-idx">{{ forloop.counter|stringformat:"02d" }}</span>
-                                <span class="work-cat-name">{{ cat.name }}</span>
-                                <span class="work-cat-count">{{ cat.projects.all|length }}</span>
-                            </button>
-                        </li>
-                        {% endif %}
-                        {% endfor %}
-                    </ul>
+        <!-- RIGHT — projects, grouped by category, scrolling -->
+        <div class="work-list">
+            <header class="work-head">
+                <span class="work-eyebrow">Selected Work</span>
+                <h2 class="work-title">Things I've built</h2>
+            </header>
+
+            {% for cat in categories %}
+            {% if cat.projects.all %}
+            <div class="work-cat-group" data-cat-group="{{ cat.id }}" id="cat-{{ cat.id }}">
+                <div class="work-cat-heading">
+                    <span class="work-cat-heading-line" aria-hidden="true"></span>
+                    <span class="work-cat-heading-name">{{ cat.name }}</span>
                 </div>
-            </aside>
 
-            <!-- RIGHT — projects, grouped by category, scrolling -->
-            <div class="work-list">
-                {% for cat in categories %}
-                {% if cat.projects.all %}
-                <div class="work-cat-group" data-cat-group="{{ cat.id }}" id="cat-{{ cat.id }}">
-                    <div class="work-cat-heading">
-                        <span class="work-cat-heading-line" aria-hidden="true"></span>
-                        <span class="work-cat-heading-name">{{ cat.name }}</span>
+                {% for p in cat.projects.all %}
+                <article class="work-project" data-project>
+                    <div class="work-project-head">
+                        <span class="work-project-num">{{ forloop.counter|stringformat:"02d" }}</span>
+                        {% if p.logo %}
+                        <img class="work-project-logo" src="{{ p.logo.url }}" alt="{{ p.title }} logo" loading="lazy">
+                        {% endif %}
                     </div>
 
-                    {% for p in cat.projects.all %}
-                    <article class="work-project" data-project>
-                        <div class="work-project-head">
-                            <span class="work-project-num">{{ forloop.counter|stringformat:"02d" }}</span>
-                            {% if p.logo %}
-                            <img class="work-project-logo" src="{{ p.logo.url }}" alt="{{ p.title }} logo" loading="lazy">
-                            {% endif %}
+                    {% if p.mockup %}
+                    <div class="work-project-media">
+                        <img src="{{ p.mockup.url }}" alt="{{ p.title }}" loading="lazy">
+                    </div>
+                    {% endif %}
+
+                    <div class="work-project-body">
+                        <h3 class="work-project-title">{{ p.title }}</h3>
+                        <div class="work-project-meta">
+                            {% if p.role %}<span>{{ p.role }}</span>{% endif %}
+                            {% if p.role and p.date_range %}<span class="work-meta-dot" aria-hidden="true"></span>{% endif %}
+                            {% if p.date_range %}<span class="work-project-date">{{ p.date_range }}</span>{% endif %}
                         </div>
 
-                        {% if p.mockup %}
-                        <div class="work-project-media">
-                            <img src="{{ p.mockup.url }}" alt="{{ p.title }}" loading="lazy">
-                        </div>
+                        {% if p.description %}
+                        <p class="work-project-desc">{{ p.description }}</p>
                         {% endif %}
 
-                        <div class="work-project-body">
-                            <h3 class="work-project-title">{{ p.title }}</h3>
-                            <div class="work-project-meta">
-                                {% if p.role %}<span>{{ p.role }}</span>{% endif %}
-                                {% if p.role and p.date_range %}<span class="work-meta-dot" aria-hidden="true"></span>{% endif %}
-                                {% if p.date_range %}<span class="work-project-date">{{ p.date_range }}</span>{% endif %}
-                            </div>
+                        {% if p.points %}
+                        <ul class="work-project-points">
+                            {% for point in p.points %}
+                            <li><span class="work-tick" aria-hidden="true">→</span><span>{{ point }}</span></li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
 
-                            {% if p.description %}
-                            <p class="work-project-desc">{{ p.description }}</p>
-                            {% endif %}
-
-                            {% if p.points %}
-                            <ul class="work-project-points">
-                                {% for point in p.points %}
-                                <li><span class="work-tick" aria-hidden="true">→</span><span>{{ point }}</span></li>
+                        <div class="work-project-foot">
+                            <div class="work-project-tech">
+                                {% for t in p.technologies.all|slice:":5" %}
+                                {% if t.icon_src %}
+                                <span class="work-tech" title="{{ t.name }}">
+                                    <img src="{{ t.icon_src }}" alt="{{ t.name }}" loading="lazy">
+                                </span>
+                                {% endif %}
                                 {% endfor %}
-                            </ul>
-                            {% endif %}
-
-                            <div class="work-project-foot">
-                                <div class="work-project-tech">
-                                    {% for t in p.technologies.all|slice:":5" %}
-                                    {% if t.icon_src %}
-                                    <span class="work-tech" title="{{ t.name }}">
-                                        <img src="{{ t.icon_src }}" alt="{{ t.name }}" loading="lazy">
-                                    </span>
-                                    {% endif %}
-                                    {% endfor %}
-                                </div>
-                                <div class="work-project-links">
-                                    {% if p.github_link %}<a href="{{ p.github_link }}" target="_blank" rel="noopener" data-cursor="pointer">GitHub ↗</a>{% endif %}
-                                    {% if p.live_url %}<a href="{{ p.live_url }}" target="_blank" rel="noopener" data-cursor="pointer">Live ↗</a>{% endif %}
-                                </div>
+                            </div>
+                            <div class="work-project-links">
+                                {% if p.github_link %}<a href="{{ p.github_link }}" target="_blank" rel="noopener" data-cursor="pointer">GitHub ↗</a>{% endif %}
+                                {% if p.live_url %}<a href="{{ p.live_url }}" target="_blank" rel="noopener" data-cursor="pointer">Live ↗</a>{% endif %}
                             </div>
                         </div>
-                    </article>
-                    {% endfor %}
-                </div>
-                {% endif %}
-                {% empty %}
-                <div class="work-empty">
-                    <span class="work-empty-icon" aria-hidden="true">
-                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#8B1E1E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 12h18"/>
-                        </svg>
-                    </span>
-                    <h3 class="work-empty-title">Work, in the making</h3>
-                    <p class="work-empty-text">New projects are being polished right now; they'll land here shortly.</p>
-                </div>
+                    </div>
+                </article>
                 {% endfor %}
             </div>
+            {% endif %}
+            {% empty %}
+            <div class="work-empty">
+                <span class="work-empty-icon" aria-hidden="true">
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#8B1E1E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 12h18"/>
+                    </svg>
+                </span>
+                <h3 class="work-empty-title">Work, in the making</h3>
+                <p class="work-empty-text">New projects are being polished right now; they'll land here shortly.</p>
+            </div>
+            {% endfor %}
         </div>
     </div>
 </section>
 
 <style>
+    /* ── Editorial region: the two outer vertical lines run About → Projects ── */
+    .editorial-region { position: relative; }
+    .eline {
+        position: absolute; top: 0; bottom: 0; width: 1px;
+        background: var(--edge-line); z-index: 1; pointer-events: none;
+    }
+    .eline--left  { left: var(--edge-inset); }
+    .eline--right { right: var(--edge-inset); }
+
+    /* ── Projects rectangle ── */
     .work-section {
         position: relative;
-        width: 100%;
         background: #fff;
-        padding: 6rem 2rem;
-        overflow: hidden;
+        padding: 4.5rem 0 5.5rem;
     }
-    @media (min-width: 768px) { .work-section { padding: 8rem 4rem; } }
-
-    .work-inner { max-width: 100rem; margin: 0 auto; }
-
-    /* Header */
-    .work-head { margin-bottom: 3rem; }
-    .work-eyebrow {
-        display: inline-block;
-        font-family: 'HagiaPro', system-ui, sans-serif;
-        font-size: 0.8rem;
-        letter-spacing: 0.28em;
-        text-transform: uppercase;
-        color: #8B1E1E;
-        margin-bottom: 0.9rem;
+    .wline {
+        position: absolute; height: 1px;
+        left: var(--edge-inset); right: var(--edge-inset);
+        background: var(--edge-line); pointer-events: none; z-index: 1;
     }
-    .work-title {
-        font-family: 'HagiaPro', system-ui, sans-serif;
-        font-weight: 500;
-        font-size: clamp(2rem, 5vw, 3.5rem);
-        letter-spacing: -0.02em;
-        color: #3F3F3F;
-        line-height: 1.02;
-    }
+    .wline--top { top: 0; }
+    .wline--bottom { bottom: 0; }
 
-    /* Grid: sticky rail + scrolling list, with an editorial column line */
     .work-grid {
         position: relative;
+        margin: 0 var(--edge-inset);
         display: grid;
-        grid-template-columns: 1fr;
-        gap: 2.5rem;
+        grid-template-columns: var(--cats-rail) minmax(0, 1fr);
         align-items: start;
     }
-    @media (min-width: 1024px) {
-        .work-grid {
-            grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
-            gap: 4.5rem;
-        }
-        /* the vertical editorial line between the two columns */
-        .work-grid::before {
-            content: '';
-            position: absolute;
-            top: 0; bottom: 0;
-            left: calc(20rem + 2.25rem);
-            width: 1px;
-            background: rgba(63, 63, 63, 0.12);
-        }
-    }
 
-    /* LEFT — sticky category rail */
-    .work-cats { align-self: start; }
+    /* LEFT — categories rail */
+    .work-cats {
+        position: relative;
+        align-self: stretch;                 /* full rectangle height */
+        border-right: 1px solid var(--edge-line);
+    }
+    .work-cats-inner {
+        position: relative;                  /* positioning context for the marker */
+        padding: 1.75rem 1.25rem 1.75rem 1.5rem;
+    }
     @media (min-width: 1024px) {
-        .work-cats { position: sticky; top: clamp(5rem, 12vh, 8rem); }
+        /* centred + sticky: stays mid-viewport while the right column scrolls */
+        .work-cats-inner { position: sticky; top: 50vh; transform: translateY(-50%); }
     }
     .work-cats-label {
         display: block;
         font-family: 'HagiaPro', system-ui, sans-serif;
-        font-size: 0.72rem;
-        letter-spacing: 0.24em;
-        text-transform: uppercase;
+        font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase;
         color: rgba(63, 63, 63, 0.4);
-        padding-bottom: 1rem;
-        margin-bottom: 0.5rem;
-        border-bottom: 1px solid rgba(63, 63, 63, 0.12);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        margin-bottom: 1.1rem;
     }
-    .work-cats-list {
-        list-style: none; margin: 0; padding: 0;
-        display: flex; flex-direction: row; gap: 0.25rem;
-        overflow-x: auto; -webkit-overflow-scrolling: touch;
-    }
-    @media (min-width: 1024px) {
-        .work-cats-list { flex-direction: column; gap: 0.15rem; overflow: visible; }
-    }
+    .work-cats-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.4rem; }
     .work-cat {
-        display: flex; align-items: baseline; gap: 0.7rem;
-        width: 100%;
+        display: flex; align-items: baseline; gap: 0.5rem;
+        width: 100%; min-width: 0;
         background: none; border: none; cursor: pointer;
-        padding: 0.75rem 0.25rem;
-        text-align: left; white-space: nowrap;
+        padding: 0.5rem 0; text-align: left;
         font-family: 'HagiaPro', system-ui, sans-serif;
-        color: rgba(63, 63, 63, 0.42);
-        transition: color 0.4s ease, opacity 0.4s ease;
-        position: relative;
+        color: rgba(63, 63, 63, 0.45);
+        transition: color 0.45s ease;
     }
     .work-cat:hover { color: rgba(63, 63, 63, 0.85); }
-    .work-cat-idx {
-        font-size: 0.7rem; letter-spacing: 0.05em;
-        color: rgba(63, 63, 63, 0.3);
-        transition: color 0.4s ease;
-    }
+    .work-cat-idx { font-size: 0.66rem; letter-spacing: 0.05em; color: rgba(63, 63, 63, 0.3); flex-shrink: 0; transition: color 0.45s ease; }
     .work-cat-name {
-        font-weight: 500;
-        font-size: clamp(1.35rem, 2.4vw, 2rem);
-        letter-spacing: -0.01em;
-        line-height: 1.1;
+        font-weight: 500; font-size: clamp(0.95rem, 1.15vw, 1.15rem);
+        letter-spacing: -0.01em; line-height: 1.2;
+        /* narrow rail — truncate long names, native tooltip (title) reveals full */
+        min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
-    .work-cat-count {
-        margin-left: auto;
-        font-size: 0.75rem;
-        color: rgba(63, 63, 63, 0.3);
-        display: none;
-    }
-    @media (min-width: 1024px) { .work-cat-count { display: inline; } }
     .work-cat.is-active { color: #8B1E1E; }
-    .work-cat.is-active .work-cat-idx,
-    .work-cat.is-active .work-cat-count { color: #8B1E1E; }
-    /* active marker line to the left */
-    .work-cat.is-active::before {
-        content: '';
-        position: absolute;
-        left: -1.25rem; top: 50%;
-        width: 0.8rem; height: 2px;
+    .work-cat.is-active .work-cat-idx { color: #8B1E1E; }
+
+    /* Accent marker that rides the left line to the active category row */
+    .work-cat-marker {
+        position: absolute; left: -1px; top: 0;
+        width: 2px; height: 0;
         background: #8B1E1E;
-        transform: translateY(-50%) scaleX(1);
-        transform-origin: left;
-        display: none;
-    }
-    @media (min-width: 1024px) { .work-cat.is-active::before { display: block; } }
-
-    /* RIGHT — project list */
-    .work-list { min-width: 0; }
-    .work-cat-group { scroll-margin-top: 7rem; }
-
-    .work-cat-heading {
-        display: flex; align-items: center; gap: 1rem;
-        margin: 2.5rem 0 2rem;
-    }
-    .work-cat-group:first-child .work-cat-heading { margin-top: 0; }
-    .work-cat-heading-line { height: 1px; width: 2.5rem; background: #8B1E1E; }
-    .work-cat-heading-name {
-        font-family: 'HagiaPro', system-ui, sans-serif;
-        font-size: 0.78rem; letter-spacing: 0.2em; text-transform: uppercase;
-        color: rgba(63, 63, 63, 0.45);
+        transition: top 0.5s cubic-bezier(0.22, 1, 0.36, 1), height 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+        z-index: 2; pointer-events: none;
     }
 
-    .work-project {
-        padding: 2.75rem 0 3rem;
-        border-top: 1px solid rgba(63, 63, 63, 0.12);
+    /* RIGHT — projects */
+    .work-list { min-width: 0; padding: 0 0 0 clamp(1.5rem, 3vw, 3.5rem); }
+    .work-head { margin-bottom: 1.5rem; }
+    .work-eyebrow {
+        display: inline-block; font-family: 'HagiaPro', system-ui, sans-serif;
+        font-size: 0.78rem; letter-spacing: 0.26em; text-transform: uppercase;
+        color: #8B1E1E; margin-bottom: 0.7rem;
     }
-    .work-project-head {
-        display: flex; align-items: center; justify-content: space-between;
-        margin-bottom: 1.5rem;
+    .work-title {
+        font-family: 'HagiaPro', system-ui, sans-serif; font-weight: 500;
+        font-size: clamp(1.9rem, 4vw, 3.2rem); letter-spacing: -0.02em;
+        color: #3F3F3F; line-height: 1.02;
     }
-    .work-project-num {
-        font-family: 'HagiaPro', system-ui, sans-serif;
-        font-size: 0.8rem; letter-spacing: 0.1em; color: rgba(63, 63, 63, 0.35);
-    }
-    .work-project-logo { height: 2.1rem; width: auto; max-width: 9rem; object-fit: contain; }
+    .work-cat-group { scroll-margin-top: 6rem; }
+    .work-cat-heading { display: flex; align-items: center; gap: 1rem; margin: 2rem 0 1.75rem; }
+    .work-cat-heading-line { height: 1px; width: 2.25rem; background: #8B1E1E; }
+    .work-cat-heading-name { font-family: 'HagiaPro', system-ui, sans-serif; font-size: 0.76rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(63, 63, 63, 0.45); }
 
-    .work-project-media {
-        border-radius: 1.25rem; overflow: hidden;
-        background: #E8E8E8; margin-bottom: 1.75rem;
-        border: 1px solid rgba(63, 63, 63, 0.08);
-    }
-    .work-project-media img {
-        width: 100%; height: auto; display: block;
-        transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
-    }
+    .work-project { padding: 2.5rem 0 2.75rem; border-top: 1px solid rgba(63, 63, 63, 0.12); }
+    .work-project:first-of-type { border-top: none; padding-top: 0.5rem; }
+    .work-project-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.4rem; }
+    .work-project-num { font-family: 'HagiaPro', system-ui, sans-serif; font-size: 0.78rem; letter-spacing: 0.1em; color: rgba(63, 63, 63, 0.35); }
+    .work-project-logo { height: 2rem; width: auto; max-width: 9rem; object-fit: contain; }
+    .work-project-media { border-radius: 1.15rem; overflow: hidden; background: #E8E8E8; margin-bottom: 1.6rem; border: 1px solid rgba(63, 63, 63, 0.08); }
+    .work-project-media img { width: 100%; height: auto; display: block; transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1); }
     .work-project:hover .work-project-media img { transform: scale(1.03); }
-
-    .work-project-title {
-        font-family: 'HagiaPro', system-ui, sans-serif;
-        font-weight: 500;
-        font-size: clamp(1.7rem, 3.4vw, 2.9rem);
-        letter-spacing: -0.02em;
-        color: #3F3F3F; line-height: 1.05;
-        margin-bottom: 0.7rem;
-    }
-    .work-project-meta {
-        display: flex; align-items: center; gap: 0.7rem; flex-wrap: wrap;
-        font-family: 'HagiaPro', system-ui, sans-serif;
-        color: rgba(63, 63, 63, 0.6); font-size: 1rem;
-        margin-bottom: 1.4rem;
-    }
+    .work-project-title { font-family: 'HagiaPro', system-ui, sans-serif; font-weight: 500; font-size: clamp(1.6rem, 3.2vw, 2.7rem); letter-spacing: -0.02em; color: #3F3F3F; line-height: 1.05; margin-bottom: 0.6rem; }
+    .work-project-meta { display: flex; align-items: center; gap: 0.7rem; flex-wrap: wrap; font-family: 'HagiaPro', system-ui, sans-serif; color: rgba(63, 63, 63, 0.6); font-size: 1rem; margin-bottom: 1.3rem; }
     .work-project-date { text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.85rem; }
     .work-meta-dot { width: 4px; height: 4px; border-radius: 50%; background: #8B1E1E; }
-
-    .work-project-desc {
-        font-family: 'HagiaPro', system-ui, sans-serif;
-        font-size: clamp(1.1rem, 1.6vw, 1.5rem);
-        line-height: 1.5; color: #3F3F3F;
-        max-width: 46rem; margin-bottom: 1.6rem;
-    }
-    .work-project-points { list-style: none; margin: 0 0 1.8rem; padding: 0; display: flex; flex-direction: column; gap: 0.7rem; }
-    .work-project-points li {
-        display: flex; gap: 0.75rem;
-        font-family: 'HagiaPro', system-ui, sans-serif;
-        font-size: clamp(1rem, 1.3vw, 1.2rem); line-height: 1.45;
-        color: rgba(63, 63, 63, 0.82);
-    }
+    .work-project-desc { font-family: 'HagiaPro', system-ui, sans-serif; font-size: clamp(1.05rem, 1.5vw, 1.4rem); line-height: 1.5; color: #3F3F3F; max-width: 44rem; margin-bottom: 1.5rem; }
+    .work-project-points { list-style: none; margin: 0 0 1.7rem; padding: 0; display: flex; flex-direction: column; gap: 0.65rem; }
+    .work-project-points li { display: flex; gap: 0.7rem; font-family: 'HagiaPro', system-ui, sans-serif; font-size: clamp(0.98rem, 1.25vw, 1.15rem); line-height: 1.45; color: rgba(63, 63, 63, 0.82); }
     .work-tick { color: #8B1E1E; flex-shrink: 0; }
-
-    .work-project-foot {
-        display: flex; align-items: center; justify-content: space-between;
-        gap: 1.5rem; flex-wrap: wrap;
-    }
-    .work-project-tech { display: flex; gap: 0.6rem; }
-    .work-tech {
-        width: 2.6rem; height: 2.6rem; border-radius: 0.7rem;
-        display: inline-flex; align-items: center; justify-content: center;
-        background: #fff; border: 1px solid rgba(63, 63, 63, 0.1);
-        transition: transform 0.3s ease, border-color 0.3s ease;
-    }
+    .work-project-foot { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; }
+    .work-project-tech { display: flex; gap: 0.55rem; }
+    .work-tech { width: 2.5rem; height: 2.5rem; border-radius: 0.65rem; display: inline-flex; align-items: center; justify-content: center; background: #fff; border: 1px solid rgba(63, 63, 63, 0.1); transition: transform 0.3s ease, border-color 0.3s ease; }
     .work-tech:hover { transform: translateY(-3px); border-color: rgba(139, 30, 30, 0.4); }
-    .work-tech img { width: 1.5rem; height: 1.5rem; object-fit: contain; }
-    .work-project-links { display: flex; gap: 1.25rem; }
-    .work-project-links a {
-        font-family: 'HagiaPro', system-ui, sans-serif;
-        font-size: 1rem; color: #3F3F3F; text-decoration: none;
-        border-bottom: 1px solid rgba(63, 63, 63, 0.25);
-        padding-bottom: 2px; transition: color 0.3s ease, border-color 0.3s ease;
-    }
+    .work-tech img { width: 1.45rem; height: 1.45rem; object-fit: contain; }
+    .work-project-links { display: flex; gap: 1.2rem; }
+    .work-project-links a { font-family: 'HagiaPro', system-ui, sans-serif; font-size: 1rem; color: #3F3F3F; text-decoration: none; border-bottom: 1px solid rgba(63, 63, 63, 0.25); padding-bottom: 2px; transition: color 0.3s ease, border-color 0.3s ease; }
     .work-project-links a:hover { color: #8B1E1E; border-color: #8B1E1E; }
 
     /* Empty state */
     .work-empty { text-align: center; padding: 4rem 1rem; }
-    .work-empty-icon {
-        display: inline-flex; align-items: center; justify-content: center;
-        width: 4rem; height: 4rem; border-radius: 50%;
-        border: 2px solid rgba(139, 30, 30, 0.2); margin-bottom: 1.5rem;
-    }
+    .work-empty-icon { display: inline-flex; align-items: center; justify-content: center; width: 4rem; height: 4rem; border-radius: 50%; border: 2px solid rgba(139, 30, 30, 0.2); margin-bottom: 1.5rem; }
     .work-empty-title { font-family: 'HagiaPro', system-ui, sans-serif; font-weight: 500; font-size: clamp(1.6rem, 3vw, 2.4rem); color: #3F3F3F; margin-bottom: 0.6rem; }
     .work-empty-text { font-family: 'HagiaPro', system-ui, sans-serif; font-size: 1.1rem; color: rgba(63, 63, 63, 0.6); max-width: 26rem; margin: 0 auto; }
 
     /* Scroll reveal */
-    .work-project { opacity: 0; transform: translateY(42px); transition: opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1), transform 0.75s cubic-bezier(0.22, 1, 0.36, 1); }
+    .work-project { opacity: 0; transform: translateY(40px); transition: opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1), transform 0.75s cubic-bezier(0.22, 1, 0.36, 1); }
     .work-project.is-visible { opacity: 1; transform: none; }
-    .work-cat-heading { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .work-cat-heading { opacity: 0; transform: translateY(18px); transition: opacity 0.6s ease, transform 0.6s ease; }
     .work-cat-heading.is-visible { opacity: 1; transform: none; }
+
+    /* ── Mobile: drop the rectangle; categories become a scrollable row ── */
+    @media (max-width: 1023px) {
+        .work-section { padding: 3.5rem 2rem 4rem; overflow-x: hidden; }
+        .wline, .eline { display: none; }              /* editorial lines are a desktop feature */
+        .work-cats { overflow: hidden; }
+        .work-grid { margin: 0; grid-template-columns: 1fr; gap: 1.5rem; }
+        .work-cats { border-right: none; border-bottom: 1px solid var(--edge-line); min-width: 0; }
+        .work-cats-inner { padding: 0 0 1rem; min-width: 0; }
+        /* wrapping chip row — no horizontal scroll, long names wrap instead of overflow */
+        .work-cats-list { flex-direction: row; flex-wrap: wrap; gap: 0.6rem 1.1rem; min-width: 0; }
+        .work-cat { width: auto; max-width: 100%; padding: 0.35rem 0; }
+        .work-cat-name { white-space: normal; overflow: visible; text-overflow: clip; }
+        .work-cat-marker { display: none; }
+        .work-list { padding-left: 0; }
+    }
 
     @media (prefers-reduced-motion: reduce) {
         .work-project, .work-cat-heading { opacity: 1; transform: none; transition: none; }
-        .work-project-media img, .work-tech, .work-cat { transition: none; }
+        .work-project-media img, .work-tech, .work-cat, .work-cat-marker { transition: none; }
     }
 </style>
 
@@ -364,8 +283,8 @@ server-side (real DOM) so the scroll observers and reveals are robust.
 (function () {
     const root = document.querySelector('[data-work]');
     if (!root) return;
-
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const desktop = () => window.matchMedia('(min-width: 1024px)').matches;
 
     // Reveal projects + category headings as they enter.
     const revealTargets = root.querySelectorAll('[data-project], .work-cat-heading');
@@ -374,16 +293,15 @@ server-side (real DOM) so the scroll observers and reveals are robust.
     } else {
         const revealer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('is-visible');
-                    revealer.unobserve(entry.target);
-                }
+                if (entry.isIntersecting) { entry.target.classList.add('is-visible'); revealer.unobserve(entry.target); }
             });
         }, { rootMargin: '0px 0px -12% 0px', threshold: 0.12 });
         revealTargets.forEach(el => revealer.observe(el));
     }
 
-    // Scrollspy — highlight the category whose projects are in view.
+    // Category buttons + the accent marker.
+    const cats = root.querySelector('.work-cats');
+    const marker = root.querySelector('.work-cat-marker');
     const links = new Map();
     root.querySelectorAll('[data-cat-link]').forEach(btn => {
         links.set(btn.dataset.catLink, btn);
@@ -393,22 +311,39 @@ server-side (real DOM) so the scroll observers and reveals are robust.
         });
     });
 
+    function moveMarker(btn) {
+        if (!marker || !desktop()) { if (marker) marker.style.height = '0'; return; }
+        // btn.offsetTop is relative to .work-cats (the positioned rail).
+        marker.style.top = btn.offsetTop + 'px';
+        marker.style.height = btn.offsetHeight + 'px';
+    }
+
     function setActive(id) {
-        links.forEach((btn, key) => btn.classList.toggle('is-active', key === id));
+        links.forEach((btn, key) => {
+            const on = key === id;
+            btn.classList.toggle('is-active', on);
+            if (on) moveMarker(btn);
+        });
     }
 
     const groups = [...root.querySelectorAll('[data-cat-group]')];
     if (groups.length) {
         setActive(groups[0].dataset.catGroup);
+        // marker position needs layout — set again after paint
+        requestAnimationFrame(() => setActive(groups[0].dataset.catGroup));
         if ('IntersectionObserver' in window) {
             const spy = new IntersectionObserver((entries) => {
-                // pick the entry nearest the top that's intersecting
                 const visible = entries.filter(e => e.isIntersecting)
                     .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
                 if (visible.length) setActive(visible[0].target.dataset.catGroup);
             }, { rootMargin: '-35% 0px -55% 0px', threshold: 0 });
             groups.forEach(g => spy.observe(g));
         }
+        // keep the marker aligned on resize
+        window.addEventListener('resize', () => {
+            const active = [...links.values()].find(b => b.classList.contains('is-active'));
+            if (active) moveMarker(active);
+        });
     }
 })();
 </script>
