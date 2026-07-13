@@ -1,20 +1,16 @@
 {% extends "admin/change_list.html" %}
 
 {% comment %}
-Skills changelist + a "Browse catalog" button, which opens the Devicon picker
-where skills are toggled on/off instead of uploaded one at a time.
+Skills changelist + a "Browse catalog" button, placed in Unfold's object-tools
+toolbar. Opens the Devicon picker where skills are toggled on/off instead of
+uploaded one at a time.
 {% endcomment %}
 
-{% block content %}
-<div style="margin-bottom: 20px;">
-    <a href="{% url 'admin:core_skill_catalog' %}" class="button default"
-       style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;">
-        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
-        </svg>
+{% block object-tools-items %}
+    <a href="{% url 'admin:core_skill_catalog' %}"
+       class="flex items-center gap-2 bg-primary-600 border border-transparent font-medium h-9.5 px-3 rounded-default text-sm text-white hover:bg-primary-700">
+        <span class="material-symbols-outlined text-base">grid_view</span>
         Browse catalog
     </a>
-</div>
-{{ block.super }}
+    {{ block.super }}
 {% endblock %}
