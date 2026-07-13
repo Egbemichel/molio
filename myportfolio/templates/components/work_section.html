@@ -22,7 +22,7 @@
                     github: '{{ p.github_link|default:"#" }}',
                     tech: [
                         {% for t in p.technologies.all|slice:':3' %}
-                        { name: '{{ t.name|escapejs }}', icon: '{% if t.image %}{{ t.image.url }}{% endif %}' }{% if not forloop.last %},{% endif %}
+                        { name: '{{ t.name|escapejs }}', icon: '{{ t.icon_src|escapejs }}' }{% if not forloop.last %},{% endif %}
                         {% endfor %}
                     ]
                 }{% if not forloop.last %},{% endif %}

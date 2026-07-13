@@ -10,11 +10,43 @@ silently break logos that are already live.
 """
 
 import logging
+import re
 
 import requests
 from django.core.cache import cache
 
 logger = logging.getLogger(__name__)
+
+# Map awkward tech/language names (as GitHub or a human types them) onto the
+# Devicon slug. Anything not here is matched by stripping to [a-z0-9] and trying
+# that as a slug directly, which already covers python, java, rust, dart, etc.
+_NAME_ALIASES = {
+    'c++': 'cplusplus',
+    'c#': 'csharp',
+    'f#': 'fsharp',
+    'objective-c': 'objectivec',
+    'objective c': 'objectivec',
+    'html': 'html5',
+    'css': 'css3',
+    'shell': 'bash',
+    'jupyter notebook': 'jupyter',
+    'node': 'nodejs',
+    'node.js': 'nodejs',
+    'golang': 'go',
+    'vue': 'vuejs',
+    'vue.js': 'vuejs',
+    'next': 'nextjs',
+    'next.js': 'nextjs',
+    'nuxt': 'nuxtjs',
+    'nuxt.js': 'nuxtjs',
+    'tailwind': 'tailwindcss',
+    'tailwind css': 'tailwindcss',
+    'postgres': 'postgresql',
+    'scss': 'sass',
+    'dockerfile': 'docker',
+    'vim script': 'vim',
+    'vimscript': 'vim',
+}
 
 DEVICON_VERSION = 'v2.17.0'
 _BASE = f'https://cdn.jsdelivr.net/gh/devicons/devicon@{DEVICON_VERSION}'
@@ -106,3 +138,26 @@ def get_catalog(force_refresh=False):
     catalog.sort(key=lambda item: item['label'].lower())
     cache.set(CACHE_KEY, catalog, CACHE_TTL)
     return catalog
+
+
+def resolve_icon(name):
+    """Best-effort: map a tech/language name to its Devicon catalog entry.
+
+    Returns the catalog dict ({slug, label, variant, url, tags}) or None when
+    there's no confident match. Never raises — a missing icon must not block a
+    save or a GitHub sync.
+    """
+    if not name:
+        return None
+
+    key = name.strip().lower()
+    slug = _NAME_ALIASES.get(key)
+    if slug is None:
+        norm = re.sub(r'[^a-z0-9]+', '', key)
+        slug = _NAME_ALIASES.get(norm, norm)
+
+    try:
+        catalog = {item['slug']: item for item in get_catalog()}
+    except DeviconUnavailable:
+        return None
+    return catalog.get(slug)

@@ -1,17 +1,51 @@
 from django.db import models
 from apps.core.imagefields import CompressedImageField
+from apps.core.devicon import resolve_icon
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class TechStack(models.Model):
     name = models.CharField(max_length=50)
-    # This will hold the logo (Flutter, Django, etc.).
-    # blank=True so GitHub-synced languages can be auto-created without an icon
-    # (you add the icon later).
-    image = CompressedImageField(upload_to='tech_stack/', blank=True)
+
+    # Logo strategy mirrors Skill: a Devicon URL resolved automatically from the
+    # name (so GitHub-synced languages and manual adds both get a logo with no
+    # upload), with an optional uploaded image as a manual override.
+    icon_url = models.URLField(
+        max_length=500, blank=True,
+        help_text='Auto-filled from Devicon by name on save. Clear it + upload an image to override.',
+    )
+    image = CompressedImageField(
+        upload_to='tech_stack/', blank=True,
+        help_text='Optional manual override (used when Devicon has no logo, or the wrong one).',
+    )
 
     def __str__(self):
         return self.name
+
+    @property
+    def icon_src(self):
+        """URL the site should render: a manual upload wins, else the Devicon URL."""
+        if self.image:
+            try:
+                return self.image.url
+            except Exception:
+                logger.exception('Could not resolve uploaded TechStack image for %s', self.pk)
+        return self.icon_url or ''
+
+    def save(self, *args, **kwargs):
+        # Auto-resolve a Devicon logo by name when nothing is set yet. Cached +
+        # guarded, so it never slows or breaks a save / GitHub sync.
+        if not self.image and not self.icon_url and self.name:
+            try:
+                match = resolve_icon(self.name)
+                if match:
+                    self.icon_url = match['url']
+            except Exception:
+                logger.exception('TechStack icon auto-resolve failed for %s', self.name)
+        super().save(*args, **kwargs)
 
 class Category(models.Model):
     name = models.CharField(max_length=100) # e.g., Personal projects

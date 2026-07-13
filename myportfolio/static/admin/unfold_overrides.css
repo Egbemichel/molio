@@ -47,3 +47,54 @@ html {
 body {
     font-family: 'HagiaPro', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
+
+/*
+ * Motion — the admin used to snap into place. These are gentle, one-shot
+ * entrance animations (they run on load, not on every interaction) and are
+ * fully disabled under prefers-reduced-motion.
+ */
+@media (prefers-reduced-motion: no-preference) {
+    @keyframes unfoldFadeUp {
+        from { opacity: 0; transform: translateY(12px); }
+        to   { opacity: 1; transform: none; }
+    }
+    @keyframes unfoldFadeIn {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+    }
+
+    /* Main content area eases up as a whole. */
+    #content, #content-main {
+        animation: unfoldFadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    /* Sidebar links cascade in. */
+    #nav-sidebar-apps ol li {
+        animation: unfoldFadeUp 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    #nav-sidebar-apps ol li:nth-child(1) { animation-delay: 0.03s; }
+    #nav-sidebar-apps ol li:nth-child(2) { animation-delay: 0.06s; }
+    #nav-sidebar-apps ol li:nth-child(3) { animation-delay: 0.09s; }
+    #nav-sidebar-apps ol li:nth-child(4) { animation-delay: 0.12s; }
+    #nav-sidebar-apps ol li:nth-child(5) { animation-delay: 0.15s; }
+    #nav-sidebar-apps ol li:nth-child(6) { animation-delay: 0.18s; }
+    #nav-sidebar-apps ol li:nth-child(n+7) { animation-delay: 0.21s; }
+
+    /* Table rows fade in softly. */
+    #content table tbody tr {
+        animation: unfoldFadeIn 0.5s ease both;
+    }
+    #content table tbody tr:nth-child(1) { animation-delay: 0.04s; }
+    #content table tbody tr:nth-child(2) { animation-delay: 0.08s; }
+    #content table tbody tr:nth-child(3) { animation-delay: 0.12s; }
+    #content table tbody tr:nth-child(4) { animation-delay: 0.16s; }
+    #content table tbody tr:nth-child(n+5) { animation-delay: 0.2s; }
+
+    /* Buttons/links lift a touch on hover for tactility. */
+    .button, a.addlink, [type="submit"] {
+        transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .button:hover, a.addlink:hover, [type="submit"]:hover {
+        transform: translateY(-1px);
+    }
+}
