@@ -23,46 +23,17 @@
       .min-h-screen { min-height: 100dvh; }
     }
 
-    /* ── Editorial column grid ─────────────────────────────────────────────
-       A faint, fixed set of vertical hairlines aligned to the site's content
-       column — a subtle Swiss/editorial structure that runs the whole page.
-       Non-interactive and low-contrast, so it reads as quiet scaffolding, not
-       decoration competing with the content. */
-    .editorial-grid {
-      position: fixed;
-      inset: 0;
-      z-index: 2;
-      pointer-events: none;
-      display: flex;
-      justify-content: center;
-    }
-    .editorial-grid__cols {
-      width: 100%;
-      max-width: 100rem;
-      height: 100%;
-      margin: 0 2rem;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-    }
-    @media (min-width: 768px) { .editorial-grid__cols { margin: 0 4rem; } }
-    .editorial-grid__cols > span {
-      border-left: 1px solid rgba(63, 63, 63, 0.045);
-    }
-    .editorial-grid__cols > span:first-child { border-left: none; }
-    /* Fewer lines on small screens keeps it from feeling busy. */
-    @media (max-width: 767px) {
-      .editorial-grid__cols { grid-template-columns: repeat(2, 1fr); margin: 0 1.5rem; }
+    /* Editorial line system — geometry + colour shared by the About grid and
+       the Projects rectangle. Section-specific lines are drawn in those
+       components; only the tokens live here. */
+    :root {
+      --edge-inset: 60px;                 /* outer vertical lines, from viewport */
+      --edge-line: rgba(63, 63, 63, 0.5); /* intentional, clearly visible hairline */
+      --cats-rail: clamp(116px, 13vw, 188px); /* categories column width */
     }
   </style>
 </head>
 <body class="bg-primary antialiased">
-
-  {% comment %} App-wide editorial column lines (faint, non-interactive). {% endcomment %}
-  <div class="editorial-grid" aria-hidden="true">
-    <div class="editorial-grid__cols">
-      <span></span><span></span><span></span><span></span>
-    </div>
-  </div>
 
   <main>{% block content %}{% endblock %}</main>
 
