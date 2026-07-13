@@ -172,9 +172,11 @@ UNFOLD = {
             },
         ],
     },
-    # Tailwind-style palette generated around the brand accent. Values are
-    # "R G B" channel strings (Unfold's format), NOT hex. 600 == #8B1E1E.
+    # Tailwind-style palettes. Values are "R G B" channel strings (Unfold's
+    # format), NOT hex.
     "COLORS": {
+        # Brand accent — 600 == #8B1E1E. Shades drive hovers, active states,
+        # badges, focus rings, so the accent is used with range, not flatly.
         "primary": {
             "50": "251 244 244",
             "100": "247 230 230",
@@ -187,6 +189,30 @@ UNFOLD = {
             "800": "97 26 26",
             "900": "82 26 26",
             "950": "45 11 11",
+        },
+        # Warm stone neutral instead of Unfold's default cool slate — softer,
+        # more editorial surfaces that pair with the maroon accent.
+        "base": {
+            "50": "250 249 247",
+            "100": "244 242 239",
+            "200": "231 228 222",
+            "300": "212 207 200",
+            "400": "168 161 151",
+            "500": "124 117 107",
+            "600": "90 84 77",
+            "700": "68 63 58",
+            "800": "44 41 37",
+            "900": "28 26 24",
+            "950": "18 17 15",
+        },
+        # Text tones — headings in the brand ink (#3F3F3F), body a touch softer.
+        "font": {
+            "subtle-light": "124 117 107",
+            "subtle-dark": "168 161 151",
+            "default-light": "82 78 72",
+            "default-dark": "212 207 200",
+            "important-light": "63 63 63",
+            "important-dark": "250 249 247",
         },
     },
 }
