@@ -1,5 +1,6 @@
 from pathlib import Path
 from decouple import config as env
+from django.templatetags.static import static
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -10,8 +11,10 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
-    "admin_interface",  # must be before django.contrib.admin
-    "colorfield",
+    # Unfold admin theme — must come before django.contrib.admin so its admin
+    # templates take precedence.
+    "unfold",
+    "unfold.contrib.forms",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -102,3 +105,37 @@ RESEND_FROM_EMAIL = env("RESEND_FROM_EMAIL", default="Portfolio <onboarding@rese
 # limit from 60 to 5000/hr); GITHUB_USERNAME is whose public repos to import.
 GITHUB_USERNAME = env("GITHUB_USERNAME", default="Egbemichel")
 GITHUB_TOKEN = env("GITHUB_TOKEN", default="")
+
+# ── Unfold admin theme ───────────────────────────────────────────────────────
+# A redesign only — every model, view and custom feature behaves exactly as
+# before. Unfold is responsive out of the box (no hand-rolled media queries).
+# The brand accent below (#8B1E1E) drives buttons/links/active states; the
+# HagiaPro typeface and the larger, more legible text live in
+# static/admin/unfold_overrides.css (loaded via STYLES, admin pages only).
+UNFOLD = {
+    "SITE_TITLE": "Portfolio Admin",
+    "SITE_HEADER": "Portfolio",
+    "SITE_SUBHEADER": "Content management",
+    "SHOW_HISTORY": True,
+    "SHOW_VIEW_ON_SITE": True,
+    "STYLES": [
+        lambda request: static("admin/unfold_overrides.css"),
+    ],
+    # Tailwind-style palette generated around the brand accent. Values are
+    # "R G B" channel strings (Unfold's format), NOT hex. 600 == #8B1E1E.
+    "COLORS": {
+        "primary": {
+            "50": "251 244 244",
+            "100": "247 230 230",
+            "200": "239 201 201",
+            "300": "226 160 160",
+            "400": "209 107 107",
+            "500": "189 66 66",
+            "600": "139 30 30",
+            "700": "116 27 27",
+            "800": "97 26 26",
+            "900": "82 26 26",
+            "950": "45 11 11",
+        },
+    },
+}
