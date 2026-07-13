@@ -1,6 +1,7 @@
 from pathlib import Path
 from decouple import config as env
 from django.templatetags.static import static
+from django.urls import reverse_lazy
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -113,17 +114,69 @@ GITHUB_TOKEN = env("GITHUB_TOKEN", default="")
 # HagiaPro typeface and the larger, more legible text live in
 # static/admin/unfold_overrides.css (loaded via STYLES, admin pages only).
 UNFOLD = {
-    "SITE_TITLE": "Portfolio Admin",
-    "SITE_HEADER": "Portfolio",
-    "SITE_SUBHEADER": "Content management",
+    "SITE_TITLE": "Molio Control Center",
+    "SITE_HEADER": "Molio Control Center",
+    "SITE_SUBHEADER": "Where the work takes place",
+    # Brand mark at the top of the sidebar.
+    "SITE_ICON": lambda request: static("images/icon.png"),
     "SHOW_HISTORY": True,
     "SHOW_VIEW_ON_SITE": True,
     "STYLES": [
         lambda request: static("admin/unfold_overrides.css"),
     ],
-    # Tailwind-style palette generated around the brand accent. Values are
-    # "R G B" channel strings (Unfold's format), NOT hex. 600 == #8B1E1E.
+    # Sidebar search bar (with the ⌘K / Ctrl+K indicator) opens the command
+    # palette; search_models makes it jump straight to any app/model.
+    "COMMAND": {
+        "search_models": True,
+        "show_history": True,
+    },
+    "SIDEBAR": {
+        "show_search": True,
+        "show_all_applications": True,
+        "navigation": [
+            {
+                "title": "Overview",
+                "items": [
+                    {"title": "Dashboard", "icon": "dashboard", "link": reverse_lazy("admin:index")},
+                ],
+            },
+            {
+                "title": "Content",
+                "separator": True,
+                "items": [
+                    {"title": "Skills", "icon": "code", "link": reverse_lazy("admin:core_skill_changelist")},
+                    {"title": "Education", "icon": "school", "link": reverse_lazy("admin:core_education_changelist")},
+                    {"title": "Services", "icon": "design_services", "link": reverse_lazy("admin:core_service_changelist")},
+                    {"title": "Portfolio", "icon": "photo_library", "link": reverse_lazy("admin:core_galleryitem_changelist")},
+                    {"title": "Feedback", "icon": "reviews", "link": reverse_lazy("admin:core_feedback_changelist")},
+                    {"title": "Resume / CV", "icon": "description", "link": reverse_lazy("admin:core_resume_changelist")},
+                ],
+            },
+            {
+                "title": "Projects",
+                "separator": True,
+                "items": [
+                    {"title": "Projects", "icon": "work", "link": reverse_lazy("admin:projects_project_changelist")},
+                    {"title": "Categories", "icon": "category", "link": reverse_lazy("admin:projects_category_changelist")},
+                    {"title": "Tech stacks", "icon": "layers", "link": reverse_lazy("admin:projects_techstack_changelist")},
+                ],
+            },
+            {
+                "title": "Access",
+                "separator": True,
+                "collapsible": True,
+                "items": [
+                    {"title": "Users", "icon": "person", "link": reverse_lazy("admin:auth_user_changelist")},
+                    {"title": "Groups", "icon": "group", "link": reverse_lazy("admin:auth_group_changelist")},
+                ],
+            },
+        ],
+    },
+    # Tailwind-style palettes. Values are "R G B" channel strings (Unfold's
+    # format), NOT hex.
     "COLORS": {
+        # Brand accent — 600 == #8B1E1E. Shades drive hovers, active states,
+        # badges, focus rings, so the accent is used with range, not flatly.
         "primary": {
             "50": "251 244 244",
             "100": "247 230 230",
@@ -136,6 +189,30 @@ UNFOLD = {
             "800": "97 26 26",
             "900": "82 26 26",
             "950": "45 11 11",
+        },
+        # Warm stone neutral instead of Unfold's default cool slate — softer,
+        # more editorial surfaces that pair with the maroon accent.
+        "base": {
+            "50": "250 249 247",
+            "100": "244 242 239",
+            "200": "231 228 222",
+            "300": "212 207 200",
+            "400": "168 161 151",
+            "500": "124 117 107",
+            "600": "90 84 77",
+            "700": "68 63 58",
+            "800": "44 41 37",
+            "900": "28 26 24",
+            "950": "18 17 15",
+        },
+        # Text tones — headings in the brand ink (#3F3F3F), body a touch softer.
+        "font": {
+            "subtle-light": "124 117 107",
+            "subtle-dark": "168 161 151",
+            "default-light": "82 78 72",
+            "default-dark": "212 207 200",
+            "important-light": "63 63 63",
+            "important-dark": "250 249 247",
         },
     },
 }
