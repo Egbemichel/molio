@@ -1,141 +1,414 @@
 {% load static %}
+{% comment %}
+Work / Projects — editorial (Swiss-grid) layout.
+Left rail lists categories and stays pinned (position: sticky) while the right
+column scrolls through that category's projects one by one, revealing on scroll,
+before the whole section eventually scrolls away. Projects are rendered
+server-side (real DOM) so the scroll observers and reveals are robust.
+{% endcomment %}
 
-<section x-data="{ 
-    activeCategory: 0, 
-    projectIndex: 0,
-    isTransitioning: false,
-    categories: [
-        {% for cat in categories %}
-        {% if cat.projects.all %} {# prefetched published projects only #}
-        {
-            name: '{{ cat.name|escapejs }}',
-            projects: [
-                {% for p in cat.projects.all %}
-                {
-                    title: '{{ p.title|escapejs }}',
-                    role: '{{ p.role|escapejs }}',
-                    date: '{{ p.date_range|escapejs }}',
-                    desc: '{{ p.description|escapejs }}',
-                    points: JSON.parse('{{ p.points_json|escapejs }}'),
-                    mockup: '{% if p.mockup %}{{ p.mockup.url }}{% endif %}',
-                    logo: '{% if p.logo %}{{ p.logo.url }}{% endif %}',
-                    github: '{{ p.github_link|default:"#" }}',
-                    tech: [
-                        {% for t in p.technologies.all|slice:':3' %}
-                        { name: '{{ t.name|escapejs }}', icon: '{% if t.image %}{{ t.image.url }}{% endif %}' }{% if not forloop.last %},{% endif %}
+<section id="work" class="work-section">
+    <div class="work-inner">
+
+        <header class="work-head">
+            <span class="work-eyebrow">Selected Work</span>
+            <h2 class="work-title">Things I've built</h2>
+        </header>
+
+        <div class="work-grid" data-work>
+            <!-- LEFT — sticky category rail -->
+            <aside class="work-cats">
+                <div class="work-cats-inner">
+                    <span class="work-cats-label">Categories</span>
+                    <ul class="work-cats-list">
+                        {% for cat in categories %}
+                        {% if cat.projects.all %}
+                        <li>
+                            <button type="button" class="work-cat" data-cat-link="{{ cat.id }}" data-cursor="pointer">
+                                <span class="work-cat-idx">{{ forloop.counter|stringformat:"02d" }}</span>
+                                <span class="work-cat-name">{{ cat.name }}</span>
+                                <span class="work-cat-count">{{ cat.projects.all|length }}</span>
+                            </button>
+                        </li>
+                        {% endif %}
                         {% endfor %}
-                    ]
-                }{% if not forloop.last %},{% endif %}
-                {% endfor %}
-            ]
-        }{% if not forloop.last %},{% endif %}
-        {% endif %}
-        {% endfor %}
-    ]
-}"
-style="display: none;"
-:style="{ display: 'flex' }"
-class="relative min-h-screen w-full flex items-center justify-center p-8 md:p-16 bg-white">
-
-    <img src="{% static 'images/grid-background.png' %}" class="absolute inset-0 w-full h-full object-cover opacity-20 pointer-events-none">
-
-    <div class="max-w-[100rem] w-full relative z-10 px-0 md:px-[60px]">
-        <h2 class="font-hagia font-medium text-3xl md:text-5xl mb-8 md:mb-12" x-show="categories && categories.length > 0">Work Experience</h2>
-
-        {# EMPTY state — no published projects yet, so the section never renders as a blank void #}
-        <template x-if="!categories || categories.length === 0">
-            <div class="w-full flex flex-col items-center justify-center text-center py-24">
-                <span class="w-16 h-16 mb-6 rounded-full border-2 border-accent/20 flex items-center justify-center">
-                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#8B1E1E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="7" width="18" height="13" rx="2"/>
-                        <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                        <path d="M3 12h18"/>
-                    </svg>
-                </span>
-                <h2 class="font-hagia font-medium text-3xl md:text-5xl text-dark mb-3">Work, in the making</h2>
-                <p class="font-hagia text-lg md:text-2xl text-dark/60 max-w-md">New projects are being polished right now; they'll land here shortly.</p>
-            </div>
-        </template>
-
-        <template x-if="categories && categories.length > 0 && categories[activeCategory] && categories[activeCategory].projects && categories[activeCategory].projects.length > 0">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 w-full">
-                <div class="lg:col-span-3 flex flex-row lg:flex-col gap-5 lg:gap-0 lg:space-y-6 overflow-x-auto pb-2 lg:pb-0 border-l-0 lg:border-l-4 border-accent/10 pl-0 lg:pl-6">
-                <template x-for="(cat, index) in categories" :key="index">
-                    <button
-                        @click="activeCategory = index; projectIndex = 0"
-                        :class="activeCategory === index ? 'text-accent opacity-100' : 'text-dark opacity-40'"
-                        class="font-hagia font-medium text-2xl lg:text-4xl text-left whitespace-nowrap transition-all hover:opacity-100"
-                        x-text="cat.name">
-                    </button>
-                </template>
-            </div>
-
-            <div class="lg:col-span-7 bg-primary backdrop-blur-md rounded-[2rem] lg:rounded-[2.5rem] p-6 md:p-12 shadow-2xl border-white flex flex-col lg:flex-row gap-6 lg:gap-10 min-h-[400px] lg:min-h-[500px] transition-all duration-500"
-                 :class="isTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'">
-
-                <div class="w-full lg:w-1/3 flex items-center justify-center overflow-hidden">
-                    <img :src="categories[activeCategory].projects[projectIndex].mockup" 
-                         class="w-full h-auto drop-shadow-3xl transition-all duration-700"
-                         :class="isTransitioning ? 'scale-110 opacity-0' : 'scale-100 opacity-100'">
-                </div>
-
-                <div class="w-full lg:w-2/3 flex flex-col transition-all duration-700"
-                     :class="isTransitioning ? 'opacity-0 translate-x-4' : 'opacity-100 translate-x-0'">
-                    <img :src="categories[activeCategory].projects[projectIndex].logo" class="h-10 md:h-12 w-fit mb-2 self-end">
-                    <p class="font-hagia font-medium text-xl md:text-2xl text-dark text-right" x-text="categories[activeCategory].projects[projectIndex].role"></p>
-                    <p class="font-hagia text-lg md:text-2xl text-dark uppercase mb-4 md:mb-6 text-right" x-text="categories[activeCategory].projects[projectIndex].date"></p>
-
-                    <p class="font-hagia text-xl md:text-4xl mb-4 md:mb-6 text-right" x-text="categories[activeCategory].projects[projectIndex].desc"></p>
-
-                    <ul class="space-y-3 flex-grow">
-                        <template x-for="point in categories[activeCategory].projects[projectIndex].points">
-                            <li class="flex gap-3 font-hagia text-dark">
-                                <span class="text-green-600 text-xl md:text-2xl">✓</span> <span class="text-base md:text-3xl" x-text="point"></span>
-                            </li>
-                        </template>
                     </ul>
-
-                    <a :href="categories[activeCategory].projects[projectIndex].github" class="self-end text-lg md:text-2xl underline opacity-50 hover:opacity-100">GitHub Link ↗</a>
                 </div>
-            </div>
+            </aside>
 
-            <div class="lg:col-span-2 flex flex-row lg:flex-col gap-4">
-                <div class="flex flex-row lg:flex-col gap-3 lg:gap-4 transition-all duration-700"
-                     :class="isTransitioning ? 'opacity-0 -translate-y-4' : 'opacity-100 translate-y-0'">
-                    <template x-for="(t, idx) in categories[activeCategory].projects[projectIndex].tech" :key="idx">
-                        <div class="bg-gray-100/50 rounded-xl lg:rounded-2xl p-2 flex items-center justify-center aspect-square transition-all duration-500 hover:scale-105 border border-white/50 hover:border-accent/50 hover:shadow-lg"
-                             :style="!isTransitioning ? `transition-delay: ${idx * 100}ms; opacity: 1; transform: scale(1);` : 'opacity: 0; transform: scale(0.8);'">
-                            <img :src="t.icon" :alt="t.name" class="w-12 h-12 lg:w-32 lg:h-32 object-contain">
+            <!-- RIGHT — projects, grouped by category, scrolling -->
+            <div class="work-list">
+                {% for cat in categories %}
+                {% if cat.projects.all %}
+                <div class="work-cat-group" data-cat-group="{{ cat.id }}" id="cat-{{ cat.id }}">
+                    <div class="work-cat-heading">
+                        <span class="work-cat-heading-line" aria-hidden="true"></span>
+                        <span class="work-cat-heading-name">{{ cat.name }}</span>
+                    </div>
+
+                    {% for p in cat.projects.all %}
+                    <article class="work-project" data-project>
+                        <div class="work-project-head">
+                            <span class="work-project-num">{{ forloop.counter|stringformat:"02d" }}</span>
+                            {% if p.logo %}
+                            <img class="work-project-logo" src="{{ p.logo.url }}" alt="{{ p.title }} logo" loading="lazy">
+                            {% endif %}
                         </div>
-                    </template>
-                </div>
 
-                <div class="flex flex-row lg:flex-col h-full gap-4 flex-grow lg:flex-grow-0">
-                    <button 
-                        @click="async () => {
-                            isTransitioning = true;
-                            await new Promise(resolve => setTimeout(resolve, 300));
-                            projectIndex = (projectIndex > 0) ? projectIndex - 1 : categories[activeCategory].projects.length - 1;
-                            isTransitioning = false;
-                        }"
-                        class="bg-dark text-white rounded-2xl lg:rounded-3xl p-4 lg:p-8 hover:bg-accent transition-all duration-300 flex items-center justify-center hover:scale-110 active:scale-95 shadow-lg hover:shadow-xl">
-                        <span class="text-3xl rotate-[-90deg]">❯</span>
-                    </button>
+                        {% if p.mockup %}
+                        <div class="work-project-media">
+                            <img src="{{ p.mockup.url }}" alt="{{ p.title }}" loading="lazy">
+                        </div>
+                        {% endif %}
 
-                    <button 
-                        @click="async () => {
-                            isTransitioning = true;
-                            await new Promise(resolve => setTimeout(resolve, 300));
-                            projectIndex = (projectIndex < categories[activeCategory].projects.length - 1) ? projectIndex + 1 : 0;
-                            isTransitioning = false;
-                        }"
-                        class="bg-dark text-white rounded-2xl lg:rounded-3xl p-4 lg:p-8 hover:bg-accent transition-all duration-300 flex items-center justify-center flex-grow hover:scale-110 active:scale-95 shadow-lg hover:shadow-xl">
-                        <span class="text-3xl rotate-90">❯</span>
-                    </button>
+                        <div class="work-project-body">
+                            <h3 class="work-project-title">{{ p.title }}</h3>
+                            <div class="work-project-meta">
+                                {% if p.role %}<span>{{ p.role }}</span>{% endif %}
+                                {% if p.role and p.date_range %}<span class="work-meta-dot" aria-hidden="true"></span>{% endif %}
+                                {% if p.date_range %}<span class="work-project-date">{{ p.date_range }}</span>{% endif %}
+                            </div>
+
+                            {% if p.description %}
+                            <p class="work-project-desc">{{ p.description }}</p>
+                            {% endif %}
+
+                            {% if p.points %}
+                            <ul class="work-project-points">
+                                {% for point in p.points %}
+                                <li><span class="work-tick" aria-hidden="true">→</span><span>{{ point }}</span></li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+
+                            <div class="work-project-foot">
+                                <div class="work-project-tech">
+                                    {% for t in p.technologies.all|slice:":5" %}
+                                    {% if t.icon_src %}
+                                    <span class="work-tech" title="{{ t.name }}">
+                                        <img src="{{ t.icon_src }}" alt="{{ t.name }}" loading="lazy">
+                                    </span>
+                                    {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <div class="work-project-links">
+                                    {% if p.github_link %}<a href="{{ p.github_link }}" target="_blank" rel="noopener" data-cursor="pointer">GitHub ↗</a>{% endif %}
+                                    {% if p.live_url %}<a href="{{ p.live_url }}" target="_blank" rel="noopener" data-cursor="pointer">Live ↗</a>{% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                    {% endfor %}
                 </div>
+                {% endif %}
+                {% empty %}
+                <div class="work-empty">
+                    <span class="work-empty-icon" aria-hidden="true">
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#8B1E1E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 12h18"/>
+                        </svg>
+                    </span>
+                    <h3 class="work-empty-title">Work, in the making</h3>
+                    <p class="work-empty-text">New projects are being polished right now; they'll land here shortly.</p>
+                </div>
+                {% endfor %}
             </div>
-
         </div>
-        </template>
     </div>
 </section>
+
+<style>
+    .work-section {
+        position: relative;
+        width: 100%;
+        background: #fff;
+        padding: 6rem 2rem;
+        overflow: hidden;
+    }
+    @media (min-width: 768px) { .work-section { padding: 8rem 4rem; } }
+
+    .work-inner { max-width: 100rem; margin: 0 auto; }
+
+    /* Header */
+    .work-head { margin-bottom: 3rem; }
+    .work-eyebrow {
+        display: inline-block;
+        font-family: 'HagiaPro', system-ui, sans-serif;
+        font-size: 0.8rem;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        color: #8B1E1E;
+        margin-bottom: 0.9rem;
+    }
+    .work-title {
+        font-family: 'HagiaPro', system-ui, sans-serif;
+        font-weight: 500;
+        font-size: clamp(2rem, 5vw, 3.5rem);
+        letter-spacing: -0.02em;
+        color: #3F3F3F;
+        line-height: 1.02;
+    }
+
+    /* Grid: sticky rail + scrolling list, with an editorial column line */
+    .work-grid {
+        position: relative;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+        align-items: start;
+    }
+    @media (min-width: 1024px) {
+        .work-grid {
+            grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
+            gap: 4.5rem;
+        }
+        /* the vertical editorial line between the two columns */
+        .work-grid::before {
+            content: '';
+            position: absolute;
+            top: 0; bottom: 0;
+            left: calc(20rem + 2.25rem);
+            width: 1px;
+            background: rgba(63, 63, 63, 0.12);
+        }
+    }
+
+    /* LEFT — sticky category rail */
+    .work-cats { align-self: start; }
+    @media (min-width: 1024px) {
+        .work-cats { position: sticky; top: clamp(5rem, 12vh, 8rem); }
+    }
+    .work-cats-label {
+        display: block;
+        font-family: 'HagiaPro', system-ui, sans-serif;
+        font-size: 0.72rem;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+        color: rgba(63, 63, 63, 0.4);
+        padding-bottom: 1rem;
+        margin-bottom: 0.5rem;
+        border-bottom: 1px solid rgba(63, 63, 63, 0.12);
+    }
+    .work-cats-list {
+        list-style: none; margin: 0; padding: 0;
+        display: flex; flex-direction: row; gap: 0.25rem;
+        overflow-x: auto; -webkit-overflow-scrolling: touch;
+    }
+    @media (min-width: 1024px) {
+        .work-cats-list { flex-direction: column; gap: 0.15rem; overflow: visible; }
+    }
+    .work-cat {
+        display: flex; align-items: baseline; gap: 0.7rem;
+        width: 100%;
+        background: none; border: none; cursor: pointer;
+        padding: 0.75rem 0.25rem;
+        text-align: left; white-space: nowrap;
+        font-family: 'HagiaPro', system-ui, sans-serif;
+        color: rgba(63, 63, 63, 0.42);
+        transition: color 0.4s ease, opacity 0.4s ease;
+        position: relative;
+    }
+    .work-cat:hover { color: rgba(63, 63, 63, 0.85); }
+    .work-cat-idx {
+        font-size: 0.7rem; letter-spacing: 0.05em;
+        color: rgba(63, 63, 63, 0.3);
+        transition: color 0.4s ease;
+    }
+    .work-cat-name {
+        font-weight: 500;
+        font-size: clamp(1.35rem, 2.4vw, 2rem);
+        letter-spacing: -0.01em;
+        line-height: 1.1;
+    }
+    .work-cat-count {
+        margin-left: auto;
+        font-size: 0.75rem;
+        color: rgba(63, 63, 63, 0.3);
+        display: none;
+    }
+    @media (min-width: 1024px) { .work-cat-count { display: inline; } }
+    .work-cat.is-active { color: #8B1E1E; }
+    .work-cat.is-active .work-cat-idx,
+    .work-cat.is-active .work-cat-count { color: #8B1E1E; }
+    /* active marker line to the left */
+    .work-cat.is-active::before {
+        content: '';
+        position: absolute;
+        left: -1.25rem; top: 50%;
+        width: 0.8rem; height: 2px;
+        background: #8B1E1E;
+        transform: translateY(-50%) scaleX(1);
+        transform-origin: left;
+        display: none;
+    }
+    @media (min-width: 1024px) { .work-cat.is-active::before { display: block; } }
+
+    /* RIGHT — project list */
+    .work-list { min-width: 0; }
+    .work-cat-group { scroll-margin-top: 7rem; }
+
+    .work-cat-heading {
+        display: flex; align-items: center; gap: 1rem;
+        margin: 2.5rem 0 2rem;
+    }
+    .work-cat-group:first-child .work-cat-heading { margin-top: 0; }
+    .work-cat-heading-line { height: 1px; width: 2.5rem; background: #8B1E1E; }
+    .work-cat-heading-name {
+        font-family: 'HagiaPro', system-ui, sans-serif;
+        font-size: 0.78rem; letter-spacing: 0.2em; text-transform: uppercase;
+        color: rgba(63, 63, 63, 0.45);
+    }
+
+    .work-project {
+        padding: 2.75rem 0 3rem;
+        border-top: 1px solid rgba(63, 63, 63, 0.12);
+    }
+    .work-project-head {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 1.5rem;
+    }
+    .work-project-num {
+        font-family: 'HagiaPro', system-ui, sans-serif;
+        font-size: 0.8rem; letter-spacing: 0.1em; color: rgba(63, 63, 63, 0.35);
+    }
+    .work-project-logo { height: 2.1rem; width: auto; max-width: 9rem; object-fit: contain; }
+
+    .work-project-media {
+        border-radius: 1.25rem; overflow: hidden;
+        background: #E8E8E8; margin-bottom: 1.75rem;
+        border: 1px solid rgba(63, 63, 63, 0.08);
+    }
+    .work-project-media img {
+        width: 100%; height: auto; display: block;
+        transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .work-project:hover .work-project-media img { transform: scale(1.03); }
+
+    .work-project-title {
+        font-family: 'HagiaPro', system-ui, sans-serif;
+        font-weight: 500;
+        font-size: clamp(1.7rem, 3.4vw, 2.9rem);
+        letter-spacing: -0.02em;
+        color: #3F3F3F; line-height: 1.05;
+        margin-bottom: 0.7rem;
+    }
+    .work-project-meta {
+        display: flex; align-items: center; gap: 0.7rem; flex-wrap: wrap;
+        font-family: 'HagiaPro', system-ui, sans-serif;
+        color: rgba(63, 63, 63, 0.6); font-size: 1rem;
+        margin-bottom: 1.4rem;
+    }
+    .work-project-date { text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.85rem; }
+    .work-meta-dot { width: 4px; height: 4px; border-radius: 50%; background: #8B1E1E; }
+
+    .work-project-desc {
+        font-family: 'HagiaPro', system-ui, sans-serif;
+        font-size: clamp(1.1rem, 1.6vw, 1.5rem);
+        line-height: 1.5; color: #3F3F3F;
+        max-width: 46rem; margin-bottom: 1.6rem;
+    }
+    .work-project-points { list-style: none; margin: 0 0 1.8rem; padding: 0; display: flex; flex-direction: column; gap: 0.7rem; }
+    .work-project-points li {
+        display: flex; gap: 0.75rem;
+        font-family: 'HagiaPro', system-ui, sans-serif;
+        font-size: clamp(1rem, 1.3vw, 1.2rem); line-height: 1.45;
+        color: rgba(63, 63, 63, 0.82);
+    }
+    .work-tick { color: #8B1E1E; flex-shrink: 0; }
+
+    .work-project-foot {
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 1.5rem; flex-wrap: wrap;
+    }
+    .work-project-tech { display: flex; gap: 0.6rem; }
+    .work-tech {
+        width: 2.6rem; height: 2.6rem; border-radius: 0.7rem;
+        display: inline-flex; align-items: center; justify-content: center;
+        background: #fff; border: 1px solid rgba(63, 63, 63, 0.1);
+        transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+    .work-tech:hover { transform: translateY(-3px); border-color: rgba(139, 30, 30, 0.4); }
+    .work-tech img { width: 1.5rem; height: 1.5rem; object-fit: contain; }
+    .work-project-links { display: flex; gap: 1.25rem; }
+    .work-project-links a {
+        font-family: 'HagiaPro', system-ui, sans-serif;
+        font-size: 1rem; color: #3F3F3F; text-decoration: none;
+        border-bottom: 1px solid rgba(63, 63, 63, 0.25);
+        padding-bottom: 2px; transition: color 0.3s ease, border-color 0.3s ease;
+    }
+    .work-project-links a:hover { color: #8B1E1E; border-color: #8B1E1E; }
+
+    /* Empty state */
+    .work-empty { text-align: center; padding: 4rem 1rem; }
+    .work-empty-icon {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 4rem; height: 4rem; border-radius: 50%;
+        border: 2px solid rgba(139, 30, 30, 0.2); margin-bottom: 1.5rem;
+    }
+    .work-empty-title { font-family: 'HagiaPro', system-ui, sans-serif; font-weight: 500; font-size: clamp(1.6rem, 3vw, 2.4rem); color: #3F3F3F; margin-bottom: 0.6rem; }
+    .work-empty-text { font-family: 'HagiaPro', system-ui, sans-serif; font-size: 1.1rem; color: rgba(63, 63, 63, 0.6); max-width: 26rem; margin: 0 auto; }
+
+    /* Scroll reveal */
+    .work-project { opacity: 0; transform: translateY(42px); transition: opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1), transform 0.75s cubic-bezier(0.22, 1, 0.36, 1); }
+    .work-project.is-visible { opacity: 1; transform: none; }
+    .work-cat-heading { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .work-cat-heading.is-visible { opacity: 1; transform: none; }
+
+    @media (prefers-reduced-motion: reduce) {
+        .work-project, .work-cat-heading { opacity: 1; transform: none; transition: none; }
+        .work-project-media img, .work-tech, .work-cat { transition: none; }
+    }
+</style>
+
+<script>
+(function () {
+    const root = document.querySelector('[data-work]');
+    if (!root) return;
+
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Reveal projects + category headings as they enter.
+    const revealTargets = root.querySelectorAll('[data-project], .work-cat-heading');
+    if (reduce || !('IntersectionObserver' in window)) {
+        revealTargets.forEach(el => el.classList.add('is-visible'));
+    } else {
+        const revealer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    revealer.unobserve(entry.target);
+                }
+            });
+        }, { rootMargin: '0px 0px -12% 0px', threshold: 0.12 });
+        revealTargets.forEach(el => revealer.observe(el));
+    }
+
+    // Scrollspy — highlight the category whose projects are in view.
+    const links = new Map();
+    root.querySelectorAll('[data-cat-link]').forEach(btn => {
+        links.set(btn.dataset.catLink, btn);
+        btn.addEventListener('click', () => {
+            const target = document.getElementById('cat-' + btn.dataset.catLink);
+            if (target) target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+        });
+    });
+
+    function setActive(id) {
+        links.forEach((btn, key) => btn.classList.toggle('is-active', key === id));
+    }
+
+    const groups = [...root.querySelectorAll('[data-cat-group]')];
+    if (groups.length) {
+        setActive(groups[0].dataset.catGroup);
+        if ('IntersectionObserver' in window) {
+            const spy = new IntersectionObserver((entries) => {
+                // pick the entry nearest the top that's intersecting
+                const visible = entries.filter(e => e.isIntersecting)
+                    .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+                if (visible.length) setActive(visible[0].target.dataset.catGroup);
+            }, { rootMargin: '-35% 0px -55% 0px', threshold: 0 });
+            groups.forEach(g => spy.observe(g));
+        }
+    }
+})();
+</script>
