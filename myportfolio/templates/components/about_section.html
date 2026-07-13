@@ -24,7 +24,7 @@
                 Fullstack
             </h2>
 
-            <span class="absolute -bottom-20 sm:-bottom-32 md:-bottom-72 right-0 md:right-10 lg:-right-[3px] font-geisha text-accent text-[15vw] md:text-[18rem] lowercase  pointer-events-none">
+            <span class="absolute -bottom-20 sm:-bottom-32 md:-bottom-72 right-0 md:right-10 lg:-right-[3px] font-geisha text-accent text-[22.5vw] md:text-[18rem] lowercase  pointer-events-none">
                 developer.
             </span>
         </div>
@@ -56,7 +56,11 @@
         background-image:
             linear-gradient(to right, var(--edge-line) 1px, transparent 1px),
             linear-gradient(to bottom, var(--edge-line) 1px, transparent 1px);
-        background-size: 48px 48px;
+        /* 60px cells anchored at the left edge, so grid lines fall on 60px and
+           240px — exactly where the structural left + categories-rail lines are,
+           making them read as one continuous line. */
+        background-size: var(--grid-cell) var(--grid-cell);
+        background-position: 0 0;
         /* Two "centres" of visibility — top-right and bottom-left — inset from
            the corners, fading toward the middle. */
         -webkit-mask-image:
