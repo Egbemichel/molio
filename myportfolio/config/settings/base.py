@@ -1,6 +1,7 @@
 from pathlib import Path
 from decouple import config as env
 from django.templatetags.static import static
+from django.urls import reverse_lazy
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -113,14 +114,64 @@ GITHUB_TOKEN = env("GITHUB_TOKEN", default="")
 # HagiaPro typeface and the larger, more legible text live in
 # static/admin/unfold_overrides.css (loaded via STYLES, admin pages only).
 UNFOLD = {
-    "SITE_TITLE": "Portfolio Admin",
-    "SITE_HEADER": "Portfolio",
-    "SITE_SUBHEADER": "Content management",
+    "SITE_TITLE": "Molio Control Center",
+    "SITE_HEADER": "Molio Control Center",
+    "SITE_SUBHEADER": "Where the work takes place",
+    # Brand mark at the top of the sidebar.
+    "SITE_ICON": lambda request: static("images/icon.png"),
     "SHOW_HISTORY": True,
     "SHOW_VIEW_ON_SITE": True,
     "STYLES": [
         lambda request: static("admin/unfold_overrides.css"),
     ],
+    # Sidebar search bar (with the ⌘K / Ctrl+K indicator) opens the command
+    # palette; search_models makes it jump straight to any app/model.
+    "COMMAND": {
+        "search_models": True,
+        "show_history": True,
+    },
+    "SIDEBAR": {
+        "show_search": True,
+        "show_all_applications": True,
+        "navigation": [
+            {
+                "title": "Overview",
+                "items": [
+                    {"title": "Dashboard", "icon": "dashboard", "link": reverse_lazy("admin:index")},
+                ],
+            },
+            {
+                "title": "Content",
+                "separator": True,
+                "items": [
+                    {"title": "Skills", "icon": "code", "link": reverse_lazy("admin:core_skill_changelist")},
+                    {"title": "Education", "icon": "school", "link": reverse_lazy("admin:core_education_changelist")},
+                    {"title": "Services", "icon": "design_services", "link": reverse_lazy("admin:core_service_changelist")},
+                    {"title": "Portfolio", "icon": "photo_library", "link": reverse_lazy("admin:core_galleryitem_changelist")},
+                    {"title": "Feedback", "icon": "reviews", "link": reverse_lazy("admin:core_feedback_changelist")},
+                    {"title": "Resume / CV", "icon": "description", "link": reverse_lazy("admin:core_resume_changelist")},
+                ],
+            },
+            {
+                "title": "Projects",
+                "separator": True,
+                "items": [
+                    {"title": "Projects", "icon": "work", "link": reverse_lazy("admin:projects_project_changelist")},
+                    {"title": "Categories", "icon": "category", "link": reverse_lazy("admin:projects_category_changelist")},
+                    {"title": "Tech stacks", "icon": "layers", "link": reverse_lazy("admin:projects_techstack_changelist")},
+                ],
+            },
+            {
+                "title": "Access",
+                "separator": True,
+                "collapsible": True,
+                "items": [
+                    {"title": "Users", "icon": "person", "link": reverse_lazy("admin:auth_user_changelist")},
+                    {"title": "Groups", "icon": "group", "link": reverse_lazy("admin:auth_group_changelist")},
+                ],
+            },
+        ],
+    },
     # Tailwind-style palette generated around the brand accent. Values are
     # "R G B" channel strings (Unfold's format), NOT hex. 600 == #8B1E1E.
     "COLORS": {

@@ -1,7 +1,7 @@
 from django.contrib import admin, messages
 from django.shortcuts import redirect
 from django.urls import path
-from django.utils.html import format_html
+from django.utils.html import format_html, mark_safe
 from config.admin_site import CustomModelAdmin
 from .models import Project, Category, TechStack
 from .github_sync import sync_github_repos
@@ -18,20 +18,32 @@ class ProjectInline(admin.TabularInline):
 @admin.register(TechStack)
 class TechStackAdmin(CustomModelAdmin):
     """Admin interface for Technology Stack items"""
-    list_display = ('name', 'tech_image', 'usage_count')
+    list_display = ('name', 'tech_image', 'logo_source', 'usage_count')
     search_fields = ('name',)
-    fields = ('name', 'image')
-    
+    fields = ('name', 'icon_url', 'image')
+
     def tech_image(self, obj):
-        """Display thumbnail of tech stack image"""
-        if obj.image:
+        """Thumbnail of the tech logo (Devicon URL or uploaded override)."""
+        src = obj.icon_src
+        if src:
             return format_html(
                 '<img src="{}" style="height: 30px; width: auto; '
                 'border-radius: 4px; object-fit: contain;" />',
-                obj.image.url
+                src
             )
         return '-'
     tech_image.short_description = 'Logo'
+
+    def logo_source(self, obj):
+        if obj.image:
+            return mark_safe('<span style="font-size: 11px; opacity: 0.6;">uploaded</span>')
+        if obj.icon_url:
+            return mark_safe(
+                '<span style="background: rgba(139,30,30,0.12); padding: 3px 8px; '
+                'border-radius: 4px; color: #8B1E1E; font-size: 11px;">devicon</span>'
+            )
+        return mark_safe('<span style="color: rgba(232,232,232,0.4); font-size: 11px;">none</span>')
+    logo_source.short_description = 'Source'
     
     def usage_count(self, obj):
         """Display how many projects use this tech"""
