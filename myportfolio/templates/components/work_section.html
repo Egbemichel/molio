@@ -1,10 +1,12 @@
 {% load static %}
 {% comment %}
-Projects — editorial rectangle. The section is framed by the two outer vertical
-lines (from the enclosing .editorial-region) plus a top and bottom horizontal
-line. A narrow left rail holds the categories (centred + sticky so it stays in
-view while the right column scrolls through the projects); an accent marker
-rides the left line to the active category's row.
+Projects — editorial rectangle.
+Desktop: full-width top/bottom lines; continuous vertical lines (left + a
+categories-rail line that continues the About grid down); a centred, sticky
+categories rail with an accent marker on the left line; the right column scrolls
+the projects with scroll-spy + reveals.
+Mobile: a sticky "Filter by" dropdown (full-width lines) selects the category;
+each category shows 3 projects then a "See more" reveal.
 {% endcomment %}
 
 <section id="work" class="work-section">
@@ -12,7 +14,7 @@ rides the left line to the active category's row.
     <span class="wline wline--bottom" aria-hidden="true"></span>
 
     <div class="work-grid" data-work>
-        <!-- LEFT — narrow, centred, sticky category rail -->
+        <!-- LEFT — centred sticky category rail (desktop) -->
         <aside class="work-cats">
             <div class="work-cats-inner">
                 <span class="work-cat-marker" aria-hidden="true"></span>
@@ -33,8 +35,24 @@ rides the left line to the active category's row.
             </div>
         </aside>
 
-        <!-- RIGHT — projects, grouped by category, scrolling -->
+        <!-- RIGHT — projects -->
         <div class="work-list">
+            <!-- Mobile category selector (sticky) -->
+            <div class="work-filter" data-filter>
+                <button type="button" class="work-filter-btn" data-filter-toggle aria-haspopup="listbox" aria-expanded="false">
+                    <span class="work-filter-text">Filter by: <strong data-filter-label>All Projects</strong></span>
+                    <svg class="work-filter-chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                </button>
+                <div class="work-filter-menu" data-filter-menu role="listbox" hidden>
+                    <button type="button" class="work-filter-opt is-selected" data-filter-opt="all">All Projects</button>
+                    {% for cat in categories %}
+                    {% if cat.projects.all %}
+                    <button type="button" class="work-filter-opt" data-filter-opt="{{ cat.id }}">{{ cat.name }}</button>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+
             <header class="work-head">
                 <span class="work-eyebrow">Selected Work</span>
                 <h2 class="work-title">Things I've built</h2>
@@ -52,9 +70,6 @@ rides the left line to the active category's row.
                 <article class="work-project" data-project>
                     <div class="work-project-head">
                         <span class="work-project-num">{{ forloop.counter|stringformat:"02d" }}</span>
-                        {% if p.logo %}
-                        <img class="work-project-logo" src="{{ p.logo.url }}" alt="{{ p.title }} logo" loading="lazy">
-                        {% endif %}
                     </div>
 
                     {% if p.mockup %}
@@ -85,10 +100,11 @@ rides the left line to the active category's row.
 
                         <div class="work-project-foot">
                             <div class="work-project-tech">
-                                {% for t in p.technologies.all|slice:":5" %}
+                                {% for t in p.technologies.all|slice:":6" %}
                                 {% if t.icon_src %}
-                                <span class="work-tech" title="{{ t.name }}">
-                                    <img src="{{ t.icon_src }}" alt="{{ t.name }}" loading="lazy">
+                                <span class="work-tech">
+                                    <span class="work-tech-ico"><img src="{{ t.icon_src }}" alt="{{ t.name }}" loading="lazy"></span>
+                                    <span class="work-tech-name">{{ t.name }}</span>
                                 </span>
                                 {% endif %}
                                 {% endfor %}
@@ -101,6 +117,8 @@ rides the left line to the active category's row.
                     </div>
                 </article>
                 {% endfor %}
+
+                <button type="button" class="work-see-more" data-see-more>See more <span class="work-see-more-arr">↓</span></button>
             </div>
             {% endif %}
             {% empty %}
@@ -119,137 +137,88 @@ rides the left line to the active category's row.
 </section>
 
 <style>
-    /* ── Editorial region: the two outer vertical lines run About → Projects ── */
+    /* Outer vertical lines (run About -> Projects) from .editorial-region */
     .editorial-region { position: relative; }
-    .eline {
-        position: absolute; top: 0; bottom: 0; width: 1px;
-        background: var(--edge-line); z-index: 1; pointer-events: none;
-    }
+    .eline { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--edge-line); z-index: 1; pointer-events: none; }
     .eline--left  { left: var(--edge-inset); }
     .eline--right { right: var(--edge-inset); }
 
-    /* ── Projects rectangle ── */
-    .work-section {
-        position: relative;
-        background: #fff;
-        padding: 4.5rem 0 5.5rem;
-    }
-    .wline {
-        position: absolute; height: 1px;
-        left: var(--edge-inset); right: var(--edge-inset);
-        background: var(--edge-line); pointer-events: none; z-index: 1;
-    }
+    .work-section { position: relative; background: #fff; padding: 4.5rem 0 5.5rem; }
+
+    /* Horizontal lines run edge-to-edge (full viewport width). */
+    .wline { position: absolute; height: 1px; left: 0; right: 0; background: var(--edge-line); pointer-events: none; z-index: 1; }
     .wline--top { top: 0; }
     .wline--bottom { bottom: 0; }
 
-    .work-grid {
-        position: relative;
-        margin: 0 var(--edge-inset);
-        display: grid;
-        grid-template-columns: var(--cats-rail) minmax(0, 1fr);
-        align-items: start;
-    }
+    .work-grid { position: relative; margin: 0 var(--edge-inset); display: grid; grid-template-columns: var(--cats-rail) minmax(0, 1fr); align-items: start; }
 
-    /* LEFT — categories rail */
-    .work-cats {
-        position: relative;
-        align-self: stretch;                 /* full rectangle height */
-        border-right: 1px solid var(--edge-line);
-    }
-    .work-cats-inner {
-        position: relative;                  /* positioning context for the marker */
-        padding: 1.75rem 1.25rem 1.75rem 1.5rem;
-    }
-    @media (min-width: 1024px) {
-        /* centred + sticky: stays mid-viewport while the right column scrolls */
-        .work-cats-inner { position: sticky; top: 50vh; transform: translateY(-50%); }
-    }
-    .work-cats-label {
-        display: block;
-        font-family: 'HagiaPro', system-ui, sans-serif;
-        font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase;
-        color: rgba(63, 63, 63, 0.4);
-        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        margin-bottom: 1.1rem;
-    }
-    .work-cats-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.4rem; }
-    .work-cat {
-        display: flex; align-items: baseline; gap: 0.5rem;
-        width: 100%; min-width: 0;
-        background: none; border: none; cursor: pointer;
-        padding: 0.5rem 0; text-align: left;
-        font-family: 'HagiaPro', system-ui, sans-serif;
-        color: rgba(63, 63, 63, 0.45);
-        transition: color 0.45s ease;
-    }
+    /* LEFT rail — the border-right is the categories-rail line (continues the
+       About grid's 240px line down; top:0/bottom:0 = top line to bottom line). */
+    .work-cats { position: relative; align-self: stretch; border-right: 1px solid var(--edge-line); }
+    .work-cats-inner { position: relative; padding: 1.75rem 1.25rem 1.75rem 1.5rem; }
+    @media (min-width: 1024px) { .work-cats-inner { position: sticky; /* top set by JS to centre it */ } }
+    .work-cats-label { display: block; font-family: 'HagiaPro', system-ui, sans-serif; font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(63, 63, 63, 0.4); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 1.25rem; }
+    .work-cats-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.7rem; }
+    .work-cat { display: flex; align-items: baseline; gap: 0.5rem; width: 100%; min-width: 0; background: none; border: none; cursor: pointer; padding: 0.35rem 0; text-align: left; font-family: 'HagiaPro', system-ui, sans-serif; color: rgba(63, 63, 63, 0.45); transition: color 0.45s ease; }
     .work-cat:hover { color: rgba(63, 63, 63, 0.85); }
-    .work-cat-idx { font-size: 0.66rem; letter-spacing: 0.05em; color: rgba(63, 63, 63, 0.3); flex-shrink: 0; transition: color 0.45s ease; }
-    .work-cat-name {
-        font-weight: 500; font-size: clamp(0.95rem, 1.15vw, 1.15rem);
-        letter-spacing: -0.01em; line-height: 1.2;
-        /* narrow rail — truncate long names, native tooltip (title) reveals full */
-        min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    }
+    .work-cat-idx { font-size: 0.7rem; letter-spacing: 0.05em; color: rgba(63, 63, 63, 0.3); flex-shrink: 0; transition: color 0.45s ease; }
+    /* Category names use the About body size; the narrow rail truncates + tooltip. */
+    .work-cat-name { font-weight: 500; font-size: var(--work-body); letter-spacing: -0.01em; line-height: 1.15; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .work-cat.is-active { color: #8B1E1E; }
     .work-cat.is-active .work-cat-idx { color: #8B1E1E; }
 
-    /* Accent marker that rides the left line to the active category row */
-    .work-cat-marker {
-        position: absolute; left: -1px; top: 0;
-        width: 2px; height: 0;
-        background: #8B1E1E;
-        transition: top 0.5s cubic-bezier(0.22, 1, 0.36, 1), height 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-        z-index: 2; pointer-events: none;
-    }
+    .work-cat-marker { position: absolute; left: -1px; top: 0; width: 2px; height: 0; background: #8B1E1E; transition: top 0.5s cubic-bezier(0.22, 1, 0.36, 1), height 0.5s cubic-bezier(0.22, 1, 0.36, 1); z-index: 2; pointer-events: none; }
 
     /* RIGHT — projects */
     .work-list { min-width: 0; padding: 0 0 0 clamp(1.5rem, 3vw, 3.5rem); }
-    .work-head { margin-bottom: 1.5rem; }
-    .work-eyebrow {
-        display: inline-block; font-family: 'HagiaPro', system-ui, sans-serif;
-        font-size: 0.78rem; letter-spacing: 0.26em; text-transform: uppercase;
-        color: #8B1E1E; margin-bottom: 0.7rem;
-    }
-    .work-title {
-        font-family: 'HagiaPro', system-ui, sans-serif; font-weight: 500;
-        font-size: clamp(1.9rem, 4vw, 3.2rem); letter-spacing: -0.02em;
-        color: #3F3F3F; line-height: 1.02;
-    }
+    .work-head { margin-bottom: 1.75rem; }
+    .work-eyebrow { display: inline-block; font-family: 'HagiaPro', system-ui, sans-serif; font-size: 0.8rem; letter-spacing: 0.26em; text-transform: uppercase; color: #8B1E1E; margin-bottom: 0.7rem; }
+    .work-title { font-family: 'HagiaPro', system-ui, sans-serif; font-weight: 500; font-size: calc(var(--work-body) * 1.9); letter-spacing: -0.02em; color: #3F3F3F; line-height: 1.02; }
     .work-cat-group { scroll-margin-top: 6rem; }
-    .work-cat-heading { display: flex; align-items: center; gap: 1rem; margin: 2rem 0 1.75rem; }
+    .work-cat-heading { display: flex; align-items: center; gap: 1rem; margin: 2.25rem 0 1.75rem; }
     .work-cat-heading-line { height: 1px; width: 2.25rem; background: #8B1E1E; }
-    .work-cat-heading-name { font-family: 'HagiaPro', system-ui, sans-serif; font-size: 0.76rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(63, 63, 63, 0.45); }
+    .work-cat-heading-name { font-family: 'HagiaPro', system-ui, sans-serif; font-size: 0.8rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(63, 63, 63, 0.45); }
 
-    .work-project { padding: 2.5rem 0 2.75rem; border-top: 1px solid rgba(63, 63, 63, 0.12); }
+    .work-project { padding: 2.75rem 0 3rem; border-top: 1px solid rgba(63, 63, 63, 0.14); }
     .work-project:first-of-type { border-top: none; padding-top: 0.5rem; }
-    .work-project-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.4rem; }
-    .work-project-num { font-family: 'HagiaPro', system-ui, sans-serif; font-size: 0.78rem; letter-spacing: 0.1em; color: rgba(63, 63, 63, 0.35); }
-    .work-project-logo { height: 2rem; width: auto; max-width: 9rem; object-fit: contain; }
-    .work-project-media { border-radius: 1.15rem; overflow: hidden; background: #E8E8E8; margin-bottom: 1.6rem; border: 1px solid rgba(63, 63, 63, 0.08); }
+    .work-project-head { margin-bottom: 1.25rem; }
+    .work-project-num { font-family: 'HagiaPro', system-ui, sans-serif; font-size: 0.85rem; letter-spacing: 0.1em; color: rgba(63, 63, 63, 0.35); }
+    .work-project-media { border-radius: 1.15rem; overflow: hidden; background: #E8E8E8; margin-bottom: 1.75rem; border: 1px solid rgba(63, 63, 63, 0.08); }
     .work-project-media img { width: 100%; height: auto; display: block; transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1); }
     .work-project:hover .work-project-media img { transform: scale(1.03); }
-    .work-project-title { font-family: 'HagiaPro', system-ui, sans-serif; font-weight: 500; font-size: clamp(1.6rem, 3.2vw, 2.7rem); letter-spacing: -0.02em; color: #3F3F3F; line-height: 1.05; margin-bottom: 0.6rem; }
-    .work-project-meta { display: flex; align-items: center; gap: 0.7rem; flex-wrap: wrap; font-family: 'HagiaPro', system-ui, sans-serif; color: rgba(63, 63, 63, 0.6); font-size: 1rem; margin-bottom: 1.3rem; }
-    .work-project-date { text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.85rem; }
+    .work-project-title { font-family: 'HagiaPro', system-ui, sans-serif; font-weight: 500; font-size: calc(var(--work-body) * 1.55); letter-spacing: -0.02em; color: #3F3F3F; line-height: 1.05; margin-bottom: 0.7rem; }
+    .work-project-meta { display: flex; align-items: center; gap: 0.7rem; flex-wrap: wrap; font-family: 'HagiaPro', system-ui, sans-serif; color: rgba(63, 63, 63, 0.6); font-size: calc(var(--work-body) * 0.62); margin-bottom: 1.4rem; }
+    .work-project-date { text-transform: uppercase; letter-spacing: 0.06em; }
     .work-meta-dot { width: 4px; height: 4px; border-radius: 50%; background: #8B1E1E; }
-    .work-project-desc { font-family: 'HagiaPro', system-ui, sans-serif; font-size: clamp(1.05rem, 1.5vw, 1.4rem); line-height: 1.5; color: #3F3F3F; max-width: 44rem; margin-bottom: 1.5rem; }
-    .work-project-points { list-style: none; margin: 0 0 1.7rem; padding: 0; display: flex; flex-direction: column; gap: 0.65rem; }
-    .work-project-points li { display: flex; gap: 0.7rem; font-family: 'HagiaPro', system-ui, sans-serif; font-size: clamp(0.98rem, 1.25vw, 1.15rem); line-height: 1.45; color: rgba(63, 63, 63, 0.82); }
+    .work-project-desc { font-family: 'HagiaPro', system-ui, sans-serif; font-size: var(--work-body); line-height: 1.45; color: #3F3F3F; max-width: 46rem; margin-bottom: 1.6rem; }
+    .work-project-points { list-style: none; margin: 0 0 1.9rem; padding: 0; display: flex; flex-direction: column; gap: 0.8rem; }
+    .work-project-points li { display: flex; gap: 0.75rem; font-family: 'HagiaPro', system-ui, sans-serif; font-size: calc(var(--work-body) * 0.92); line-height: 1.4; color: rgba(63, 63, 63, 0.82); }
     .work-tick { color: #8B1E1E; flex-shrink: 0; }
-    .work-project-foot { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; }
-    .work-project-tech { display: flex; gap: 0.55rem; }
-    .work-tech { width: 2.5rem; height: 2.5rem; border-radius: 0.65rem; display: inline-flex; align-items: center; justify-content: center; background: #fff; border: 1px solid rgba(63, 63, 63, 0.1); transition: transform 0.3s ease, border-color 0.3s ease; }
-    .work-tech:hover { transform: translateY(-3px); border-color: rgba(139, 30, 30, 0.4); }
-    .work-tech img { width: 1.45rem; height: 1.45rem; object-fit: contain; }
-    .work-project-links { display: flex; gap: 1.2rem; }
-    .work-project-links a { font-family: 'HagiaPro', system-ui, sans-serif; font-size: 1rem; color: #3F3F3F; text-decoration: none; border-bottom: 1px solid rgba(63, 63, 63, 0.25); padding-bottom: 2px; transition: color 0.3s ease, border-color 0.3s ease; }
+    .work-project-foot { display: flex; align-items: flex-end; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; }
+    .work-project-tech { display: flex; gap: 1rem; flex-wrap: wrap; }
+    /* tech = icon with its name beneath */
+    .work-tech { display: flex; flex-direction: column; align-items: center; gap: 0.4rem; width: 3.4rem; }
+    .work-tech-ico { width: 2.6rem; height: 2.6rem; border-radius: 0.7rem; display: inline-flex; align-items: center; justify-content: center; background: #fff; border: 1px solid rgba(63, 63, 63, 0.1); transition: transform 0.3s ease, border-color 0.3s ease; }
+    .work-tech:hover .work-tech-ico { transform: translateY(-3px); border-color: rgba(139, 30, 30, 0.4); }
+    .work-tech-ico img { width: 1.5rem; height: 1.5rem; object-fit: contain; }
+    .work-tech-name { font-family: 'HagiaPro', system-ui, sans-serif; font-size: calc(var(--work-body) * 0.5); line-height: 1.1; color: rgba(63, 63, 63, 0.6); text-align: center; letter-spacing: 0.01em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+    .work-project-links { display: flex; gap: 1.25rem; }
+    .work-project-links a { font-family: 'HagiaPro', system-ui, sans-serif; font-size: calc(var(--work-body) * 0.62); color: #3F3F3F; text-decoration: none; border-bottom: 1px solid rgba(63, 63, 63, 0.25); padding-bottom: 2px; transition: color 0.3s ease, border-color 0.3s ease; }
     .work-project-links a:hover { color: #8B1E1E; border-color: #8B1E1E; }
+
+    /* "See more" — styled like the GitHub link. Mobile only, when a category has >3. */
+    .work-see-more { display: none; align-items: center; gap: 0.5rem; margin: 1.5rem 0 0; padding: 0 0 2px; background: none; border: none; border-bottom: 1px solid #8B1E1E; color: #8B1E1E; font-family: 'HagiaPro', system-ui, sans-serif; font-size: calc(var(--work-body) * 0.7); cursor: pointer; }
+    .work-see-more-arr { transition: transform 0.3s ease; }
+    .work-see-more:hover .work-see-more-arr { transform: translateY(3px); }
 
     /* Empty state */
     .work-empty { text-align: center; padding: 4rem 1rem; }
     .work-empty-icon { display: inline-flex; align-items: center; justify-content: center; width: 4rem; height: 4rem; border-radius: 50%; border: 2px solid rgba(139, 30, 30, 0.2); margin-bottom: 1.5rem; }
-    .work-empty-title { font-family: 'HagiaPro', system-ui, sans-serif; font-weight: 500; font-size: clamp(1.6rem, 3vw, 2.4rem); color: #3F3F3F; margin-bottom: 0.6rem; }
-    .work-empty-text { font-family: 'HagiaPro', system-ui, sans-serif; font-size: 1.1rem; color: rgba(63, 63, 63, 0.6); max-width: 26rem; margin: 0 auto; }
+    .work-empty-title { font-family: 'HagiaPro', system-ui, sans-serif; font-weight: 500; font-size: calc(var(--work-body) * 1.3); color: #3F3F3F; margin-bottom: 0.6rem; }
+    .work-empty-text { font-family: 'HagiaPro', system-ui, sans-serif; font-size: var(--work-body); color: rgba(63, 63, 63, 0.6); max-width: 26rem; margin: 0 auto; }
+
+    /* Mobile filter dropdown (hidden on desktop) */
+    .work-filter { display: none; }
 
     /* Scroll reveal */
     .work-project { opacity: 0; transform: translateY(40px); transition: opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1), transform 0.75s cubic-bezier(0.22, 1, 0.36, 1); }
@@ -257,25 +226,38 @@ rides the left line to the active category's row.
     .work-cat-heading { opacity: 0; transform: translateY(18px); transition: opacity 0.6s ease, transform 0.6s ease; }
     .work-cat-heading.is-visible { opacity: 1; transform: none; }
 
-    /* ── Mobile: drop the rectangle; categories become a scrollable row ── */
+    /* ── Mobile ── */
     @media (max-width: 1023px) {
-        .work-section { padding: 3.5rem 2rem 4rem; overflow-x: hidden; }
-        .wline, .eline { display: none; }              /* editorial lines are a desktop feature */
-        .work-cats { overflow: hidden; }
-        .work-grid { margin: 0; grid-template-columns: 1fr; gap: 1.5rem; }
-        .work-cats { border-right: none; border-bottom: 1px solid var(--edge-line); min-width: 0; }
-        .work-cats-inner { padding: 0 0 1rem; min-width: 0; }
-        /* wrapping chip row — no horizontal scroll, long names wrap instead of overflow */
-        .work-cats-list { flex-direction: row; flex-wrap: wrap; gap: 0.6rem 1.1rem; min-width: 0; }
-        .work-cat { width: auto; max-width: 100%; padding: 0.35rem 0; }
-        .work-cat-name { white-space: normal; overflow: visible; text-overflow: clip; }
-        .work-cat-marker { display: none; }
+        .work-section { padding: 0 1.5rem 4rem; overflow-x: hidden; }
+        .wline, .eline { display: none; }
+        .work-grid { margin: 0; grid-template-columns: 1fr; }
+        .work-cats { display: none; }                       /* rail replaced by dropdown */
         .work-list { padding-left: 0; }
+        .work-head { margin-top: 2.5rem; }
+
+        /* Sticky "Filter by" bar with full-width lines + edge ticks */
+        .work-filter { display: block; position: sticky; top: 0; z-index: 6; background: #fff; margin: 0 -1.5rem 0; padding: 1rem 1.5rem; border-top: 1px solid var(--edge-line); border-bottom: 1px solid var(--edge-line); }
+        .work-filter::before, .work-filter::after { content: ''; position: absolute; top: 0; bottom: 0; width: 1px; background: var(--edge-line); }
+        .work-filter::before { left: var(--edge-inset); }
+        .work-filter::after { right: var(--edge-inset); }
+        .work-filter-btn { display: flex; align-items: center; justify-content: space-between; gap: 1rem; width: 100%; background: none; border: none; padding: 0.25rem var(--edge-inset); font-family: 'HagiaPro', system-ui, sans-serif; font-size: calc(var(--work-body) * 0.92); color: rgba(63, 63, 63, 0.6); cursor: pointer; }
+        .work-filter-btn strong { color: #3F3F3F; font-weight: 600; }
+        .work-filter-chev { transition: transform 0.3s ease; flex-shrink: 0; }
+        .work-filter[data-open] .work-filter-chev { transform: rotate(180deg); }
+        .work-filter-menu { position: absolute; left: var(--edge-inset); right: var(--edge-inset); top: 100%; background: #fff; border: 1px solid var(--edge-line); border-top: none; box-shadow: 0 18px 40px -18px rgba(0,0,0,0.25); z-index: 7; }
+        .work-filter-opt { display: block; width: 100%; text-align: left; background: none; border: none; padding: 0.85rem 1rem; font-family: 'HagiaPro', system-ui, sans-serif; font-size: calc(var(--work-body) * 0.85); color: #3F3F3F; cursor: pointer; border-bottom: 1px solid rgba(63,63,63,0.08); }
+        .work-filter-opt:last-child { border-bottom: none; }
+        .work-filter-opt:hover, .work-filter-opt.is-selected { background: rgba(139,30,30,0.06); color: #8B1E1E; }
+
+        /* 3 then See more */
+        .work-cat-group:not(.show-all) .work-project:nth-of-type(n+4) { display: none; }
+        .work-see-more.has-more { display: inline-flex; }
+        .work-cat-group.show-all .work-see-more { display: none; }
     }
 
     @media (prefers-reduced-motion: reduce) {
         .work-project, .work-cat-heading { opacity: 1; transform: none; transition: none; }
-        .work-project-media img, .work-tech, .work-cat, .work-cat-marker { transition: none; }
+        .work-project-media img, .work-tech-ico, .work-cat, .work-cat-marker, .work-see-more-arr, .work-filter-chev { transition: none; }
     }
 </style>
 
@@ -284,66 +266,100 @@ rides the left line to the active category's row.
     const root = document.querySelector('[data-work]');
     if (!root) return;
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const desktop = () => window.matchMedia('(min-width: 1024px)').matches;
+    const isDesktop = () => window.matchMedia('(min-width: 1024px)').matches;
 
-    // Reveal projects + category headings as they enter.
+    // ── Reveal ──
     const revealTargets = root.querySelectorAll('[data-project], .work-cat-heading');
     if (reduce || !('IntersectionObserver' in window)) {
         revealTargets.forEach(el => el.classList.add('is-visible'));
     } else {
         const revealer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) { entry.target.classList.add('is-visible'); revealer.unobserve(entry.target); }
-            });
+            entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('is-visible'); revealer.unobserve(entry.target); } });
         }, { rootMargin: '0px 0px -12% 0px', threshold: 0.12 });
         revealTargets.forEach(el => revealer.observe(el));
     }
 
-    // Category buttons + the accent marker.
-    const cats = root.querySelector('.work-cats');
+    // ── Desktop rail: centre + marker + scroll-spy ──
+    const inner = root.querySelector('.work-cats-inner');
     const marker = root.querySelector('.work-cat-marker');
     const links = new Map();
     root.querySelectorAll('[data-cat-link]').forEach(btn => {
         links.set(btn.dataset.catLink, btn);
         btn.addEventListener('click', () => {
-            const target = document.getElementById('cat-' + btn.dataset.catLink);
-            if (target) target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+            const t = document.getElementById('cat-' + btn.dataset.catLink);
+            if (t) t.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
         });
     });
 
+    function centreRail() {
+        if (!inner) return;
+        if (isDesktop()) inner.style.top = Math.max(24, (window.innerHeight - inner.offsetHeight) / 2) + 'px';
+        else inner.style.top = '';
+    }
     function moveMarker(btn) {
-        if (!marker || !desktop()) { if (marker) marker.style.height = '0'; return; }
-        // btn.offsetTop is relative to .work-cats (the positioned rail).
+        if (!marker) return;
+        if (!isDesktop()) { marker.style.height = '0'; return; }
         marker.style.top = btn.offsetTop + 'px';
         marker.style.height = btn.offsetHeight + 'px';
     }
-
     function setActive(id) {
-        links.forEach((btn, key) => {
-            const on = key === id;
-            btn.classList.toggle('is-active', on);
-            if (on) moveMarker(btn);
-        });
+        links.forEach((btn, key) => { const on = key === id; btn.classList.toggle('is-active', on); if (on) moveMarker(btn); });
     }
 
     const groups = [...root.querySelectorAll('[data-cat-group]')];
     if (groups.length) {
+        centreRail();
         setActive(groups[0].dataset.catGroup);
-        // marker position needs layout — set again after paint
-        requestAnimationFrame(() => setActive(groups[0].dataset.catGroup));
+        requestAnimationFrame(() => { centreRail(); setActive(groups[0].dataset.catGroup); });
         if ('IntersectionObserver' in window) {
             const spy = new IntersectionObserver((entries) => {
-                const visible = entries.filter(e => e.isIntersecting)
-                    .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-                if (visible.length) setActive(visible[0].target.dataset.catGroup);
+                const vis = entries.filter(e => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+                if (vis.length) setActive(vis[0].target.dataset.catGroup);
             }, { rootMargin: '-35% 0px -55% 0px', threshold: 0 });
             groups.forEach(g => spy.observe(g));
         }
-        // keep the marker aligned on resize
         window.addEventListener('resize', () => {
+            centreRail();
             const active = [...links.values()].find(b => b.classList.contains('is-active'));
             if (active) moveMarker(active);
         });
     }
+
+    // ── Mobile: filter dropdown ──
+    const filter = root.querySelector('[data-filter]');
+    const toggle = root.querySelector('[data-filter-toggle]');
+    const menu = root.querySelector('[data-filter-menu]');
+    const label = root.querySelector('[data-filter-label]');
+    if (filter && toggle && menu) {
+        const closeMenu = () => { menu.hidden = true; filter.removeAttribute('data-open'); toggle.setAttribute('aria-expanded', 'false'); };
+        toggle.addEventListener('click', () => {
+            const open = menu.hidden;
+            menu.hidden = !open;
+            filter.toggleAttribute('data-open', open);
+            toggle.setAttribute('aria-expanded', String(open));
+        });
+        root.querySelectorAll('[data-filter-opt]').forEach(opt => {
+            opt.addEventListener('click', () => {
+                const val = opt.dataset.filterOpt;
+                label.textContent = opt.textContent.trim();
+                root.querySelectorAll('.work-filter-opt').forEach(o => o.classList.toggle('is-selected', o === opt));
+                groups.forEach(g => { g.style.display = (val === 'all' || g.dataset.catGroup === val) ? '' : 'none'; });
+                closeMenu();
+            });
+        });
+        document.addEventListener('click', (e) => { if (!menu.hidden && !e.target.closest('[data-filter]')) closeMenu(); });
+    }
+
+    // ── Mobile: 3 then "See more" ──
+    groups.forEach(g => {
+        const projects = g.querySelectorAll('.work-project');
+        const btn = g.querySelector('[data-see-more]');
+        if (!btn) return;
+        if (projects.length > 3) btn.classList.add('has-more');
+        btn.addEventListener('click', () => {
+            g.classList.add('show-all');
+            g.querySelectorAll('.work-project').forEach(p => p.classList.add('is-visible'));
+        });
+    });
 })();
 </script>
