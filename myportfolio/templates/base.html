@@ -28,9 +28,16 @@
        components; only the tokens live here. */
     :root {
       --edge-inset: 60px;                 /* outer vertical lines, from viewport */
-      --edge-line: rgba(63, 63, 63, 0.5); /* intentional, clearly visible hairline */
-      --cats-rail: clamp(116px, 13vw, 188px); /* categories column width */
+      --grid-cell: 60px;                  /* About grid cell — lines land on 60px so
+                                             the structural lines continue them */
+      --cats-rail: 180px;                 /* categories column; rail line at 60+180=240,
+                                             which is a grid line (continuous) */
+      --edge-line: rgba(63, 63, 63, 0.55);/* intentional, clearly visible hairline */
+      /* Body text anchored to the About copy (text-2xl / md:text-3xl) so the
+         Projects + categories build their hierarchy around the same size. */
+      --work-body: 1.5rem;
     }
+    @media (min-width: 768px) { :root { --work-body: 1.875rem; } }
   </style>
 </head>
 <body class="bg-primary antialiased">
