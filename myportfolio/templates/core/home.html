@@ -3,8 +3,16 @@
 {% load static %}
 
     {% include 'components/hero.html' %}
-    {% include 'components/about_section.html' %}
-    {% include 'components/work_section.html' %} 
+
+    {% comment %} About + Projects share an editorial region so the two outer
+    vertical lines run continuously from the About grid down to the bottom of
+    the Projects rectangle. {% endcomment %}
+    <div class="editorial-region">
+        <span class="eline eline--left" aria-hidden="true"></span>
+        <span class="eline eline--right" aria-hidden="true"></span>
+        {% include 'components/about_section.html' %}
+        {% include 'components/work_section.html' %}
+    </div>
     
     {% include 'components/personal_info.html' with info_items=personal_info %}
     

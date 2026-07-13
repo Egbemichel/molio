@@ -1,7 +1,12 @@
 {% load static %}
-<section class="bg-white flex items-center justify-center p-8 md:p-24 overflow-visible">
+<section class="about-section bg-white flex items-center justify-center p-8 md:p-24 overflow-visible">
+    {% comment %} Editorial grid, most visible near the top-right and bottom-left,
+    fading toward the middle — the two vertical Project lines read as descending
+    from these corners. {% endcomment %}
+    <span class="about-grid" aria-hidden="true"></span>
+
     <div class="max-w-[90rem] w-full relative">
-        
+
         <div class="mb-2 relative inline-block">
             <p class="font-hagia font-regular text-dark text-[35px] md:text-5xl tracking-tight">
                 My name is <span class="text-accent relative inline-block">
@@ -40,3 +45,29 @@
         </div>
     </div>
 </section>
+
+<style>
+    .about-section { position: relative; }
+    .about-grid {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background-image:
+            linear-gradient(to right, var(--edge-line) 1px, transparent 1px),
+            linear-gradient(to bottom, var(--edge-line) 1px, transparent 1px);
+        background-size: 48px 48px;
+        /* Two "centres" of visibility — top-right and bottom-left — inset from
+           the corners, fading toward the middle. */
+        -webkit-mask-image:
+            radial-gradient(58% 52% at 82% 16%, #000 0%, transparent 68%),
+            radial-gradient(58% 52% at 18% 84%, #000 0%, transparent 68%);
+        mask-image:
+            radial-gradient(58% 52% at 82% 16%, #000 0%, transparent 68%),
+            radial-gradient(58% 52% at 18% 84%, #000 0%, transparent 68%);
+        -webkit-mask-composite: source-over;
+        mask-composite: add;
+    }
+    /* The About text must sit above the grid. */
+    .about-section > .max-w-\[90rem\] { position: relative; z-index: 1; }
+</style>
