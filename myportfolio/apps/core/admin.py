@@ -4,6 +4,7 @@ from django.urls import path, reverse
 from django.utils.html import format_html, mark_safe
 from django.utils.html import escape as html_escape
 from django import forms
+from unfold.admin import StackedInline
 from config.admin_site import CustomModelAdmin
 from .devicon import DeviconUnavailable, get_catalog
 from .models import Skill, Education, EducationGallery, Service, GalleryItem, Feedback, Resume
@@ -27,7 +28,7 @@ class EducationGalleryForm(forms.ModelForm):
         }
 
 
-class EducationGalleryInline(admin.StackedInline):
+class EducationGalleryInline(StackedInline):
     model = EducationGallery
     form = EducationGalleryForm
     extra = 1
