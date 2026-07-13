@@ -1,77 +1,70 @@
 /*
- * Unfold admin overrides — brand typeface + larger, more legible text.
- * Loaded ONLY on admin pages via UNFOLD["STYLES"], so it can never affect the
- * public site. Loaded after Unfold's own CSS, so these rules win.
- */
-
-@font-face {
-    font-family: 'HagiaPro';
-    src: url('/static/fonts/HagiaPro-Regular.otf') format('opentype');
-    font-weight: 400;
-    font-display: swap;
-}
-@font-face {
-    font-family: 'HagiaPro';
-    src: url('/static/fonts/HagiaPro-Medium.otf') format('opentype');
-    font-weight: 500;
-    font-display: swap;
-}
-@font-face {
-    font-family: 'HagiaPro';
-    src: url('/static/fonts/HagiaPro-ExtraBold.otf') format('opentype');
-    font-weight: 800;
-    font-display: swap;
-}
-
-/*
- * ~130% larger text across the whole admin. Unfold sizes everything in rem, so
- * bumping the root scales every label, table cell, button and heading together
- * (and their spacing/tap targets with it — good for readability).
+ * Unfold admin overrides — typography, texture, larger text, micro-motion.
+ * Loaded ONLY on admin pages via UNFOLD["STYLES"], after Unfold's own CSS so
+ * these rules win. Colour (warm stone base + maroon accent shades) is set in
+ * UNFOLD["COLORS"]; this file handles type, texture and motion.
  *
- * This is the single dial for text size: 1.30 == "+30%". Bump toward 1.5 if you
- * still want it larger, or ease to ~1.2 if it feels oversized on a laptop.
+ * Type system: Inter for the dense UI (legibility), Fraunces as a display face
+ * for headings (editorial character). Both via Google Fonts CDN — no font files
+ * in the repo.
  */
-:root {
-    --admin-text-scale: 1.30;
-}
-html {
-    font-size: calc(100% * var(--admin-text-scale));
-}
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap');
 
 /*
- * Brand typeface. Unfold applies Inter via the `font-sans` utility; redefining
- * it here (loaded later, same specificity) swaps the admin to HagiaPro while
- * keeping a solid system fallback for any missing glyphs.
+ * ~130% larger text across the whole admin. Unfold sizes in rem, so bumping the
+ * root scales every label, cell, button and heading together. One dial:
+ * 1.30 == "+30%". Ease toward 1.2 if it reads large, push to 1.5 for more.
  */
+:root { --admin-text-scale: 1.28; }
+html { font-size: calc(100% * var(--admin-text-scale)); }
+
+/* UI / body → Inter. */
 .font-sans,
-body {
-    font-family: 'HagiaPro', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+body,
+button, input, select, textarea, table {
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+    letter-spacing: -0.006em;
+}
+
+/* Display headings → Fraunces (optical-size aware, so it stays elegant large). */
+#content h1, #content h2,
+#nav-sidebar-inner h1,
+.text-xl, .text-2xl, .text-3xl, .text-4xl {
+    font-family: 'Fraunces', 'HagiaPro', Georgia, serif;
+    letter-spacing: -0.015em;
+    font-optical-sizing: auto;
 }
 
 /*
- * Motion — the admin used to snap into place. These are gentle, one-shot
- * entrance animations (they run on load, not on every interaction) and are
- * fully disabled under prefers-reduced-motion.
+ * Warm paper texture — a barely-there fractal-noise grain over the stone base.
+ * It shows in the gutters/margins around cards, adding depth without dirtying
+ * content. (The surface colour itself comes from UNFOLD COLORS "base".)
+ */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.5;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+    background-size: 240px 240px;
+}
+:root[data-theme="dark"] body::before,
+html.dark body::before { opacity: 0.35; mix-blend-mode: screen; }
+
+/*
+ * Surface + accent-shade micro-interactions — a considered use of the palette
+ * rather than one flat accent. Restrained: soft depth, warm hovers, tactile
+ * buttons. No gradients-for-the-sake-of-it.
  */
 @media (prefers-reduced-motion: no-preference) {
-    @keyframes unfoldFadeUp {
-        from { opacity: 0; transform: translateY(12px); }
-        to   { opacity: 1; transform: none; }
-    }
-    @keyframes unfoldFadeIn {
-        from { opacity: 0; }
-        to   { opacity: 1; }
-    }
+    @keyframes unfoldFadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+    @keyframes unfoldFadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-    /* Main content area eases up as a whole. */
-    #content, #content-main {
-        animation: unfoldFadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
-    }
+    #content, #content-main { animation: unfoldFadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
-    /* Sidebar links cascade in. */
-    #nav-sidebar-apps ol li {
-        animation: unfoldFadeUp 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
-    }
+    #nav-sidebar-apps ol li { animation: unfoldFadeUp 0.42s cubic-bezier(0.22, 1, 0.36, 1) both; }
     #nav-sidebar-apps ol li:nth-child(1) { animation-delay: 0.03s; }
     #nav-sidebar-apps ol li:nth-child(2) { animation-delay: 0.06s; }
     #nav-sidebar-apps ol li:nth-child(3) { animation-delay: 0.09s; }
@@ -80,21 +73,21 @@ body {
     #nav-sidebar-apps ol li:nth-child(6) { animation-delay: 0.18s; }
     #nav-sidebar-apps ol li:nth-child(n+7) { animation-delay: 0.21s; }
 
-    /* Table rows fade in softly. */
-    #content table tbody tr {
-        animation: unfoldFadeIn 0.5s ease both;
-    }
+    #content table tbody tr { animation: unfoldFadeIn 0.5s ease both; }
     #content table tbody tr:nth-child(1) { animation-delay: 0.04s; }
     #content table tbody tr:nth-child(2) { animation-delay: 0.08s; }
     #content table tbody tr:nth-child(3) { animation-delay: 0.12s; }
     #content table tbody tr:nth-child(4) { animation-delay: 0.16s; }
     #content table tbody tr:nth-child(n+5) { animation-delay: 0.2s; }
 
-    /* Buttons/links lift a touch on hover for tactility. */
     .button, a.addlink, [type="submit"] {
-        transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+        transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, background-color 0.2s ease;
     }
     .button:hover, a.addlink:hover, [type="submit"]:hover {
         transform: translateY(-1px);
+        box-shadow: 0 8px 20px -8px rgba(139, 30, 30, 0.45);
     }
 }
+
+/* Sidebar brand: give the wordmark a bit more presence. */
+#nav-sidebar-inner h1 { font-weight: 600; letter-spacing: -0.02em; }
