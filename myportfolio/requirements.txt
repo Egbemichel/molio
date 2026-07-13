@@ -1,7 +1,6 @@
 asgiref==3.11.1
 Django==6.0.3
-django-admin-interface==0.32.0
-django-colorfield==0.14.0
+django-unfold==0.100.0
 pillow==12.1.1
 # 1.4.0 ships prebuilt manylinux wheels for cp314 (Render's default Python).
 # Older lines (e.g. 0.18.0) have no cp314 wheel and fall back to compiling
