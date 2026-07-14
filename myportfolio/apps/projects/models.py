@@ -58,6 +58,12 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def short_name(self):
+        """First word of the name — a compact label for the narrow rail. The
+        full name still lives in the tooltip and the projects still link by id."""
+        return (self.name or '').split(' ')[0] or self.name
+
 class Project(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='projects', null=True,
         blank=True)
