@@ -12,6 +12,7 @@ each category shows 3 projects then a "See more" reveal.
 <section id="work" class="work-section">
     <span class="wline wline--top" aria-hidden="true"></span>
     <span class="wline wline--bottom" aria-hidden="true"></span>
+    <span class="vline-cats" aria-hidden="true"></span>
 
     <div class="work-grid" data-work>
         <!-- LEFT — centred sticky category rail (desktop) -->
@@ -26,7 +27,7 @@ each category shows 3 projects then a "See more" reveal.
                         <button type="button" class="work-cat" data-cat-link="{{ cat.id }}"
                                 title="{{ cat.name }}" data-cursor="pointer">
                             <span class="work-cat-idx">{{ forloop.counter|stringformat:"02d" }}</span>
-                            <span class="work-cat-name">{{ cat.name }}</span>
+                            <span class="work-cat-name">{{ cat.short_name }}</span>
                         </button>
                     </li>
                     {% endif %}
@@ -40,7 +41,7 @@ each category shows 3 projects then a "See more" reveal.
             <!-- Mobile category selector (sticky) -->
             <div class="work-filter" data-filter>
                 <button type="button" class="work-filter-btn" data-filter-toggle aria-haspopup="listbox" aria-expanded="false">
-                    <span class="work-filter-text">Filter by: <strong data-filter-label>All Projects</strong></span>
+                    <span class="work-filter-text">Category: <strong data-filter-label>All Projects</strong></span>
                     <svg class="work-filter-chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                 </button>
                 <div class="work-filter-menu" data-filter-menu role="listbox" hidden>
@@ -118,7 +119,7 @@ each category shows 3 projects then a "See more" reveal.
                 </article>
                 {% endfor %}
 
-                <button type="button" class="work-see-more" data-see-more>See more <span class="work-see-more-arr">↓</span></button>
+                <button type="button" class="work-see-more" data-see-more>More, Please <span class="work-see-more-arr">↓</span></button>
             </div>
             {% endif %}
             {% empty %}
@@ -140,7 +141,9 @@ each category shows 3 projects then a "See more" reveal.
     /* Outer vertical lines (run About -> Projects) from .editorial-region */
     .editorial-region { position: relative; }
     .eline { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--edge-line); z-index: 1; pointer-events: none; }
-    .eline--left  { left: var(--edge-inset); }
+    /* Left line fades to nothing toward the top of About, so it blends into the
+       grid instead of hanging in the empty top-left where there is no grid. */
+    .eline--left  { left: var(--edge-inset); background: linear-gradient(to bottom, transparent 0%, transparent 6%, var(--edge-line) 40%, var(--edge-line) 100%); }
     .eline--right { right: var(--edge-inset); }
 
     .work-section { position: relative; background: #fff; padding: 4.5rem 0 5.5rem; }
@@ -149,12 +152,14 @@ each category shows 3 projects then a "See more" reveal.
     .wline { position: absolute; height: 1px; left: 0; right: 0; background: var(--edge-line); pointer-events: none; z-index: 1; }
     .wline--top { top: 0; }
     .wline--bottom { bottom: 0; }
+    /* Categories-rail line — spans top line to bottom line so it joins both. */
+    .vline-cats { position: absolute; top: 0; bottom: 0; width: 1px; left: calc(var(--edge-inset) + var(--cats-rail)); background: var(--edge-line); pointer-events: none; z-index: 1; }
 
     .work-grid { position: relative; margin: 0 var(--edge-inset); display: grid; grid-template-columns: var(--cats-rail) minmax(0, 1fr); align-items: start; }
 
     /* LEFT rail — the border-right is the categories-rail line (continues the
        About grid's 240px line down; top:0/bottom:0 = top line to bottom line). */
-    .work-cats { position: relative; align-self: stretch; border-right: 1px solid var(--edge-line); }
+    .work-cats { position: relative; align-self: stretch; }
     .work-cats-inner { position: relative; padding: 1.75rem 1.25rem 1.75rem 1.5rem; }
     @media (min-width: 1024px) { .work-cats-inner { position: sticky; /* top set by JS to centre it */ } }
     .work-cats-label { display: block; font-family: 'HagiaPro', system-ui, sans-serif; font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(63, 63, 63, 0.4); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 1.25rem; }
@@ -163,7 +168,7 @@ each category shows 3 projects then a "See more" reveal.
     .work-cat:hover { color: rgba(63, 63, 63, 0.85); }
     .work-cat-idx { font-size: 0.7rem; letter-spacing: 0.05em; color: rgba(63, 63, 63, 0.3); flex-shrink: 0; transition: color 0.45s ease; }
     /* Category names use the About body size; the narrow rail truncates + tooltip. */
-    .work-cat-name { font-weight: 500; font-size: var(--work-body); letter-spacing: -0.01em; line-height: 1.15; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .work-cat-name { font-weight: 500; font-size: calc(var(--work-body) * 0.7); letter-spacing: -0.01em; line-height: 1.15; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .work-cat.is-active { color: #8B1E1E; }
     .work-cat.is-active .work-cat-idx { color: #8B1E1E; }
 
@@ -205,6 +210,8 @@ each category shows 3 projects then a "See more" reveal.
     .work-project-links { display: flex; gap: 1.25rem; }
     .work-project-links a { font-family: 'HagiaPro', system-ui, sans-serif; font-size: calc(var(--work-body) * 0.62); color: #3F3F3F; text-decoration: none; border-bottom: 1px solid rgba(63, 63, 63, 0.25); padding-bottom: 2px; transition: color 0.3s ease, border-color 0.3s ease; }
     .work-project-links a:hover { color: #8B1E1E; border-color: #8B1E1E; }
+    /* Pull the repo link in from the right edge of the viewport. */
+    @media (min-width: 1024px) { .work-project-links { margin-right: 200px; } }
 
     /* "See more" — styled like the GitHub link. Mobile only, when a category has >3. */
     .work-see-more { display: none; align-items: center; gap: 0.5rem; margin: 1.5rem 0 0; padding: 0 0 2px; background: none; border: none; border-bottom: 1px solid #8B1E1E; color: #8B1E1E; font-family: 'HagiaPro', system-ui, sans-serif; font-size: calc(var(--work-body) * 0.7); cursor: pointer; }
@@ -228,8 +235,10 @@ each category shows 3 projects then a "See more" reveal.
 
     /* ── Mobile ── */
     @media (max-width: 1023px) {
-        .work-section { padding: 0 1.5rem 4rem; overflow-x: hidden; }
-        .wline, .eline { display: none; }
+        /* no overflow-x:hidden here — it turns the section into a scroll
+           container and breaks position:sticky on the filter bar */
+        .work-section { padding: 0 1.5rem 4rem; }
+        .wline, .eline, .vline-cats { display: none; }
         .work-grid { margin: 0; grid-template-columns: 1fr; }
         .work-cats { display: none; }                       /* rail replaced by dropdown */
         .work-list { padding-left: 0; }
@@ -249,8 +258,8 @@ each category shows 3 projects then a "See more" reveal.
         .work-filter-opt:last-child { border-bottom: none; }
         .work-filter-opt:hover, .work-filter-opt.is-selected { background: rgba(139,30,30,0.06); color: #8B1E1E; }
 
-        /* 3 then See more */
-        .work-cat-group:not(.show-all) .work-project:nth-of-type(n+4) { display: none; }
+        /* show 2, then "More, Please" reveals the rest */
+        .work-cat-group:not(.show-all) .work-project:nth-of-type(n+3) { display: none; }
         .work-see-more.has-more { display: inline-flex; }
         .work-cat-group.show-all .work-see-more { display: none; }
     }
@@ -355,10 +364,18 @@ each category shows 3 projects then a "See more" reveal.
         const projects = g.querySelectorAll('.work-project');
         const btn = g.querySelector('[data-see-more]');
         if (!btn) return;
-        if (projects.length > 3) btn.classList.add('has-more');
+        if (projects.length > 2) btn.classList.add('has-more');
         btn.addEventListener('click', () => {
+            // Collect the still-hidden projects, reveal the group, then animate
+            // them in on the next frame (display:none -> block can't transition).
+            const hidden = [...projects].filter(p => !p.classList.contains('is-visible'));
             g.classList.add('show-all');
-            g.querySelectorAll('.work-project').forEach(p => p.classList.add('is-visible'));
+            requestAnimationFrame(() => {
+                hidden.forEach((p, i) => {
+                    p.style.transitionDelay = (i * 0.08) + 's';
+                    p.classList.add('is-visible');
+                });
+            });
         });
     });
 })();
