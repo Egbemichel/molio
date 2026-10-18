@@ -20,15 +20,13 @@ export function initContact() {
     setStatus('', false)
 
     const data = Object.fromEntries(new FormData(form))
-    const csrfToken = document.cookie.match(/csrftoken=([^;]+)/)?.[1]
     const resetBtn = showButtonLoader(submitBtn)
 
     try {
-      const res = await fetch('/contact/', {
+      const res = await fetch('/api/contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRFToken': csrfToken,
         },
         body: JSON.stringify(data),
       })

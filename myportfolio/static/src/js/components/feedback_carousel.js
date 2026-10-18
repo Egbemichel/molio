@@ -38,7 +38,7 @@ async function loadFeedback() {
   renderState(track, { variant: 'loading' })
 
   try {
-    const response = await fetch('/api/feedback/get/')
+    const response = await fetch('/feedback.json')
 
     if (!response.ok) {
       throw new Error(`Failed to fetch feedback (${response.status})`)

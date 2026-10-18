@@ -4,7 +4,7 @@
  * Auto-expanding textarea with character counter
  * Smooth submit with spinner-to-checkmark animation
  *
- * Form submits via fetch() to /api/feedback/
+ * Form submits via fetch() to /api/feedback
  */
 
 import { showButtonLoader, showButtonSuccess, showButtonError } from './page_loader.js'
@@ -169,9 +169,8 @@ export function initFeedbackForm() {
         if (imageFile) {
           formData.append('image', imageFile)
         }
-        formData.append('csrfmiddlewaretoken', getCookie('csrftoken'))
 
-        const response = await fetch('/api/feedback/', {
+        const response = await fetch('/api/feedback', {
           method: 'POST',
           body: formData,
         })

@@ -16,4 +16,4 @@ static/dist/css/*
 node_modules/
 staticfiles/
 staticfiles_build/
-Makefile
+Makefiledist/

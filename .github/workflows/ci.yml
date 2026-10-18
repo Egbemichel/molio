@@ -1,8 +1,8 @@
 name: CI
 
-# Deployment is handled by Vercel (auto-deploys main on every push).
-# This workflow only validates the code: it runs the Django test suite on
-# pushes to main and on pull requests, so broken changes show up before merge.
+# Deployment is handled by Cloudflare Pages (builds main on every push).
+# This workflow only validates the code: it runs the Django test suite and a
+# static-build smoke test on pushes to main and on pull requests.
 on:
   push:
     branches: [main]
@@ -36,3 +36,8 @@ jobs:
 
       - name: Run tests
         run: python manage.py test --verbosity=2
+
+      - name: Static build smoke test
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings.static
+        run: python manage.py migrate --no-input && python manage.py build_static

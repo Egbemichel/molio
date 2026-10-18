@@ -1,81 +1,88 @@
-# Deploying molio (free stack)
+# Deploying molio on Cloudflare Pages
 
-**Stack:** Back4App Containers (web, free, no card) · Neon (Postgres, free) · Cloudinary (media, free)
-**CI/CD:** GitHub Actions runs tests on every push to `main`; if green it advances the
-`release` branch, which Back4App auto-deploys. Push → tested → live.
+**Stack:** Cloudflare Pages (static site + Functions) · Neon (Postgres) · Cloudinary (media) · Resend (email)
 
-> We landed on Back4App because Render's IPs are blocked on this network and Koyeb
-> now requires a paid plan. Back4App Containers has a genuine no-credit-card free tier.
+The public site is **static**: `manage.py build_static` renders the home page from the
+database into `myportfolio/dist/`, and Pages serves it from the edge — always on, no
+cold starts. Only the contact and feedback forms run code
+([`functions/api/`](myportfolio/functions/api)).
 
----
-
-## 1. Database — Neon (free Postgres)
-
-1. Sign up at <https://neon.tech> (no credit card).
-2. Create a project (Postgres 18 default is fine). Copy the **connection string**:
-   `postgresql://user:password@ep-xxx.region.aws.neon.tech/dbname?sslmode=require`
-3. That's your `DATABASE_URL`.
-
-## 2. Media — Cloudinary (free, persists uploads)
-
-1. Sign up at <https://cloudinary.com>.
-2. Copy the **API Environment variable**: `cloudinary://<api_key>:<api_secret>@<cloud_name>`
-3. That's your `CLOUDINARY_URL`.
-
-> Needed because Back4App container storage is ephemeral — admin-uploaded images
-> would otherwise vanish on every redeploy.
-
-## 3. Web app — Back4App Containers
-
-1. Push this repo to GitHub.
-2. Go to <https://www.back4app.com> → **Containers** → **Deploy a Web App** →
-   connect GitHub and pick this repo.
-3. Settings:
-   - Branch to deploy: **`release`**  ← important (GitHub Actions populates it)
-   - Build: **Dockerfile** (auto-detected — [`Dockerfile`](Dockerfile) at repo root)
-   - Port: **8000**
-   - Auto-deploy: **ON**
-4. Environment variables (mark the secrets as private):
-   - `SECRET_KEY` → a long random string
-     (`python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"`)
-   - `DATABASE_URL` → Neon string from step 1
-   - `CLOUDINARY_URL` → Cloudinary string from step 2
-   - `ALLOWED_HOSTS` → your Back4App hostname, e.g. `molio-xxxx.b4a.run`
-   - `DJANGO_SETTINGS_MODULE` → `config.settings.prod`
-5. Deploy. The container runs `collectstatic` at build and `migrate` on start
-   (see [`Dockerfile`](Dockerfile)).
-
-### Create your admin user
-After the first deploy, open the Back4App container **Logs/Console** (or temporarily
-add a one-off command) and run:
-```bash
-python manage.py createsuperuser
-```
-> Back4App's free console access is limited; if you can't get a shell, create the
-> superuser by running the app locally against the same Neon `DATABASE_URL` once:
-> `DATABASE_URL=... python manage.py createsuperuser` — it writes to the shared DB.
-
-## 4. CI/CD — how pushes go live
-
-Already wired in [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml). No
-secrets required — it uses the built-in `GITHUB_TOKEN`.
+The Django admin is no longer hosted. You run it **locally** against the same Neon
+database, edit content, then trigger a rebuild.
 
 ```
-git push origin main
-  → GitHub Actions runs the test suite
-  → if green, it force-updates the `release` branch to that commit
-  → Back4App sees `release` change and auto-deploys → live
-```
-
-Pull requests and failing pushes never touch `release`, so they never deploy.
-
-**One-time setup:** create the `release` branch so Back4App can watch it:
-```bash
-git push origin main:release
+edit content (local admin → Neon/Cloudinary)
+  → trigger a Pages build (git push, or the deploy hook)
+  → Pages runs build_static (reads Neon) → publishes dist/
 ```
 
 ---
+
+## 1. Create the Pages project
+
+Cloudflare dashboard → **Workers & Pages → Create → Pages → Connect to Git** → pick this repo.
+
+| Setting | Value |
+|---|---|
+| Production branch | `main` |
+| Root directory | `myportfolio` |
+| Build command | `pip install -r requirements.txt && python manage.py build_static --settings=config.settings.static` |
+| Build output directory | `dist` |
+
+## 2. Environment variables
+
+Pages → project → **Settings → Variables and Secrets** (Production):
+
+| Name | Used by | Notes |
+|---|---|---|
+| `SECRET_KEY` | build | any long random string (required by Django settings) |
+| `DATABASE_URL` | build | Neon connection string |
+| `CLOUDINARY_URL` | build | so image + CV URLs resolve |
+| `PYTHON_VERSION` | build | `3.12` (also pinned in `.python-version`) |
+| `RESEND_API_KEY` | functions | **secret** |
+| `RESEND_FROM_EMAIL` | functions | e.g. `Portfolio <onboarding@resend.dev>` |
+| `CONTACT_RECIPIENT_EMAIL` | functions | your inbox |
+
+## 3. Rebuild when content changes
+
+Pages → **Settings → Builds → Deploy hooks** → create one, then:
+
+```bash
+curl -X POST "<your deploy hook URL>"
+```
+
+(or just push to `main`). Rebuilds take ~1–2 minutes.
+
+## 4. Custom domain
+
+Pages → **Custom domains** → add yours. Nothing else to configure.
+
+## 5. Decommission the old hosts
+
+Once the Pages URL works, delete the Back4App/Render/Vercel services. The `release`
+branch and its Actions workflow are no longer used and can be deleted.
+
+---
+
+## Feedback moderation
+
+Visitor feedback is **emailed to you** rather than stored. To show one in the carousel,
+add it under **Feedback** in the local admin and rebuild. (Existing feedback in the
+database is included in every build via `feedback.json`.)
 
 ## Local development
-Local runs use [`config/settings/dev.py`](myportfolio/config/settings/dev.py) (SQLite, `DEBUG=True`),
-so none of the production env vars above are needed locally — just a `SECRET_KEY`.
+
+```bash
+cd myportfolio
+python manage.py runserver 8080     # dev settings, SQLite, console email
+npm run dev                         # Tailwind watcher
+python manage.py build_static --settings=config.settings.static   # preview the static build in dist/
+npx wrangler pages dev dist         # serve dist/ with the Functions locally
+```
+
+To edit **production** content locally, run the admin with `DATABASE_URL` and
+`CLOUDINARY_URL` set to the same values as Pages and
+`--settings=config.settings.prod`.
+
+> Local admin uses `create_admin.py` defaults only if you run it; if you ever created
+> the superuser with its default password, change it in Neon now.
