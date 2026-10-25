@@ -31,14 +31,17 @@ Cloudflare dashboard → **Workers & Pages → Create → Pages → Connect to G
 
 ## 2. Environment variables
 
-Pages → project → **Settings → Variables and Secrets** (Production):
+Pages → project → **Settings → Variables and Secrets**.
+
+> Variables the build reads must be type **Build**. Type *Secret* is only given to
+> Functions at runtime; the build never sees it (that is what broke every early
+> build). `SECRET_KEY` isn't needed: the static settings supply a build-only one.
+> Python comes from `.python-version`.
 
 | Name | Used by | Notes |
 |---|---|---|
-| `SECRET_KEY` | build | any long random string (required by Django settings) |
-| `DATABASE_URL` | build | Neon connection string |
-| `CLOUDINARY_URL` | build | so image + CV URLs resolve |
-| `PYTHON_VERSION` | build | `3.12` (also pinned in `.python-version`) |
+| `DATABASE_URL` | build | Neon connection string. Type **Build** |
+| `CLOUDINARY_URL` | build | so image + CV URLs resolve. Type **Build** |
 | `RESEND_API_KEY` | functions | **secret** |
 | `RESEND_FROM_EMAIL` | functions | e.g. `Portfolio <onboarding@resend.dev>` |
 | `CONTACT_RECIPIENT_EMAIL` | functions | your inbox |
