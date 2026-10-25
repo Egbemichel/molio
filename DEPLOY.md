@@ -48,13 +48,16 @@ Pages → project → **Settings → Variables and Secrets**.
 
 ## 3. Rebuild when content changes
 
-Pages → **Settings → Builds → Deploy hooks** → create one, then:
+A deploy hook (`admin-rebuild`, Pages → Settings → Deploy hooks) rebuilds `main`.
+Put its URL in your local `.env` as `DEPLOY_HOOK_URL`, and the admin's Projects
+page gets a working **Rebuild site** button. Without the button:
 
 ```bash
 curl -X POST "<your deploy hook URL>"
 ```
 
-(or just push to `main`). Rebuilds take ~1–2 minutes.
+(or push to `main`). Rebuilds take ~1–2 minutes. The URL is a credential: keep it
+in `.env` only; if it leaks, delete the hook in Cloudflare and make a new one.
 
 ## 4. Custom domain
 

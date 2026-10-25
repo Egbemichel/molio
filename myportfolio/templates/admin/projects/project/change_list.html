@@ -1,9 +1,10 @@
 {% extends "admin/change_list.html" %}
 
 {% comment %}
-Projects changelist + a "Sync from GitHub" button in Unfold's object-tools
-toolbar. Posts to the custom admin view registered in ProjectAdmin.get_urls
-(projects_project_sync_github).
+Projects changelist + toolbar buttons in Unfold's object-tools:
+- "Sync from GitHub": ProjectAdmin.get_urls (projects_project_sync_github).
+- "Rebuild site": apps.core.admin_views.rebuild_site, which POSTs to the
+  Cloudflare Pages deploy hook so edits go live.
 {% endcomment %}
 
 {% block object-tools-items %}
@@ -13,6 +14,16 @@ toolbar. Posts to the custom admin view registered in ProjectAdmin.get_urls
                 class="flex items-center gap-2 bg-primary-600 border border-transparent font-medium h-9.5 px-3 rounded-default text-sm text-white hover:bg-primary-700 cursor-pointer">
             <span class="material-symbols-outlined text-base">sync</span>
             Sync from GitHub
+        </button>
+    </form>
+    <form method="post" action="{% url 'rebuild_site' %}" class="flex">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+        <button type="submit"
+                class="flex items-center gap-2 border border-base-200 dark:border-base-700 font-medium h-9.5 px-3 rounded-default text-sm hover:bg-base-100 dark:hover:bg-base-800 cursor-pointer"
+                title="Publish your latest edits to egbemichel.tech">
+            <span class="material-symbols-outlined text-base">rocket_launch</span>
+            Rebuild site
         </button>
     </form>
     {{ block.super }}

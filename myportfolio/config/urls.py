@@ -3,8 +3,10 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from apps.core.views import home
+from apps.core.admin_views import rebuild_site
 
 urlpatterns = [
+    path('admin/rebuild-site/', rebuild_site, name='rebuild_site'),
     path('admin/', admin.site.urls),
     path('', home, name='home'),
     path('', include('apps.core.urls')),
