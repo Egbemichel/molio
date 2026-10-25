@@ -6,8 +6,9 @@ photos into the database.
 
 Words and world settings live in apps/projects/seed_data.py; images in
 apps/projects/seed_assets/<slug>/. Afterwards it is all ordinary admin content.
-Re-running is safe: existing projects (by slug) and photos (by alt text) are kept
-unless --refresh is passed.
+Re-running is safe: projects that already have chapters and photos (by alt text)
+are kept unless --refresh is passed. A project that exists without chapters (say,
+a GitHub-synced draft with the same slug) is filled in rather than duplicated.
 """
 from pathlib import Path
 
@@ -57,19 +58,30 @@ class Command(BaseCommand):
             slug = data['slug']
             if refresh:
                 Project.objects.filter(slug=slug).delete()
-            elif Project.objects.filter(slug=slug).exists():
+            existing = Project.objects.filter(slug=slug).first()
+            if existing and existing.chapters.exists():
                 self.stdout.write(f'kept     project  {data["title"]}')
                 continue
 
             folder = ASSETS / slug
-            project = Project(
-                slug=slug, title=data['title'], category=cats[data['category']], order=order, published=True,
+            fields = dict(
+                title=data['title'], category=cats[data['category']], order=order, published=True,
                 role=data.get('role', ''), date_range=data.get('date_range', ''), aside=data.get('aside', ''),
                 hook=data.get('hook', ''), description=data.get('description', ''),
                 starting_point=data.get('starting_point', ''), outcome=data.get('outcome', ''),
                 palette=data.get('palette', []), world_css=data.get('css', '').strip(),
                 **data.get('world', {}),
             )
+            if existing:
+                # e.g. an unpublished draft from the GitHub sync: give it its world
+                # and story, keep its GitHub link, languages and sync metadata.
+                project = existing
+                for name, value in fields.items():
+                    setattr(project, name, value)
+                verb = 'filled '
+            else:
+                project = Project(slug=slug, **fields)
+                verb = 'created'
             if data.get('mockup'):
                 attach(project.mockup, folder / data['mockup'])
             if data.get('logo'):
@@ -84,7 +96,7 @@ class Command(BaseCommand):
                     item = ChapterMedia(chapter=chapter, kind=kind, alt=alt, caption=caption, order=j)
                     attach(item.file, folder / filename)
                     item.save()
-            self.stdout.write(f'created  project  {project.title}')
+            self.stdout.write(f'{verb}  project  {project.title}')
 
         for order, (filename, alt, caption) in enumerate(MOMENTS):
             if GalleryItem.objects.filter(alt_text=alt).exists():

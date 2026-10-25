@@ -122,3 +122,36 @@ class AdminDefaultStepsTests(TestCase):
         self.assertEqual([c.title for c in design.chapters.all()], ['The thought', 'The brand', 'The experience'])
         dev = self._create('Fullstack', 'an-app')
         self.assertEqual([c.title for c in dev.chapters.all()], ['The itch', 'The rabbit hole', 'The souvenirs'])
+
+
+class LaunchTests(TestCase):
+    """seed_content fills a GitHub draft with the same slug; launch_prep hides the rest."""
+
+    def test_seed_fills_draft_and_launch_prep_cleans_up(self):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        from apps.core.models import GalleryItem
+
+        with tempfile.TemporaryDirectory() as media, override_settings(MEDIA_ROOT=media):
+            draft = Project.objects.create(
+                slug='kombien', title='kombien', published=False, is_github_managed=True,
+                github_repo_id=42, github_link='https://github.com/Egbemichel/kombien',
+            )
+            make_project(slug='old-app', title='Old app')                       # published dev project
+            GalleryItem.objects.create(alt_text='old creative shot',
+                                       image=SimpleUploadedFile('a.gif', b'GIF89a', 'image/gif'))
+
+            call_command('seed_content', verbosity=0)
+            draft.refresh_from_db()
+            self.assertTrue(draft.published)
+            self.assertEqual(draft.github_repo_id, 42)                          # sync metadata kept
+            self.assertEqual(draft.chapters.count(), 3)
+            self.assertEqual(Project.objects.filter(slug='kombien').count(), 1)
+
+            call_command('launch_prep', dry_run=True, verbosity=0)
+            self.assertTrue(Project.objects.get(slug='old-app').published)   # dry run changes nothing
+
+            call_command('launch_prep', verbosity=0)
+            self.assertFalse(Project.objects.get(slug='old-app').published)
+            self.assertFalse(GalleryItem.objects.filter(alt_text='old creative shot').exists())
+            self.assertEqual(Project.objects.filter(published=True).count(), 8)
+            self.assertEqual(GalleryItem.objects.count(), 8)
