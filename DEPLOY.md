@@ -33,15 +33,15 @@ Cloudflare dashboard → **Workers & Pages → Create → Pages → Connect to G
 
 Pages → project → **Settings → Variables and Secrets**.
 
-> Variables the build reads must be type **Build**. Type *Secret* is only given to
-> Functions at runtime; the build never sees it (that is what broke every early
-> build). `SECRET_KEY` isn't needed: the static settings supply a build-only one.
+> Set these for **Production** (preview builds without them build an empty site).
+> Paste the value only; quotes or Neon's `psql '…'` wrapper are tolerated.
+> `SECRET_KEY` isn't needed: the static settings supply a build-only one.
 > Python comes from `.python-version`.
 
 | Name | Used by | Notes |
 |---|---|---|
-| `DATABASE_URL` | build | Neon connection string. Type **Build** |
-| `CLOUDINARY_URL` | build | so image + CV URLs resolve. Type **Build** |
+| `DATABASE_URL` | build | Neon connection string (`postgresql://…`, value only) |
+| `CLOUDINARY_URL` | build | `cloudinary://…`, so image + CV URLs resolve |
 | `RESEND_API_KEY` | functions | **secret** |
 | `RESEND_FROM_EMAIL` | functions | e.g. `Portfolio <onboarding@resend.dev>` |
 | `CONTACT_RECIPIENT_EMAIL` | functions | your inbox |
