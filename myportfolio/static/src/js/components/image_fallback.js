@@ -12,8 +12,8 @@ const PLACEHOLDER =
   'data:image/svg+xml,' +
   encodeURIComponent(
     "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>" +
-      "<rect width='100' height='100' rx='6' fill='#efe9e9'/>" +
-      "<g fill='none' stroke='#8B1E1E' stroke-opacity='0.45' stroke-width='3' " +
+      "<rect width='100' height='100' rx='6' fill='#F3E2C6'/>" +
+      "<g fill='none' stroke='#2A1E1A' stroke-opacity='0.35' stroke-width='3' " +
       "stroke-linecap='round' stroke-linejoin='round'>" +
       "<rect x='27' y='31' width='46' height='38' rx='4'/>" +
       "<circle cx='40' cy='45' r='4'/>" +

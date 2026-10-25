@@ -1,42 +1,9 @@
 {% extends "base.html" %}
+
 {% block content %}
-{% load static %}
-
-    {% include 'components/hero.html' %}
-
-    {% comment %} About + Projects share an editorial region so the two outer
-    vertical lines run continuously from the About grid down to the bottom of
-    the Projects rectangle. {% endcomment %}
-    <div class="editorial-region">
-        <span class="eline eline--left" aria-hidden="true"></span>
-        <span class="eline eline--right" aria-hidden="true"></span>
-        {% include 'components/about_section.html' %}
-        {% include 'components/work_section.html' %}
-    </div>
-    
-    {% include 'components/personal_info.html' with info_items=personal_info %}
-    
-    {% include 'components/section_banner.html' with section_id="education-banner" text="Education" %}
-    
-    {% include 'components/education.html' with education_list=education_list %}
-    
-    {% include 'components/section_banner.html' with section_id="skills-banner" text="Skills" %}
-    
-    {% include 'components/skills.html' with skills_json=skills_json %}
-    
-    {% include 'components/services.html' with services=services services_json=services_json %}
-    
-    {% include 'components/section_banner.html' with section_id="creative-banner" text="Creative" %}
-    
-    {% include 'components/gallery.html' with gallery_items=gallery_items social_links=social_links %}
-    
-    {% include 'components/globe.html' %}
-    
-    {% include 'components/feedback_form.html' %}
-    
-    {% include 'components/contact.html' with email=contact_info.email location=contact_info.location %}
-
-    {% include 'components/cv_button.html' %}
-
+  {% include 'components/hero.html' %}
+  {% include 'components/intro.html' %}
+  {% include 'components/work.html' with projects=projects %}
+  {% include 'components/moments.html' with moments=moments %}
+  {% include 'components/contact.html' with contact_email=contact_email %}
 {% endblock %}
-

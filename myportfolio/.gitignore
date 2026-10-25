@@ -16,4 +16,12 @@ static/dist/css/*
 node_modules/
 staticfiles/
 staticfiles_build/
-Makefiledist/
+dist/
+
+# Raw project source files (PDF guidelines, originals). The site uses the
+# optimised copies in apps/projects/seed_assets/.
+/projects/
+
+# Raw brand source folder (includes photos with other people in them).
+# The site uses the curated copies in static/brand/.
+/public/

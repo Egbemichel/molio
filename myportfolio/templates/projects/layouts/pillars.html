@@ -1,0 +1,9 @@
+{% comment %} Pillars: one idea per line of the body, "Title: text". {% endcomment %}
+<div class="pillars">
+  <ol class="pillars__list">
+    {% for p in chapter.pillars %}
+      <li class="pillar"><span class="pillar__n">{{ forloop.counter|stringformat:"02d" }}</span>{% if p.title %}<h3 class="pillar__title">{{ p.title }}</h3>{% endif %}<p class="pillar__text">{{ p.text }}</p></li>
+    {% endfor %}
+  </ol>
+  {% if chapter.media.all %}<div class="pillars__media">{% for m in chapter.media.all %}{% include "projects/layouts/_media.html" %}{% endfor %}</div>{% endif %}
+</div>

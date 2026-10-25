@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% comment %}
+A project page is its own world: colours, type and layouts come from the project
+(apps/projects/worlds.py), not from Mich's brand. Only the frame — the cream nav
+bar and the footer — and the red dot cross over.
+{% endcomment %}
+
+{% block title %}{{ project.title }} · Egbe Michel{% endblock %}
+{% block og_title %}{{ project.title }} · Egbe Michel{% endblock %}
+{% block description %}{{ project.hook|default:project.description|truncatewords:30 }}{% endblock %}
+
+{% block extra_head %}
+  {% with w=project.world %}
+    {% if w.fonts_url %}<link rel="stylesheet" href="{{ w.fonts_url }}">{% endif %}
+    <meta name="theme-color" content="{{ w.bg }}">
+  {% endwith %}
+  {% if project.world_css %}<style>{{ project.world_css|safe }}</style>{% endif %}
+{% endblock %}
+
+{% block nav %}{% include 'components/nav.html' with frame=True %}{% endblock %}
+
+{% block content %}
+{% with w=project.world %}
+<article class="world world--{{ project.slug }}" style="{{ w.style }}">
+
+  <header class="world-hero world-hero--{{ project.world_hero }}">
+    <div class="world-hero__text">
+      <a href="/#work" class="world-label world-link">&larr; All work</a>
+      <p class="world-label world-hero__meta">{{ project.category.name }}{% if project.date_range %} · {{ project.date_range }}{% endif %}{% if project.role %} · {{ project.role }}{% endif %}</p>
+      <h1 class="world-hero__title" style="--len: {{ project.title|length }}">{{ project.title }}<span class="world-slot" data-dot-stop="title">{% include 'components/dot.svg.html' %}</span></h1>
+      {% if project.hook %}<p class="world-hero__hook">{{ project.hook }}</p>{% endif %}
+      {% if project.aside %}<p class="world-aside"><span class="world-aside__by">Mich&rsquo;s note</span> {{ project.aside }}</p>{% endif %}
+    </div>
+    {% with cover=project.cover %}{% if cover %}
+      <div class="world-hero__cover world-hero__cover--{{ cover.kind }}">
+        <img src="{{ cover.url }}" alt="" style="view-transition-name: cover-{{ project.slug }}" decoding="async">
+      </div>
+    {% endif %}{% endwith %}
+  </header>
+
+  {% if project.description or project.starting_point %}
+    <section class="world-intro">
+      {% if project.description %}<p class="world-intro__lead">{{ project.description }}</p>{% endif %}
+      <div class="world-intro__side">
+        {% if project.starting_point %}
+          <h2 class="world-label">Where it started</h2>
+          <p class="world-prose">{{ project.starting_point|linebreaksbr }}</p>
+        {% endif %}
+        {% with techs=project.technologies.all %}{% if techs %}
+          <h2 class="world-label">Built with</h2>
+          <p class="world-prose">{% for t in techs %}{{ t.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+        {% endif %}{% endwith %}
+        {% if project.live_url or project.github_link %}
+          <p class="world-links">
+            {% if project.live_url %}<a class="world-link" href="{{ project.live_url }}" target="_blank" rel="noopener">See it live &nearr;</a>{% endif %}
+            {% if project.github_link %}<a class="world-link" href="{{ project.github_link }}" target="_blank" rel="noopener">Read the code &nearr;</a>{% endif %}
+          </p>
+        {% endif %}
+      </div>
+    </section>
+  {% endif %}
+
+  {% for chapter in project.chapters.all %}
+    <section class="chapter chapter--{{ chapter.layout }}{% if forloop.counter|divisibleby:2 %} chapter--even{% endif %}" data-index="{{ forloop.counter }}">
+      <header class="chapter__head">
+        <p class="world-label chapter__num"><span class="ledge__slot" data-dot-stop="chapter-{{ forloop.counter }}"></span>{{ forloop.counter|stringformat:"02d" }}</p>
+        <h2 class="chapter__title">{{ chapter.title }}</h2>
+        {% if chapter.kicker %}<p class="chapter__kicker">{{ chapter.kicker }}</p>{% endif %}
+      </header>
+      {% include "projects/layouts/"|add:chapter.layout|add:".html" with chapter=chapter project=project %}
+    </section>
+  {% endfor %}
+
+  {% if project.outcome %}
+    <section class="world-outcome">
+      <h2 class="world-label">Where it landed</h2>
+      <p class="world-outcome__text">{{ project.outcome|linebreaksbr }}</p>
+    </section>
+  {% endif %}
+</article>
+
+{% if next_project %}
+  {% with nw=next_project.world %}
+    <nav class="next-world" style="{{ nw.style }}" aria-label="Next project">
+      <link rel="stylesheet" href="{{ nw.title_font_url }}">
+      <a href="{{ next_project.get_absolute_url }}" class="next-world__link">
+        <span class="label">Next world</span>
+        <span class="next-world__title">{{ next_project.title }} <span aria-hidden="true">&rarr;</span></span>
+      </a>
+    </nav>
+  {% endwith %}
+{% endif %}
+{% endwith %}
+{% endblock %}

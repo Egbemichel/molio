@@ -1,0 +1,54 @@
+{% comment %}
+Selected work, as doorways. Each project gets a full screen in its own world's
+colours and display face (fonts are subset to the title's letters, so they're
+tiny). The words around the title — index, category, hook, Mich's note — stay in
+Mich's voice: you're still on his site, looking into someone else's room.
+Panels are sticky, so each one slides over the last as you scroll.
+@param projects
+{% endcomment %}
+<section id="work" class="scroll-mt-10 pb-0">
+  <div class="page-x pb-14 md:pb-20">
+    <div class="page-inner">
+      <div class="hairline flex items-end justify-between gap-6 border-t pt-6">
+        <p class="ledge text-ink/70"><span class="ledge__slot" data-dot-stop="work"></span>Work</p>
+        <p class="label text-ink/50">{{ projects|length }} world{{ projects|length|pluralize }}</p>
+      </div>
+      <h2 class="reveal mt-8 max-w-[16ch] font-display text-display-xl font-semibold md:mt-10">Work, so far.</h2>
+      <p class="reveal mt-6 max-w-[46ch] text-[17px] leading-relaxed text-ink/75">Every project gets its own world: its own colours, type and rules. Mine stop at the door. Mostly.</p>
+    </div>
+  </div>
+
+  {% if projects %}
+    <ol class="doors">
+      {% for project in projects %}
+        {% with w=project.world %}
+          <li class="door" style="{{ w.style }}">
+            <link rel="stylesheet" href="{{ w.title_font_url }}">
+            <a href="{{ project.get_absolute_url }}" class="door__link">
+              <div class="door__top">
+                <span>{{ forloop.counter|stringformat:"02d" }} / {{ projects|length|stringformat:"02d" }}</span>
+                {% if project.palette %}<span class="door__swatches" aria-hidden="true">{% for c in project.palette %}<i style="background: {{ c.hex }}"></i>{% endfor %}</span>{% endif %}
+                <span>{{ project.category.name }}{% if project.date_range %} · {{ project.date_range }}{% endif %}</span>
+              </div>
+              <div class="door__main">
+                <h3 class="door__title" style="--len: {{ project.title|length }}">{{ project.title }}</h3>
+                {% with cover=project.cover %}{% if cover %}
+                  <div class="door__cover door__cover--{{ cover.kind }}"><img src="{{ cover.url }}" alt="" loading="lazy" decoding="async" style="view-transition-name: cover-{{ project.slug }}"></div>
+                {% endif %}{% endwith %}
+              </div>
+              <div class="door__bottom">
+                <div>
+                  <p class="door__hook">{{ project.hook|default:project.description|truncatewords:28 }}</p>
+                  {% if project.aside %}<p class="door__aside">&ldquo;{{ project.aside }}&rdquo;</p>{% endif %}
+                </div>
+                <span class="door__enter">Step inside <span aria-hidden="true">&rarr;</span></span>
+              </div>
+            </a>
+          </li>
+        {% endwith %}
+      {% endfor %}
+    </ol>
+  {% else %}
+    <div class="page-x"><p class="page-inner pb-24 text-lg text-ink/70">New work is being written up. In the meantime, say hello below.</p></div>
+  {% endif %}
+</section>

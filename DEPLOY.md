@@ -64,11 +64,28 @@ branch and its Actions workflow are no longer used and can be deleted.
 
 ---
 
-## Feedback moderation
+## Content
 
-Visitor feedback is **emailed to you** rather than stored. To show one in the carousel,
-add it under **Feedback** in the local admin and rebuild. (Existing feedback in the
-database is included in every build via `feedback.json`.)
+`build_static` renders the home page and one page per published project at
+`/work/<slug>/`. A project shows only when it is **published and has a category**.
+
+Every project page is its own *world* (colours, fonts, layouts): see the **World**
+section of a project in the admin. New projects get three chapters automatically:
+design work gets The thought / The brand / The experience; anything else gets
+The itch / The rabbit hole / The souvenirs. Add images on each chapter's own page.
+
+To load the design projects and the "Off the clock" photos:
+
+```bash
+python manage.py seed_content --settings=config.settings.dev     # local
+python manage.py seed_content --settings=config.settings.prod    # production (Neon + Cloudinary)
+```
+
+Re-running is safe; `--refresh` rebuilds the seeded projects from
+`apps/projects/seed_data.py` (this discards admin edits to those projects).
+
+The feedback carousel and form were retired in the 2026 redesign. The `Feedback`
+model and `functions/api/feedback.js` remain so no data is lost.
 
 ## Local development
 

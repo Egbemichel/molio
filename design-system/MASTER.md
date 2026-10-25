@@ -1,70 +1,93 @@
-# molio — Design System (Source of Truth)
+# molio — Design System
 
-Distilled from the existing build via the `ui-ux-pro-max` skill, adapted to this
-project's real stack: **Django + Tailwind (HTML/CSS) + vanilla JS + GSAP/Alpine**.
-This is *your* system, documented — not a redesign. New pages/components should
-follow it for consistency.
+**Read [`ME_THE_BRAND.md`](../ME_THE_BRAND.md) first.** It is the source of truth for
+who Mich is and how the site should feel. This file only records how that brand is
+implemented in this codebase (Django templates + Tailwind + vanilla JS).
 
-## Brand identity
-
-- **Style:** editorial / minimal-luxury. Large display type, generous whitespace,
-  thin dividers, restrained accent. Keep it; don't introduce glassmorphism/brutalism.
-- **Voice:** confident, personal, calm.
-
-## Color tokens (`tailwind.config.js`)
+## Tokens (`myportfolio/tailwind.config.js`, `static/src/css/main.css`)
 
 | Token | Hex | Use |
-|-------|-----|-----|
-| `dark` | `#3F3F3F` | primary text, dark buttons/surfaces |
-| `primary` | `#E8E8E8` | page background |
-| `accent` | `#8B1E1E` | single accent — links, focus, CTA hover, highlights |
-| white | `#FFFFFF` | section surfaces |
+|---|---|---|
+| `cream` | `#F3EBDD` | page background, most of the screen |
+| `cream-deep` | `#F3E2C6` | quiet surfaces (pattern tint) |
+| `ink` | `#2A1E1A` | text, dark surfaces, line work |
+| `red` | `#B3262E` | **the dot**, focus ring, link hover. Nothing else. |
 
-Rule: **one accent.** `#8B1E1E` is the only brand color — use opacity variants
-(`dark/10`, `opacity-60`) for hierarchy, not new hues. Accent is also the focus-ring color.
+Red on ink is 2.5:1, so red is never text on the dark section. Brown on cream is
+13.6:1, red on cream 5.5:1.
 
-## Typography
+Skin tone `#7A4A33` exists only inside the runner illustration — a person needs one.
 
-- **Display/headings:** `HagiaPro` (`font-hagia`) — weights 400/500/800.
-- **Hero name / loader:** `Geisha` (`font-geisha`) — decorative only, never body.
-- **Fallback/system:** `DM Sans` (loaded) for non-branded UI.
-- Type scale already in `@layer components`: `.section-title` (6xl), `.heading-md`
-  (5xl), `.heading-sm` (3xl). Reuse these instead of ad-hoc sizes.
+## Type
 
-## Effects
+- **Clash Display** (`font-display`, self-hosted variable woff2): headlines, nav, statements.
+- **Geisha** (`font-geisha`, subset woff2): one expressive moment per screen, large only
+  (currently: "hello" in Contact).
+- **DM Sans** (`font-sans`, Google Fonts): body, labels, forms.
+- Fluid scale: `text-hero`, `text-display-xl`, `-l`, `-m`, `text-label`.
 
-- Radius: pills for buttons (`rounded-full`), `rounded-3xl`/`[2rem]` for cards.
-- Shadow: `shadow-sm`/`shadow-lg`/`shadow-2xl` — keep the existing scale, don't add random values.
-- Borders: `border-dark/10` hairlines as the default separator.
+## Brand assets (`static/brand/`)
 
-## Motion (GSAP + CSS)
+Source files live in `public/brand/` (as supplied). Web copies:
 
-- Durations 150–400ms for micro-interactions; loader sequence is the one exception.
-- Animate `transform`/`opacity` only (already the case in cursor/loader).
-- **Always gate motion behind `prefers-reduced-motion`** — handled globally in
-  `static/src/css/main.css` and per-component (cursor, loader, micro-loaders).
-- Marquees pause on hover and freeze under reduced-motion.
+- `logos/em.svg`, `logos/21.svg`, `logos/mich.svg` — the supplied marks with the
+  artboard cropped (viewBox only, artwork untouched).
+- `templates/components/logo_21.svg.html` — 2·1 inlined, its red dot wrapped in
+  `<g data-logo-dot>` so the travelling dot can land in its exact position.
+- `templates/components/dot.svg.html` — the red dot path from the marks, with its
+  cream outline. Every red dot on the site is this shape.
+- `pattern/pattern.svg` — used once, as the band above Contact. It's drawn for cream
+  backgrounds; it goes muddy on ink.
+- `cutouts/` — background-removed portraits with a baked-in cream sticker outline.
+- `photos/` — solo photos of Mich (WebP). Group photos are deliberately left out.
 
-## Accessibility baseline (enforced)
+## The red dot (the site's one big idea)
 
-- Visible keyboard focus via `:focus-visible` accent ring (in `main.css`).
-- Form inputs have associated `<label for>`, required markers, `autocomplete`,
-  `type=email`/`inputmode`, and an `aria-live` status region (see `contact.html`).
-- Images need descriptive `alt`. Icon-only controls need `aria-label`.
-- Don't convey meaning by color alone (pair with text/icon).
+`static/src/js/components/`:
 
-## Known limitation / next opportunity
+- `hero_chase.js` — the slogan's full stop pops out; an illustrated Mich (`chase/runner.js`)
+  chases it, it bounces off the real letter shapes (`chase/world.js`), they run off and
+  back, and it drops off the ledge into the page.
+- `dot_journey.js` — the dot then rests on `[data-dot-stop]` elements (the About full
+  stop, section labels) as you scroll, and settles into the 2·1 mark in the footer.
+- Reduced motion: no chase, no journey; the static dots stay in their places.
 
-- **Mobile (<768px) is intentionally blocked** (`.mobile-block` in `base.html`)
-  with a "grab a laptop" screen. This is the single biggest UX gap. The desktop
-  layout uses fixed large type (`text-6xl`, `px-[60px]`, `max-w-[100rem]`) that
-  isn't yet fluid. Making it responsive is a dedicated effort — see notes when ready.
+To add a stop, put `<span class="ledge__slot" data-dot-stop="name"></span>` in a label.
 
-## Pre-ship checklist (web)
+## Project worlds (the exception to all of the above)
 
-- [ ] Tab through the page: focus ring visible, order logical.
-- [ ] Test with OS "reduce motion" on: no infinite/jarring animation.
-- [ ] Color contrast ≥ 4.5:1 for body text (watch `opacity-50/60` grays on white).
-- [ ] All images have meaningful `alt`; icon buttons have `aria-label`.
-- [ ] Forms: labels, required markers, inline error text, success confirmation.
-- [ ] No layout shift on load (reserve image dimensions).
+Project pages deliberately break Mich's brand rules. Each one is its own world:
+`apps/projects/worlds.py` resolves a preset plus admin overrides into `--w-*`
+custom properties; `static/css/worlds.css` holds structure only.
+
+- **The frame stays Mich's:** cream nav bar, footer, and the red dot, which signs
+  each project title and hops through the chapters.
+- **Chapter layouts:** wall, split, fullbleed, specimen, gallery, statement,
+  pillars (`templates/projects/layouts/`). Each project mixes them differently.
+- **Home doorways:** full-screen sticky panels in each world's colours and display
+  face (fonts subset to the title's letters). The words around it stay in Mich's voice.
+- Fonts are Google Fonts specs; `local:Clash Display` uses a face the site already serves.
+- Per-project CSS lives in the project's *extra CSS* field, scoped by `.world--<slug>`.
+
+## Motion rules
+
+- One easing curve (`ease-brand`, `--ease`). Transform/opacity only.
+- No scroll hijacking, no smooth-scroll libraries, no custom cursor, no page loader.
+- Page transitions use cross-document View Transitions (CSS only).
+- Everything must respect `prefers-reduced-motion`.
+
+## Content (admin)
+
+- Projects: `hook`, `aside` (Mich's note), `description`, `starting_point`, `outcome`,
+  world settings, and ordered **chapters** with a layout and media each.
+  Cover: the mockup, else the logo, else the first chapter photo.
+- Gallery items: photos for "Off the clock", each with a one-line `caption`.
+- `python manage.py seed_content` loads the design projects and photos.
+
+## Pre-ship checklist
+
+- [ ] Tab through: visible red focus ring, logical order.
+- [ ] Reduced motion on: still, composed hero; static dots.
+- [ ] Phone (375px): hero chase fits, no horizontal scroll, strip scrolls by touch.
+- [ ] Every image has meaningful `alt`; decorative ones are `alt=""`/`aria-hidden`.
+- [ ] No claims, metrics or photos that aren't true.

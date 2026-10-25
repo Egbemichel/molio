@@ -1,10 +1,26 @@
-<footer class="border-t border-zinc-800 mt-20">
-  <div class="section flex flex-col md:flex-row items-center justify-between gap-4 py-10 text-sm text-zinc-500">
-    <p>© {% now "Y" %} YourName. Built with Django & Tailwind.</p>
-    <div class="flex gap-6">
-      <a href="https://github.com/" target="_blank" class="hover:text-white transition">GitHub</a>
-      <a href="https://linkedin.com/" target="_blank" class="hover:text-white transition">LinkedIn</a>
-      <a href="mailto:you@email.com" class="hover:text-white transition">Email</a>
+{% load static %}
+<footer class="page-x relative bg-cream pb-8 pt-20 md:pt-28" data-footer>
+  <div class="page-inner">
+    <div class="grid items-end gap-12 md:grid-cols-12">
+      {% comment %} The 2·1 mark. Its red dot is where the travelling dot comes to
+      rest (dot_journey.js swaps the live dot for the original artwork on landing). {% endcomment %}
+      <div class="w-[150px] md:col-span-4 md:w-[min(260px,100%)]" data-dot-home>
+        {% include 'components/logo_21.svg.html' %}
+      </div>
+
+      <div class="md:col-span-8 md:justify-self-end">
+        <ul class="flex flex-wrap gap-x-7 gap-y-2 font-display text-lg font-medium md:text-xl">
+          {% for link in social_links %}
+            <li><a class="link" href="{{ link.url }}" target="_blank" rel="noopener">{{ link.name }}</a></li>
+          {% endfor %}
+          {% if cv_url %}<li><a class="link" href="{{ cv_url }}" target="_blank" rel="noopener">CV</a></li>{% endif %}
+        </ul>
+      </div>
+    </div>
+
+    <div class="hairline mt-12 flex flex-col gap-2 border-t pt-5 text-sm text-ink/70 sm:flex-row sm:justify-between">
+      <p>&copy; {% now "Y" %} Egbe Michel. Drawn and built in {{ location|default:"Yaoundé, Cameroon" }}.</p>
+      <a class="link self-start" href="#main">Back to the top</a>
     </div>
   </div>
 </footer>

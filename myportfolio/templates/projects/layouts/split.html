@@ -1,0 +1,7 @@
+{% comment %} Split: words on one side, the work on the other. {% endcomment %}
+<div class="split">
+  <div class="split__text">{% if chapter.body %}<p class="world-prose">{{ chapter.body|linebreaksbr }}</p>{% endif %}</div>
+  <div class="split__media">
+    {% for m in chapter.media.all %}{% include "projects/layouts/_media.html" %}{% endfor %}
+  </div>
+</div>

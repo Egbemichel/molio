@@ -1,58 +1,24 @@
-{% load static %}
-<!DOCTYPE html>
+{% load static %}<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>404@Egbemichel</title>
-  <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <title>Not here · Egbe Michel</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="{% static 'brand/logos/em.svg' %}" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'dist/css/main.css' %}">
-  <style>
-    body {
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: white;
-      font-family: 'DM Sans', sans-serif;
-    }
-    .lost-wrap img {
-      width: 320px;
-      max-width: 80vw;
-      border-radius: 12px;
-    }
-    .lost-wrap p {
-      margin-top: 1.5rem;
-      text-align: right;
-      padding-right: 1.5rem; /* ← adjust right alignment here */
-      font-size: 3rem;
-      line-height: 1.6;
-      color: #333;
-    }
-    .lost-wrap a {
-      display: block;
-      margin-top: 1rem;
-      text-align: right;
-      padding-right: 1.5rem; /* ← matches text alignment above */
-      font-size: 0.9rem;
-      color: inherit;
-      opacity: 0.6;
-      text-decoration: underline;
-    }
-    .lost-wrap a:hover { opacity: 1; }
-  </style>
 </head>
-<body>
-  <div class="lost-wrap">
-    <img src="{% static 'images/404.png' %}" alt="Egbe Michel with arms out miming I don't know gesture">
-    <p class="font-hagia" >
-      > Huh. How did you get here?.<br>
-      > That's a little too much adventure don&rsquo;t you think?
-    </p>
-    <a href="/"> > take me somewhere that exists</a>
-  </div>
+<body class="page-x flex min-h-screen flex-col">
+  <header class="page-inner py-6">
+    <a href="/" class="block w-[64px]" aria-label="Egbe Michel, home"><img src="{% static 'brand/logos/em.svg' %}" alt="" width="767" height="359"></a>
+  </header>
+  <main class="page-inner flex flex-1 flex-col justify-center pb-24">
+    <p class="label text-ink/60">404</p>
+    <h1 class="mt-6 max-w-[14ch] font-display text-display-xl font-semibold">This page wandered off. Ideas do that.</h1>
+    <p class="mt-8 max-w-[40ch] text-lg text-ink/80">Whatever was here has moved, or never existed. The rest of the site is right where I left it.</p>
+    <a href="/" class="btn mt-10 self-start">Take me home</a>
+  </main>
 </body>
 </html>

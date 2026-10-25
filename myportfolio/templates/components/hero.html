@@ -1,21 +1,31 @@
-{% load static %}
+{% comment %}
+Hero: the slogan, and the chase (hero_chase.js). Mich runs around the headline
+after the red dot, which bounces off the letters, leaves, comes back, and finally
+drops off the ledge into the next section.
 
-<section class="relative w-full min-h-screen overflow-hidden bg-white flex items-center justify-center">
-    
-    <img src="{% static 'images/portfolio_hero_base.png' %}" 
-         alt="Hero Background" 
-         class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-0
-                min-w-full min-h-full max-h-screen
-                object-contain object-center">
+The visual headline is aria-hidden and split into word spans (so words can be
+bumped and measured); the h1 carries the same sentence for assistive tech.
+Without JS or with reduced motion, it's a still, composed first screen.
+{% endcomment %}
+<section class="hero page-x relative flex min-h-[100svh] flex-col" data-hero>
+  <div class="page-inner flex flex-1 flex-col justify-end pt-28 md:pt-32">
+    <h1 class="sr-only">Egbe Michel. Curious, intentional, and always chasing the next idea worth bringing to life.</h1>
 
-    <div class="relative z-10 w-full h-full flex items-center justify-center pointer-events-none">
-        
-        <h1 class="font-geisha text-[30vw] md:text-[35vw] leading-none tracking-tighter
-                   text-primary select-none
-                   transform -rotate-[7.6deg] translate-y-[30%] translate-x-[-2%]">
-            EGBE
-        </h1>
+    <p class="hero__headline font-display text-hero font-semibold text-ink" aria-hidden="true" data-headline>
+      <span class="hero__line"><span data-word>Curious,</span></span>
+      <span class="hero__line"><span data-word>intentional,</span></span>
+      <span class="hero__line"><span data-word>and</span> <span data-word>always</span> <span data-word>chasing</span></span>
+      <span class="hero__line"><span data-word>the</span> <span data-word>next</span> <span data-word>idea</span> <span data-word>worth</span></span>
+      <span class="hero__line"><span data-word>bringing</span> <span data-word>to</span> <span data-word>life</span><span class="hero__slot" data-dot-stop="hero">{% include 'components/dot.svg.html' %}</span></span>
+    </p>
+  </div>
 
-    </div>
-
+  {% comment %} The stage the runner lives on. The ground stops short of the right
+  edge: that gap is where the dot leaves. {% endcomment %}
+  <div class="hero__ground" data-ground></div>
+  <div class="hero__ground hero__ground--far" data-ground-far></div>
+  <div class="hero__stage page-inner relative" data-stage>
+    <p class="label absolute bottom-3 left-0 text-ink/70">Egbe Michel <span class="mx-1.5">/</span> Yaoundé</p>
+    <a href="#about" class="label link absolute bottom-3 right-0 text-ink/70">Scroll</a>
+  </div>
 </section>

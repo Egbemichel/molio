@@ -1,96 +1,57 @@
 {% load static %}
 {% comment %}
-Contact section with form and email
-@param: email - Email address to display and send to
-@param: location - Location string
+Contact: low friction. A big email link, "hello" in Mich's own voice (the audio),
+and a short form that posts to the Pages Function at /api/contact.
+@param contact_email
 {% endcomment %}
+<div class="pattern-band" aria-hidden="true"></div>
 
-<section id="contact" class="relative overflow-hidden w-full bg-white py-24 md:py-32 px-8 md:px-16">
-    {% comment %} Mobile-only character: peeks up from the bottom-right, tilted for
-    personality. The section is overflow-hidden so it can never push horizontal scroll. {% endcomment %}
-    <img src="{% static 'images/contact_me.png' %}" alt="" aria-hidden="true"
-        class="lg:hidden absolute bottom-0 right-1 z-0 w-28 sm:w-36 translate-y-3 -rotate-6 object-contain object-bottom select-none pointer-events-none drop-shadow-xl">
+<section id="contact" class="page-x scroll-mt-10 py-24 md:py-36">
+  <div class="page-inner grid gap-16 md:grid-cols-12 md:gap-x-10">
+    <div class="md:col-span-7">
+      <p class="ledge text-ink/70"><span class="ledge__slot" data-dot-stop="contact"></span>Contact</p>
 
-    <div class="max-w-[100rem] mx-auto w-full relative z-10 px-0 md:px-[60px]">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20">
-            <div class="flex flex-col justify-center">
-                <h2 class="font-hagia font-medium text-4xl md:text-6xl mb-6 tracking-tight">
-                    Let's build <br> something <span class="text-accent">great.</span>
-                </h2>
-                <p class="font-hagia text-2xl md:text-4xl text-dark opacity-60 max-w-md leading-relaxed">
-                    Have a project in mind or just want to say hi? Feel free to reach out. I'm always open to discussing new ideas.
-                </p>
+      <h2 class="reveal mt-8 font-display text-display-xl font-semibold">
+        Say
+        <button type="button" class="hello" data-hello aria-label="Play a recording of Mich saying hello">
+          <span class="font-geisha font-normal">hello</span>
+        </button>
+      </h2>
 
-                <div class="mt-12 space-y-4">
-                    <p class="font-hagia text-2xl font-medium">{{ email }}</p>
-                    <p class="font-hagia text-2xl opacity-60">{{ location }}</p>
-                </div>
-            </div>
+      <a href="mailto:{{ contact_email }}" class="link mt-8 inline-block break-all font-display text-display-m font-medium md:mt-10">{{ contact_email }}</a>
 
-            <div class="relative">
-                {% comment %}
-                Decorative 3D character that leans on the form's left edge.
-                Must be a transparent (no-background) PNG so it overlays cleanly.
-                Tune the overlap with -translate-x-[..] and its size with h-[..]/max-h-[..].
-                Hidden below lg so it never collides with the stacked form.
-                {% endcomment %}
-                <img src="{% static 'images/contact_me.png' %}" alt="" aria-hidden="true"
-                    class="hidden lg:block absolute bottom-0 left-0 z-20 h-[92%] max-h-[500px] w-auto -translate-x-[80%] object-contain object-bottom select-none pointer-events-none drop-shadow-xl">
-
-                <form id="contact-form" class="relative z-10 space-y-8 lg:pl-12" novalidate>
-
-                    {% comment %} Honeypot: invisible to humans, bots fill it and get silently dropped {% endcomment %}
-                    <div class="hidden" aria-hidden="true">
-                        <label for="contact-company">Company</label>
-                        <input type="text" id="contact-company" name="company" tabindex="-1" autocomplete="off">
-                    </div>
-
-                    <div class="group">
-                        <label for="contact-name" class="block font-hagia text-xl uppercase tracking-widest opacity-70 mb-2 transition-opacity group-focus-within:opacity-100">
-                            Your Name <span class="text-accent" aria-hidden="true">*</span>
-                        </label>
-                        <input id="contact-name" name="name" type="text" required autocomplete="name"
-                            class="w-full bg-transparent border-b-2 border-dark/10 py-4 font-hagia text-xl md:text-2xl outline-none focus:border-accent transition-colors placeholder:opacity-50"
-                            placeholder="Egbe Michel">
-                    </div>
-
-                    <div class="group">
-                        <label for="contact-email" class="block font-hagia text-xl uppercase tracking-widest opacity-70 mb-2 transition-opacity group-focus-within:opacity-100">
-                            Your Email <span class="text-accent" aria-hidden="true">*</span>
-                        </label>
-                        <input id="contact-email" name="email" type="email" required autocomplete="email" inputmode="email"
-                            class="w-full bg-transparent border-b-2 border-dark/10 py-4 font-hagia text-xl md:text-2xl outline-none focus:border-accent transition-colors placeholder:opacity-50"
-                            placeholder="you@example.com">
-                    </div>
-
-                    <div class="group">
-                        <label for="contact-subject" class="block font-hagia text-xl uppercase tracking-widest opacity-70 mb-2 transition-opacity group-focus-within:opacity-100">Subject</label>
-                        <input id="contact-subject" name="subject" type="text" autocomplete="off"
-                            class="w-full bg-transparent border-b-2 border-dark/10 py-4 font-hagia text-xl md:text-2xl outline-none focus:border-accent transition-colors placeholder:opacity-50"
-                            placeholder="Project Inquiry">
-                    </div>
-
-                    <div class="group">
-                        <label for="contact-message" class="block font-hagia text-xl uppercase tracking-widest opacity-70 mb-2 transition-opacity group-focus-within:opacity-100">
-                            Message <span class="text-accent" aria-hidden="true">*</span>
-                        </label>
-                        <textarea id="contact-message" name="message" required rows="4"
-                            class="w-full bg-transparent border-b-2 border-dark/10 py-4 font-hagia text-xl md:text-2xl outline-none focus:border-accent transition-colors resize-none placeholder:opacity-50"
-                            placeholder="Tell me about your idea..."></textarea>
-                    </div>
-
-                    <button type="submit"
-                        class="group relative flex items-center gap-4 bg-dark text-white px-10 py-5 rounded-full font-hagia text-xl overflow-hidden transition-all hover:pr-14 active:scale-95">
-                        <span class="relative z-10">Send Message</span>
-                        <svg class="w-6 h-6 transition-transform group-hover:translate-x-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
-                        </svg>
-                        <div class="absolute inset-0 bg-accent translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-                    </button>
-
-                    <p id="contact-status" role="status" aria-live="polite" class="font-hagia text-xl min-h-[1.5em]"></p>
-                </form>
-            </div>
-        </div>
+      <div class="mt-10 flex flex-wrap items-center gap-x-5 gap-y-2 text-[15px] text-ink/75">
+        <span>Hear me say it in</span>
+        <button type="button" class="link font-medium text-ink" data-audio="{% static 'audio/hello_en.mp4' %}">English</button>
+        <span aria-hidden="true">/</span>
+        <button type="button" class="link font-medium text-ink" data-audio="{% static 'audio/hello_fr.mp4' %}">Français</button>
+      </div>
     </div>
+
+    <form id="contact-form" class="reveal grid gap-7 self-end md:col-span-5" novalidate>
+      {% comment %} Honeypot: invisible to humans, bots fill it and get silently dropped {% endcomment %}
+      <div class="hidden" aria-hidden="true">
+        <label for="contact-company">Company</label>
+        <input type="text" id="contact-company" name="company" tabindex="-1" autocomplete="off">
+      </div>
+
+      <div>
+        <label for="contact-name" class="label text-ink/70">Your name</label>
+        <input id="contact-name" name="name" type="text" required autocomplete="name" class="field">
+      </div>
+      <div>
+        <label for="contact-email" class="label text-ink/70">Your email</label>
+        <input id="contact-email" name="email" type="email" required autocomplete="email" inputmode="email" class="field">
+      </div>
+      <div>
+        <label for="contact-message" class="label text-ink/70">What&rsquo;s the idea?</label>
+        <textarea id="contact-message" name="message" required rows="4" class="field resize-none"></textarea>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-5">
+        <button type="submit" class="btn">Send it</button>
+        <p id="contact-status" role="status" aria-live="polite" class="text-[15px] text-ink/75"></p>
+      </div>
+    </form>
+  </div>
 </section>

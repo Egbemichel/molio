@@ -1,75 +1,47 @@
-{% load static %}
-<!DOCTYPE html>
+{% load static %}<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}@Egbemichel{% endblock %}</title>
+  <title>{% block title %}Egbe Michel{% endblock %}</title>
+  <meta name="description" content="{% block description %}Egbe Michel (Mich): curious, intentional, and always chasing the next idea worth bringing to life.{% endblock %}">
+  <link rel="canonical" href="https://egbemichel.tech{{ request.path }}">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Egbe Michel">
+  <meta property="og:title" content="{% block og_title %}Egbe Michel{% endblock %}">
+  <meta property="og:url" content="https://egbemichel.tech{{ request.path }}">
+  <meta name="theme-color" content="#F3EBDD">
 
+  <link rel="icon" href="{% static 'brand/logos/em.svg' %}" type="image/svg+xml">
+  <link rel="alternate icon" href="{% static 'images/favicon.ico' %}">
+
+  <link rel="preload" href="{% static 'brand/fonts/ClashDisplay-Variable.woff2' %}" as="font" type="font/woff2" crossorigin>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'dist/css/main.css' %}">
-
-  <!-- Fancybox CSS -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.29/dist/fancybox/fancybox.css" />
-
+  <link rel="stylesheet" href="{% static 'css/worlds.css' %}">
+  <script>
+    document.documentElement.classList.add('js')
+    // Failsafe: if the main script never runs, don't leave the headline hidden.
+    setTimeout(function () { var h = document.querySelector('[data-hero]'); if (h) h.classList.add('is-ready') }, 2500)
+  </script>
   {% block extra_head %}{% endblock %}
-
-  <style>
-    /* Use dynamic viewport height on mobile so 100vh sections don't jump with
-       the browser chrome. */
-    @supports (height: 100dvh) {
-      .min-h-screen { min-height: 100dvh; }
-    }
-
-    /* Editorial line system — geometry + colour shared by the About grid and
-       the Projects rectangle. Section-specific lines are drawn in those
-       components; only the tokens live here. */
-    :root {
-      --edge-inset: 60px;                 /* outer vertical lines, from viewport */
-      --grid-cell: 60px;                  /* About grid cell — lines land on 60px so
-                                             the structural lines continue them */
-      --cats-rail: 180px;                 /* categories column; rail line at 60+180=240,
-                                             which is a grid line (continuous) */
-      --edge-line: rgba(63, 63, 63, 0.55);/* intentional, clearly visible hairline */
-      /* Body text anchored to the About copy (text-2xl / md:text-3xl) so the
-         Projects + categories build their hierarchy around the same size. */
-      --work-body: 1.5rem;
-    }
-    @media (min-width: 768px) { :root { --work-body: 1.875rem; } }
-  </style>
 </head>
-<body class="bg-primary antialiased">
+<body class="relative min-h-screen">
+  <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:bg-ink focus:text-cream focus:px-4 focus:py-2">Skip to content</a>
 
-  <main>{% block content %}{% endblock %}</main>
+  {% block nav %}{% include 'components/nav.html' %}{% endblock %}
 
-  <!--
-    SCRIPT LOADING ORDER MATTERS:
-    1. CDN libraries first (synchronous, no defer/async) so they are available
-       when main.js (type=module) executes.
-    2. Alpine.js last with defer so it doesn't block.
-  -->
+  <main id="main">{% block content %}{% endblock %}</main>
 
-  <!-- GSAP core — required for page loader -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
- 
-  <!-- HotKeys.js -->
-  <script src="https://cdn.jsdelivr.net/npm/hotkeys-js@3.13.7/dist/hotkeys.min.js"></script>
+  {% include 'components/footer.html' %}
 
-  <!-- Howler.js -->
-  <script src="https://cdn.jsdelivr.net/npm/howler@2.2.4/dist/howler.min.js"></script>
+  {% comment %} The red dot's stage: a document-sized, clipped layer so the dot
+  (and the runner) can travel anywhere on the page without causing scrollbars. {% endcomment %}
+  <div id="dot-layer" class="pointer-events-none absolute inset-0 z-30 overflow-hidden" aria-hidden="true"></div>
 
-  <!-- Fancybox -->
-  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.29/dist/fancybox/fancybox.umd.js"></script>
-
-
-  <!-- Main app — type="module" for ES import/export support -->
   <script type="module" src="{% static 'src/js/main.js' %}"></script>
-
-  <!-- Alpine.js — must come AFTER main.js -->
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
-
   {% block extra_js %}{% endblock %}
 </body>
 </html>

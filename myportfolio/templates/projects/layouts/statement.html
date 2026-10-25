@@ -1,0 +1,5 @@
+{% comment %} Statement: just big words (and, if there is one, a picture after). {% endcomment %}
+<div class="statement">
+  {% if chapter.body %}<p class="statement__words">{{ chapter.body|linebreaksbr }}</p>{% endif %}
+  {% for m in chapter.media.all %}{% include "projects/layouts/_media.html" %}{% endfor %}
+</div>

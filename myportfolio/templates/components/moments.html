@@ -1,0 +1,35 @@
+{% comment %}
+Off the clock: the person between projects. The only dark section on the page.
+A plain horizontal strip (native scroll + snap — no hijacking), captions always
+visible so it works the same on a phone.
+@param moments  [{src, alt, caption}]
+{% endcomment %}
+{% if moments %}
+<section class="moments relative bg-ink py-24 text-cream md:py-36" aria-labelledby="moments-title">
+  <div class="page-x">
+    <div class="page-inner">
+      <p class="ledge text-cream/70"><span class="ledge__slot" data-dot-stop="moments"></span>Off the clock</p>
+      <h2 id="moments-title" class="reveal mt-8 max-w-[18ch] font-display text-display-l font-semibold">
+        When I&rsquo;m not making things, I&rsquo;m usually noticing them.
+      </h2>
+    </div>
+  </div>
+
+  <div class="moments__strip mt-12 md:mt-20" tabindex="0" aria-label="Photos of Mich, scrollable">
+    <ul class="flex gap-4 md:gap-6">
+      {% for m in moments %}
+        <li class="moments__item">
+          <figure>
+            <img src="{{ m.src }}" alt="{{ m.alt }}" loading="lazy" decoding="async">
+            {% if m.caption %}<figcaption class="mt-3 max-w-[30ch] text-[15px] leading-snug text-cream/80">{{ m.caption }}</figcaption>{% endif %}
+          </figure>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="page-x">
+    <p class="page-inner mt-12 text-[15px] text-cream/60 md:mt-16">Currently into mechanical watches, cars, cinema, architecture, and anything that was clearly made by someone who cared.</p>
+  </div>
+</section>
+{% endif %}

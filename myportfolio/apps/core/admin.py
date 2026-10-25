@@ -219,8 +219,9 @@ class ServiceAdmin(CustomModelAdmin):
 
 @admin.register(GalleryItem)
 class GalleryItemAdmin(CustomModelAdmin):
-    list_display = ('alt_text', 'image_preview', 'layout_info', 'order')
-    fields = ('image', 'alt_text', 'col_span', 'row_span', 'order')
+    list_display = ('alt_text', 'caption', 'image_preview', 'order')
+    list_editable = ('caption', 'order')
+    fields = ('image', 'alt_text', 'caption', 'order')
     ordering = ('order',)
     list_filter = ('col_span', 'row_span')
     search_fields = ('alt_text',)

@@ -4,12 +4,11 @@
 
 Output (default `dist/`):
     index.html        the home page, rendered from the database
+    work/<slug>/      one page per published project
     404.html          Pages serves this for unknown URLs
-    feedback.json     what the feedback carousel reads (was /api/feedback/get/)
     static/           collected static assets (admin assets excluded)
     _headers          cache rules for Pages
 """
-import json
 import shutil
 from pathlib import Path
 
@@ -19,7 +18,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.template.loader import render_to_string
 from django.test import Client
 
-from apps.core.models import Feedback
+from apps.core.views import _published_projects
 
 HEADERS = """\
 /static/*
@@ -31,11 +30,14 @@ HEADERS = """\
 /static/images/*
   Cache-Control: public, max-age=86400
 
+/static/brand/*
+  Cache-Control: public, max-age=604800
+
 /index.html
   Cache-Control: public, max-age=0, must-revalidate
 
-/feedback.json
-  Cache-Control: public, max-age=300
+/work/*
+  Cache-Control: public, max-age=0, must-revalidate
 """
 
 
@@ -59,26 +61,20 @@ class Command(BaseCommand):
             ignore_patterns=['admin', 'unfold', 'src/css', '*.map'],
         )
 
-        response = Client().get('/', HTTP_HOST='localhost')
-        if response.status_code != 200:
-            raise CommandError(f'Home page rendered with status {response.status_code}')
-        (out_dir / 'index.html').write_bytes(response.content)
+        client = Client()
+        pages = {'index.html': '/'}
+        for project in _published_projects():
+            pages[f'work/{project.slug}/index.html'] = project.get_absolute_url()
+
+        for target, url in pages.items():
+            response = client.get(url, HTTP_HOST='localhost')
+            if response.status_code != 200:
+                raise CommandError(f'{url} rendered with status {response.status_code}')
+            path = out_dir / target
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(response.content)
 
         (out_dir / '404.html').write_text(render_to_string('404.html'), encoding='utf-8')
-
-        feedback = [
-            {
-                'id': f.id,
-                'name': f.name,
-                'rating': f.rating,
-                'message': f.message,
-                'image': f.image.url if f.image else None,
-                'created_at': f.created_at.isoformat(),
-                'rating_display': f.get_rating_display(),
-            }
-            for f in Feedback.objects.all()[:50]
-        ]
-        (out_dir / 'feedback.json').write_text(json.dumps({'feedback': feedback}), encoding='utf-8')
         (out_dir / '_headers').write_text(HEADERS, encoding='utf-8')
 
-        self.stdout.write(self.style.SUCCESS(f'Static site written to {out_dir}'))
+        self.stdout.write(self.style.SUCCESS(f'Static site written to {out_dir} ({len(pages)} pages)'))
