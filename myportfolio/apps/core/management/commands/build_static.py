@@ -61,6 +61,12 @@ class Command(BaseCommand):
             ignore_patterns=['admin', 'unfold', 'src/css', '*.map'],
         )
 
+        # No DATABASE_URL (e.g. a preview build): the fallback is a fresh SQLite
+        # file, so give it tables and build an empty-but-valid site. A real
+        # database is migrated deliberately (Actions → Production content).
+        if settings.DATABASES['default']['ENGINE'].endswith('sqlite3'):
+            call_command('migrate', interactive=False, verbosity=0)
+
         client = Client()
         pages = {'index.html': '/'}
         for project in _published_projects():
