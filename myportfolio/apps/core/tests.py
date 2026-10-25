@@ -155,3 +155,49 @@ class LaunchTests(TestCase):
             self.assertFalse(GalleryItem.objects.filter(alt_text='old creative shot').exists())
             self.assertEqual(Project.objects.filter(published=True).count(), 8)
             self.assertEqual(GalleryItem.objects.count(), 8)
+
+
+class RebuildSiteTests(TestCase):
+    HOOK = 'https://api.cloudflare.com/client/v4/pages/webhooks/deploy_hooks/test'
+
+    def setUp(self):
+        self.admin = get_user_model().objects.create_superuser('mich', 'm@example.com', 'pw-for-tests-only')
+
+    def _messages(self, response):
+        return [str(m) for m in response.context['messages']] if response.context else []
+
+    def test_button_on_projects_page(self):
+        self.client.force_login(self.admin)
+        self.assertContains(self.client.get('/admin/projects/project/'), 'Rebuild site')
+
+    @override_settings(DEPLOY_HOOK_URL=HOOK)
+    def test_calls_the_hook(self):
+        from unittest import mock
+        self.client.force_login(self.admin)
+        with mock.patch('apps.core.admin_views.requests.post') as post:
+            post.return_value.raise_for_status.return_value = None
+            r = self.client.post('/admin/rebuild-site/', {'next': '/admin/projects/project/'}, follow=True)
+        post.assert_called_once_with(self.HOOK, timeout=15)
+        self.assertIn('Rebuild started', ' '.join(self._messages(r)))
+
+    @override_settings(DEPLOY_HOOK_URL='')
+    def test_missing_hook_explains(self):
+        self.client.force_login(self.admin)
+        r = self.client.post('/admin/rebuild-site/', follow=True)
+        self.assertIn('DEPLOY_HOOK_URL', ' '.join(self._messages(r)))
+
+    @override_settings(DEPLOY_HOOK_URL=HOOK)
+    def test_failure_is_reported_without_the_url(self):
+        import requests
+        from unittest import mock
+        self.client.force_login(self.admin)
+        with mock.patch('apps.core.admin_views.requests.post', side_effect=requests.ConnectionError):
+            r = self.client.post('/admin/rebuild-site/', follow=True)
+        text = ' '.join(self._messages(r))
+        self.assertIn('Rebuild failed', text)
+        self.assertNotIn(self.HOOK, text)
+
+    def test_requires_staff_and_post(self):
+        self.assertEqual(self.client.post('/admin/rebuild-site/').status_code, 302)   # to login
+        self.client.force_login(self.admin)
+        self.assertEqual(self.client.get('/admin/rebuild-site/').status_code, 405)

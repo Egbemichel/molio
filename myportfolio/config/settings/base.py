@@ -107,6 +107,11 @@ RESEND_FROM_EMAIL = env("RESEND_FROM_EMAIL", default="Portfolio <onboarding@rese
 GITHUB_USERNAME = env("GITHUB_USERNAME", default="Egbemichel")
 GITHUB_TOKEN = env("GITHUB_TOKEN", default="")
 
+# Cloudflare Pages deploy hook: the admin's "Rebuild site" button POSTs here so
+# content edits go live without a git push. Anyone with the URL can trigger
+# builds, so it lives only in the environment (.env), never in the repo.
+DEPLOY_HOOK_URL = env("DEPLOY_HOOK_URL", default="")
+
 # ── Unfold admin theme ───────────────────────────────────────────────────────
 # A redesign only — every model, view and custom feature behaves exactly as
 # before. Unfold is responsive out of the box (no hand-rolled media queries).
