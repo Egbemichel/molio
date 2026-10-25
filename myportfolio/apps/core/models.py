@@ -106,6 +106,10 @@ class GalleryItem(models.Model):
 
     image = CompressedImageField(upload_to='gallery/')
     alt_text = models.CharField(max_length=200)
+    caption = models.CharField(
+        max_length=140, blank=True,
+        help_text='One line shown under the photo in "Off the clock".',
+    )
     col_span = models.IntegerField(choices=SPAN_CHOICES, default=1)
     row_span = models.IntegerField(choices=ROW_CHOICES, default=1)
     order = models.IntegerField(default=0)

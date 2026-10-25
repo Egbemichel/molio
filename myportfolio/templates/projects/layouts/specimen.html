@@ -1,0 +1,20 @@
+{% comment %} Specimen: the brand laid out like a sheet — palette, type, marks. {% endcomment %}
+{% with w=project.world %}
+<div class="specimen">
+  {% if chapter.body %}<p class="world-prose specimen__note">{{ chapter.body|linebreaksbr }}</p>{% endif %}
+  {% if project.palette %}
+    <ul class="specimen__palette">
+      {% for c in project.palette %}
+        <li class="swatch" style="--swatch: {{ c.hex }}"><span class="swatch__chip"></span><span class="swatch__name">{{ c.name }}</span><span class="swatch__hex">{{ c.hex }}</span></li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+  <div class="specimen__type">
+    <div class="specimen__face specimen__face--display"><span class="specimen__aa">Aa</span><span class="world-label">{{ w.display }}</span></div>
+    <div class="specimen__face specimen__face--body"><span class="specimen__aa">Aa</span><span class="world-label">{{ w.body }}</span></div>
+  </div>
+  <div class="specimen__marks">
+    {% for m in chapter.media.all %}{% include "projects/layouts/_media.html" %}{% endfor %}
+  </div>
+</div>
+{% endwith %}

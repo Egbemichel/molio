@@ -5,8 +5,17 @@ by Cloudflare Pages, so there is no request-time Django. Content still lives in
 Postgres (Neon) + Cloudinary and is edited through the admin; this module just
 lets the build read it. Only DATABASE_URL and CLOUDINARY_URL differ from dev:
 without them the build falls back to local SQLite / local media.
+
+On Cloudflare Pages these must be *Build* variables: "Secret" variables only
+reach Functions at runtime, never the build.
 """
-from .base import *
+import os
+
+# The build renders HTML in-process and never serves a request, so no real
+# signing key is needed (one is still used if provided).
+os.environ.setdefault('SECRET_KEY', 'static-build-only-not-a-secret')
+
+from .base import *  # noqa: E402
 from decouple import config as env
 import dj_database_url
 

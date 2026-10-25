@@ -1,0 +1,13 @@
+{% load static %}
+<header class="page-x z-40 {% if frame %}nav--frame relative bg-cream{% else %}absolute inset-x-0 top-0{% endif %}">
+  <nav class="page-inner flex items-center justify-between {% if frame %}py-4{% else %}py-5 md:py-7{% endif %}" aria-label="Main">
+    <a href="/" class="block w-[64px] md:w-[78px] transition-transform duration-500 ease-brand hover:-rotate-6" aria-label="Egbe Michel, home">
+      <img src="{% static 'brand/logos/em.svg' %}" alt="" width="767" height="359" class="block h-auto w-full">
+    </a>
+    <ul class="flex items-center gap-5 md:gap-9 font-display text-[15px] md:text-[17px] font-medium tracking-tight">
+      <li><a class="link" href="/#work">Work</a></li>
+      <li><a class="link" href="/#about">About</a></li>
+      <li><a class="link" href="/#contact">Contact</a></li>
+    </ul>
+  </nav>
+</header>

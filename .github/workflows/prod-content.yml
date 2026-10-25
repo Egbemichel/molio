@@ -7,6 +7,8 @@ name: Production content
 #   seed     — migrate, then load the design projects + photos (keeps existing rows)
 #   refresh  — migrate, then rebuild the seeded projects from seed_data.py
 #              (discards admin edits to those projects)
+#   launch-prep-dry-run / launch-prep — hide non-design projects, delete old
+#              gallery photos (see launch_prep.py); dry run changes nothing
 on:
   workflow_dispatch:
     inputs:
@@ -15,7 +17,7 @@ on:
         required: true
         default: inspect
         type: choice
-        options: [inspect, migrate, seed, refresh]
+        options: [inspect, migrate, seed, refresh, launch-prep-dry-run, launch-prep]
 
 jobs:
   run:
@@ -58,7 +60,7 @@ jobs:
           "
 
       - name: Migrate
-        if: inputs.task != 'inspect'
+        if: inputs.task != 'inspect' && !startsWith(inputs.task, 'launch-prep')
         run: python manage.py migrate --no-input
 
       - name: Seed
@@ -68,3 +70,11 @@ jobs:
       - name: Refresh seeded projects
         if: inputs.task == 'refresh'
         run: python manage.py seed_content --refresh
+
+      - name: Launch prep (dry run)
+        if: inputs.task == 'launch-prep-dry-run'
+        run: python manage.py launch_prep --dry-run
+
+      - name: Launch prep
+        if: inputs.task == 'launch-prep'
+        run: python manage.py launch_prep

@@ -118,7 +118,7 @@ UNFOLD = {
     "SITE_HEADER": "Molio Control Center",
     "SITE_SUBHEADER": "Where the work takes place",
     # Brand mark at the top of the sidebar.
-    "SITE_ICON": lambda request: static("images/icon.png"),
+    "SITE_ICON": lambda request: static("brand/logos/em.svg"),
     "SHOW_HISTORY": True,
     "SHOW_VIEW_ON_SITE": True,
     "STYLES": [

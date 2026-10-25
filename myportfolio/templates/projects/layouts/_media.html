@@ -1,0 +1,1 @@
+{% comment %} One chapter image. @param m (ChapterMedia) {% endcomment %}<figure class="media media--{{ m.kind }}"><img src="{{ m.file.url }}" alt="{{ m.alt }}" loading="lazy" decoding="async">{% if m.caption %}<figcaption>{{ m.caption }}</figcaption>{% endif %}</figure>

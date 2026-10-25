@@ -31,14 +31,17 @@ Cloudflare dashboard → **Workers & Pages → Create → Pages → Connect to G
 
 ## 2. Environment variables
 
-Pages → project → **Settings → Variables and Secrets** (Production):
+Pages → project → **Settings → Variables and Secrets**.
+
+> Variables the build reads must be type **Build**. Type *Secret* is only given to
+> Functions at runtime; the build never sees it (that is what broke every early
+> build). `SECRET_KEY` isn't needed: the static settings supply a build-only one.
+> Python comes from `.python-version`.
 
 | Name | Used by | Notes |
 |---|---|---|
-| `SECRET_KEY` | build | any long random string (required by Django settings) |
-| `DATABASE_URL` | build | Neon connection string |
-| `CLOUDINARY_URL` | build | so image + CV URLs resolve |
-| `PYTHON_VERSION` | build | `3.12` (also pinned in `.python-version`) |
+| `DATABASE_URL` | build | Neon connection string. Type **Build** |
+| `CLOUDINARY_URL` | build | so image + CV URLs resolve. Type **Build** |
 | `RESEND_API_KEY` | functions | **secret** |
 | `RESEND_FROM_EMAIL` | functions | e.g. `Portfolio <onboarding@resend.dev>` |
 | `CONTACT_RECIPIENT_EMAIL` | functions | your inbox |
@@ -64,11 +67,28 @@ branch and its Actions workflow are no longer used and can be deleted.
 
 ---
 
-## Feedback moderation
+## Content
 
-Visitor feedback is **emailed to you** rather than stored. To show one in the carousel,
-add it under **Feedback** in the local admin and rebuild. (Existing feedback in the
-database is included in every build via `feedback.json`.)
+`build_static` renders the home page and one page per published project at
+`/work/<slug>/`. A project shows only when it is **published and has a category**.
+
+Every project page is its own *world* (colours, fonts, layouts): see the **World**
+section of a project in the admin. New projects get three chapters automatically:
+design work gets The thought / The brand / The experience; anything else gets
+The itch / The rabbit hole / The souvenirs. Add images on each chapter's own page.
+
+To load the design projects and the "Off the clock" photos:
+
+```bash
+python manage.py seed_content --settings=config.settings.dev     # local
+python manage.py seed_content --settings=config.settings.prod    # production (Neon + Cloudinary)
+```
+
+Re-running is safe; `--refresh` rebuilds the seeded projects from
+`apps/projects/seed_data.py` (this discards admin edits to those projects).
+
+The feedback carousel and form were retired in the 2026 redesign. The `Feedback`
+model and `functions/api/feedback.js` remain so no data is lost.
 
 ## Local development
 

@@ -1,0 +1,16 @@
+{% comment %}
+A project's cover: its mockup when there is one; otherwise a typographic cover
+set from the title, so a missing image never leaves a hole.
+@param project, index
+{% endcomment %}
+<div class="cover relative overflow-hidden {% if not project.mockup %}cover--type{% endif %}">
+  {% if project.mockup %}
+    <img src="{{ project.mockup.url }}" alt="{{ project.title }}" loading="lazy" decoding="async"
+         class="cover__img absolute inset-0 h-full w-full object-cover">
+  {% else %}
+    <div class="cover__type absolute inset-0 flex flex-col justify-between p-5 md:p-8">
+      <span class="label">{{ index|stringformat:"02d" }}</span>
+      <span class="cover__title font-display font-semibold">{{ project.title }}</span>
+    </div>
+  {% endif %}
+</div>

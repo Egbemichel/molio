@@ -3,7 +3,8 @@ from django.shortcuts import redirect
 from django.urls import path
 from django.utils.html import format_html, mark_safe
 from config.admin_site import CustomModelAdmin
-from .models import Project, Category, TechStack
+from .models import Project, Category, TechStack, ProjectChapter, ChapterMedia
+from . import worlds
 from .github_sync import sync_github_repos
 
 
@@ -13,6 +14,28 @@ class ProjectInline(admin.TabularInline):
     extra = 1
     fields = ('title', 'role', 'github_link', 'technologies', 'featured')
     filter_horizontal = ('technologies',)
+
+
+class ProjectChapterInline(admin.StackedInline):
+    """The three steps. Images are added on each chapter's own page (the link)."""
+    model = ProjectChapter
+    extra = 0
+    fields = ('title', 'kicker', 'layout', 'body', 'order')
+    show_change_link = True
+
+
+class ChapterMediaInline(admin.TabularInline):
+    model = ChapterMedia
+    extra = 1
+    fields = ('file', 'kind', 'alt', 'caption', 'order')
+
+
+@admin.register(ProjectChapter)
+class ProjectChapterAdmin(CustomModelAdmin):
+    list_display = ('__str__', 'layout', 'order')
+    list_filter = ('layout', 'project')
+    fields = ('project', 'title', 'kicker', 'layout', 'body', 'order')
+    inlines = [ChapterMediaInline]
 
 
 @admin.register(TechStack)
@@ -101,13 +124,25 @@ class ProjectAdmin(CustomModelAdmin):
             'fields': ('category', 'title', 'slug', 'role', 'date_range'),
             'description': 'Project identification and timeline'
         }),
+        ('Story', {
+            'fields': ('hook', 'aside', 'description', 'starting_point', 'outcome'),
+            'description': 'The hook shows on the home page; the rest tells the story on the project page'
+        }),
         ('Content', {
-            'fields': ('description', 'points', 'github_link', 'live_url'),
-            'description': 'Project description and links'
+            'fields': ('points', 'github_link', 'live_url'),
+            'description': 'What you did, and links'
         }),
         ('Media', {
             'fields': ('logo', 'mockup', 'technologies'),
-            'description': 'Images and associated technologies'
+            'description': 'The mockup is the cover image. Without one, the site sets a typographic cover.'
+        }),
+        ('World', {
+            'fields': ('world_preset', 'world_hero', ('world_bg', 'world_fg', 'world_accent', 'world_muted'),
+                       'world_display_font', 'world_body_font', 'palette', 'world_css'),
+            'description': 'The project page is its own world: its own colours, type and layouts. '
+                           'Pick a preset, then override anything. New projects get three chapters '
+                           'automatically (design: The thought / The brand / The experience; '
+                           'dev: The itch / The rabbit hole / The souvenirs).',
         }),
         ('Publishing', {
             'fields': ('published', 'featured', 'order'),
@@ -120,7 +155,17 @@ class ProjectAdmin(CustomModelAdmin):
         }),
     )
 
+    inlines = [ProjectChapterInline]
+
     readonly_fields = ('created_at_display', 'github_repo_id', 'last_synced_at', 'is_github_managed')
+
+    def save_related(self, request, form, formsets, change):
+        super().save_related(request, form, formsets, change)
+        project = form.instance
+        if not project.chapters.exists():
+            steps = worlds.DESIGN_STEPS if project.is_design else worlds.DEV_STEPS
+            for i, (title, kicker, layout) in enumerate(steps):
+                ProjectChapter.objects.create(project=project, title=title, kicker=kicker, layout=layout, order=i)
 
     def get_urls(self):
         urls = super().get_urls()

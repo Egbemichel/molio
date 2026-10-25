@@ -1,0 +1,16 @@
+{% comment %} Full bleed: one image edge to edge; any others follow in a row. {% endcomment %}
+<div class="fullbleed">
+  {% for m in chapter.media.all %}
+    {% if forloop.first %}
+      <div class="fullbleed__hero">{% include "projects/layouts/_media.html" %}
+        {% if chapter.body %}<p class="fullbleed__words">{{ chapter.body|linebreaksbr }}</p>{% endif %}
+      </div>
+      {% if chapter.media.all|length > 1 %}<div class="fullbleed__rest">{% endif %}
+    {% else %}
+      {% include "projects/layouts/_media.html" %}
+      {% if forloop.last %}</div>{% endif %}
+    {% endif %}
+  {% empty %}
+    {% if chapter.body %}<p class="world-prose">{{ chapter.body|linebreaksbr }}</p>{% endif %}
+  {% endfor %}
+</div>

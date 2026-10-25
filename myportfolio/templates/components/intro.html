@@ -1,0 +1,39 @@
+{% load static %}
+{% comment %}
+About: who Mich is, in his own voice. Footnotes open small side notes — the
+"second look". The paragraph's full stop is a dot stop: the dot from the hero
+lands there. The portrait is a sticker that flips to the other Mich.
+{% endcomment %}
+<section id="about" class="page-x scroll-mt-10 py-24 md:py-40">
+  <div class="page-inner grid gap-14 md:grid-cols-12 md:gap-x-10">
+    <div class="md:col-span-12">
+      <p class="label text-ink/70">About</p>
+    </div>
+
+    <div class="reveal md:col-span-8">
+      <p class="intro__text font-display text-display-m font-medium">
+        I&rsquo;m Mich. I notice details, ask slightly too many questions, then make things:
+        websites, apps, brand identities, the odd experiment. Some of it is code, some of it is
+        drawing, and the brand work starts on paper<sup class="fn"><a href="#note-1" id="ref-1" aria-describedby="note-1">1</a></sup>.
+        I like things that are carefully made: watches, cars, films, buildings<sup class="fn"><a href="#note-2" id="ref-2" aria-describedby="note-2">2</a></sup>.
+        The kind where you only notice how much thought went in the second time you look<span class="intro__slot" data-dot-stop="about-period">{% include 'components/dot.svg.html' %}</span>
+      </p>
+
+      <ol class="mt-10 grid gap-4 text-[15px] leading-relaxed text-ink/75 sm:grid-cols-2 md:max-w-[38rem]">
+        <li id="note-1" class="fn-note"><span class="label mr-2 text-ink">1</span>Messy, hard work and fun. Usually in that order.</li>
+        <li id="note-2" class="fn-note"><span class="label mr-2 text-ink">2</span>Yes, I will talk about watches if you let me.</li>
+      </ol>
+    </div>
+
+    <div class="reveal flex justify-center md:col-span-4 md:justify-end">
+      <button type="button" class="sticker group" data-sticker aria-pressed="false"
+              aria-label="Portrait of Mich. Press to see the other side.">
+        <img class="sticker__face sticker__face--a" src="{% static 'brand/cutouts/composed.webp' %}"
+             alt="" width="665" height="932" loading="lazy" decoding="async">
+        <img class="sticker__face sticker__face--b" src="{% static 'brand/cutouts/laughing.webp' %}"
+             alt="" width="827" height="932" loading="lazy" decoding="async">
+        <span class="sticker__hint label">Look again</span>
+      </button>
+    </div>
+  </div>
+</section>

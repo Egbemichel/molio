@@ -1,0 +1,7 @@
+{% comment %} Gallery: the brand out in the world, in a strip you scroll (native, no hijacking). {% endcomment %}
+<div class="gallery">
+  {% if chapter.body %}<p class="world-prose gallery__note">{{ chapter.body|linebreaksbr }}</p>{% endif %}
+  <div class="gallery__strip" tabindex="0" aria-label="{{ chapter.title }}: images, scrollable">
+    {% for m in chapter.media.all %}{% include "projects/layouts/_media.html" %}{% endfor %}
+  </div>
+</div>

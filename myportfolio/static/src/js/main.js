@@ -1,59 +1,41 @@
 /**
- * main.js — Portfolio feature initialization
+ * main.js — site initialisation.
+ *
+ * The red dot is the thread through the site: on the home page it starts in the
+ * hero chase, then hands itself to the journey; elsewhere the journey starts it
+ * at the first stop. With reduced motion, the static dots stay in place.
  */
+import { initImageFallback } from './components/image_fallback.js'
+import { initHeroChase } from './components/hero_chase.js'
+import { initDotJourney } from './components/dot_journey.js'
+import { initReveals, initSticker, initHello, initContact } from './components/details.js'
 
-import { initNavbar }             from './components/navbar.js'
-import { initFilter }             from './components/filter.js'
-import { initContact }            from './components/contact.js'
-import { initCustomCursor }       from './components/cursor_improved.js'
-import { initPageLoader }         from './components/page_loader.js'
-import { initKeyboardShortcuts }  from './components/keyboard_shortcuts.js'
-import { initAudioPlayers }       from './components/audio_howler.js'
-import { initFeedbackForm }       from './components/feedback_form.js'
-import { initFeedbackCarousel }   from './components/feedback_carousel.js'
-import { initEduGallery }         from './components/edu_gallery.js'
-import { initImageFallback }      from './components/image_fallback.js'
-import { toast }                  from './components/toast.js'
-
-// Make toast globally available
-window.toast = toast
-
-// Micro loaders — import wherever you have async work
-// Example usage shown in feedback_form.js
-export {
-  showButtonLoader,
-  showButtonSuccess,
-  showButtonError,
-  showSectionSkeleton,
-  hideSkeleton,
-  showInlineSpinner,
-  hideInlineSpinner,
-  resetButton,
-} from './components/page_loader.js'
-
-function safeInit(name, fn) {
+function safeInit(fn) {
   try {
-    fn()
+    return fn()
   } catch (err) {
+    console.error(err)
   }
 }
 
-// These run immediately (not on DOMContentLoaded) so they're active from the
-// very first paint: the loader must show at once, and the image-fallback
-// listener must be attached before any <img> has a chance to fail.
-safeInit('PageLoader', initPageLoader)
-safeInit('ImageFallback', initImageFallback)
+// Before any <img> has a chance to fail.
+safeInit(initImageFallback)
 
-document.addEventListener('DOMContentLoaded', () => {
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+const layer = document.getElementById('dot-layer')
 
-  safeInit('Navbar',             initNavbar)
-  safeInit('Filter',             initFilter)
-  safeInit('Contact',            initContact)
-  safeInit('CustomCursor',       initCustomCursor)
-  safeInit('KeyboardShortcuts',  initKeyboardShortcuts)
-  safeInit('AudioPlayers',       initAudioPlayers)
-  safeInit('FeedbackCarousel',   initFeedbackCarousel)
-  safeInit('FeedbackForm',       initFeedbackForm)
-  safeInit('EduGallery',         initEduGallery)
+safeInit(() => initReveals(reducedMotion))
+safeInit(initSticker)
+safeInit(initHello)
+safeInit(initContact)
 
+safeInit(() => {
+  if (document.querySelector('[data-hero]')) {
+    initHeroChase({
+      reducedMotion,
+      onHandoff: (ball, { gravity }) => safeInit(() => initDotJourney({ layer, ball, gravity })),
+    })
+  } else if (!reducedMotion) {
+    initDotJourney({ layer, dockFirst: true })
+  }
 })

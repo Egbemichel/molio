@@ -1,0 +1,7 @@
+{% comment %} Wall: sketches pinned up, scattered and tilted — the messy part, shown as messy. {% endcomment %}
+<div class="wall">
+  {% if chapter.body %}<p class="world-prose wall__note">{{ chapter.body|linebreaksbr }}</p>{% endif %}
+  <div class="wall__board">
+    {% for m in chapter.media.all %}<div class="wall__pin">{% include "projects/layouts/_media.html" %}</div>{% endfor %}
+  </div>
+</div>
